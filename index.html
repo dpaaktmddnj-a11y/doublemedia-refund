@@ -2322,7 +2322,7 @@
        - 브라우저 localStorage를 안전하게 감싸며, 오늘(2026-11-08)까지만 샘플을 생성합니다.
        ========================================================================== */
     const StorageManager = {
-      STORAGE_KEY: 'doublemedia_bank_refund_records_v6',
+      STORAGE_KEY: 'doublemedia_bank_refund_records_v7',
 
       getDemoSeedData() {
         const todayStr = getTodayDateString();
@@ -2347,7 +2347,7 @@
             amount: 100000,
             reason: '입금 후 미충전으로 인한 환불 요청',
             special: '오입금 금액 환불 요청 건',
-            remark: '미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)',
+            remark: '미충전 (충전 금액 오입금으로 인한 차액 환불 요청)',
             paid: 0,
             first: '-'
           },
@@ -2355,8 +2355,8 @@
             method: '무통장',
             amount: 330000,
             reason: '입금 후 미충전으로 인한 환불 요청',
-            special: '충전 오입금 금액 환불 요청 건',
-            remark: '미충전 (충전 금액 오입금으로 인한 차액 환불 요청)',
+            special: '미충전 입금 금액 환불 요청 건',
+            remark: '미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)',
             paid: 1100000,
             first: '2026-05-14'
           },
@@ -2416,21 +2416,39 @@
           },
           {
             method: '무통장',
-            amount: 110000,
-            reason: '미사용 스페셜하트 환불 요청\n(스페셜하트 1,000개 × 1세트 = 110,000원)',
+            amount: 566500,
+            reason: '무통장 결제 후 미사용 하트 5,150개 환불',
             special: '',
-            remark: '미사용 스페셜하트 (스페셜하트 1,000개 환불)',
-            paid: 550000,
+            remark: '미사용 (결제 후 미사용 하트 환불)',
+            paid: 566500,
+            first: '2026-06-08'
+          },
+          {
+            method: '무통장',
+            amount: 1100000,
+            reason: '무통장 결제 후 미사용 스페셜하트 10,000개 환불',
+            special: '',
+            remark: '미사용 스페셜하트 (스페셜하트 10,000개 환불)',
+            paid: 1650000,
             first: '2026-06-08'
           },
           {
             method: '무통장',
             amount: 3300,
-            reason: '미사용 아이템 환불 요청\n(풀방 입장권 30일 × 1개 = 3,300원)',
+            reason: '무통장 결제 후 미사용 풀방입장권 아이템 1개 환불',
             special: '',
             remark: '미사용 아이템 (풀방 입장권 30일 환불)',
             paid: 330000,
             first: '2026-06-14'
+          },
+          {
+            method: '삼성페이',
+            amount: 207900,
+            reason: '삼성페이 결제건 미사용 하트 2,000개 환불\n잔여 하트 2,000개 = 220,000원 [수수료 5.5% 차감]\n220,000원 - 12,100원 = 207,900원',
+            special: '삼성페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
+            remark: '미사용 (결제 후 미사용 하트 환불)',
+            paid: 550000,
+            first: '2026-06-27'
           },
           {
             method: '컬쳐랜드상품권',
@@ -2443,14 +2461,26 @@
           },
           {
             method: '무통장',
+            amount: 103730,
+            reason: '무통장 결제 일부 사용 후 잔여 하트 963개 환불\n잔여 하트 963개 - 20개 = 943개 [보너스 하트 전체 차감]\n943개 * 110원 = 103,730원',
+            special: '',
+            remark: '일부 사용 하트 환불',
+            paid: 330000,
+            first: '2026-05-19'
+          },
+          {
+            method: '무통장',
             amount: 1100000,
             reason: '입금 후 미충전으로 인한 환불 요청',
-            special: '동일 금액 중복 입금 환불 요청 건',
+            special: '중복 입금 금액 환불 요청 건',
             remark: '미충전 (동일 금액 중복 입금으로 인한 환불 요청)',
             paid: 3300000,
             first: '2026-03-18'
           }
         ];
+
+        // 각 화·목 정산일마다 최소 3건 ~ 최대 10건까지 실제처럼 변칙적으로 배정
+        const irregularDailyCounts = [4, 7, 3, 9, 5, 10, 6, 3, 8];
 
         const generated = [];
         let seq = 1;
@@ -2460,37 +2490,40 @@
           if (validDates.length === 0) return;
 
           const monthNum = ym.split('-')[1];
-          const countPerMonth = ym === todayStr.slice(0, 7) ? Math.min(23, validDates.length * 3) : 23;
 
-          for (let i = 0; i < countPerMonth; i++) {
-            const refundDate = validDates[i % validDates.length];
-            const tpl = templates[(i + mIdx * 3) % templates.length];
-            const bank = banks[(i * 2 + mIdx) % banks.length];
-            const holderName = virtualNames[(i + mIdx * 5) % virtualNames.length];
-            const userNum = String(seq).padStart(3, '0');
-            const hour = String(9 + (i % 12)).padStart(2, '0');
-            const minute = String((i * 7 + mIdx * 11) % 60).padStart(2, '0');
+          validDates.forEach((refundDate, dIdx) => {
+            const dailyCount = irregularDailyCounts[(dIdx * 2 + mIdx * 3) % irregularDailyCounts.length];
 
-            generated.push({
-              id: `seed-${ym}-${seq}`,
-              refundDate,
-              userId: `dm_user_${monthNum}_${userNum}`,
-              paymentMethod: tpl.method,
-              bankName: bank,
-              accountNumber: `${3333 + (seq % 6000)}-${String(10 + (seq % 89))}-${String(100000 + ((seq * 7919) % 899999))}`,
-              refundAmount: tpl.amount,
-              holderName,
-              depositDateTime: `${refundDate} ${hour}:${minute}`,
-              cancelReason: tpl.reason,
-              specialNote: tpl.special,
-              remarkNote: tpl.remark,
-              totalPaidHistory: tpl.paid,
-              firstPaidDate: tpl.first,
-              refundCountHistory: (i % 3 === 0) ? 1 : 0,
-              refundAmountHistory: (i % 3 === 0) ? 110000 : 0
-            });
-            seq += 1;
-          }
+            for (let k = 0; k < dailyCount; k++) {
+              const tpl = templates[(seq + k * 2 + mIdx) % templates.length];
+              const bank = banks[(seq * 3 + k + mIdx) % banks.length];
+              const holderName = virtualNames[(seq + k * 5 + mIdx) % virtualNames.length];
+              const userNum = String(seq).padStart(3, '0');
+              const hour = String(9 + ((k * 2 + dIdx) % 13)).padStart(2, '0');
+              const minute = String((seq * 13 + k * 17) % 60).padStart(2, '0');
+              const isFirstRefund = (seq % 3 === 0);
+
+              generated.push({
+                id: `seed-${ym}-${seq}`,
+                refundDate,
+                userId: `dm_user_${monthNum}_${userNum}`,
+                paymentMethod: tpl.method,
+                bankName: bank,
+                accountNumber: `${3333 + (seq % 6000)}-${String(10 + (seq % 89))}-${String(100000 + ((seq * 7919) % 899999))}`,
+                refundAmount: tpl.amount,
+                holderName,
+                depositDateTime: `${refundDate} ${hour}:${minute}`,
+                cancelReason: tpl.reason,
+                specialNote: tpl.special,
+                remarkNote: tpl.remark,
+                totalPaidHistory: tpl.paid,
+                firstPaidDate: tpl.first,
+                refundCountHistory: isFirstRefund ? 1 : 0,
+                refundAmountHistory: isFirstRefund ? tpl.amount : 0
+              });
+              seq += 1;
+            }
+          });
         });
 
         return generated;
@@ -2815,6 +2848,36 @@
       const y = yesterday.getFullYear();
       const m = String(yesterday.getMonth() + 1).padStart(2, '0');
       const d = String(yesterday.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    /**
+     * 환불 처리 요일(화요일·목요일) 및 오후 2시(14:00) 마감 기준에 따른 다음 환불 예정일 계산
+     * - 일(0): +2일(화) / 월(1): +1일(화)
+     * - 화(2): 14시 이전 당일(0), 14시 이후 +2일(목)
+     * - 수(3): +1일(목)
+     * - 목(4): 14시 이전 당일(0), 14시 이후 +5일(차주 화)
+     * - 금(5): +4일(차주 화) / 토(6): +3일(차주 화)
+     */
+    function getNextRefundDateString() {
+      const now = new Date();
+      const day = now.getDay();
+      const isAfter2PM = now.getHours() >= 14;
+      let addDays = 0;
+
+      if (day === 0) addDays = 2;
+      else if (day === 1) addDays = 1;
+      else if (day === 2) addDays = isAfter2PM ? 2 : 0;
+      else if (day === 3) addDays = 1;
+      else if (day === 4) addDays = isAfter2PM ? 5 : 0;
+      else if (day === 5) addDays = 4;
+      else if (day === 6) addDays = 3;
+
+      const target = new Date(now);
+      target.setDate(now.getDate() + addDays);
+      const y = target.getFullYear();
+      const m = String(target.getMonth() + 1).padStart(2, '0');
+      const d = String(target.getDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
     }
 
@@ -5210,8 +5273,8 @@
         showToast('무통장 입금 및 특이사항 샘플 데이터를 초기 상태로 복원했어요.');
       });
 
-      // 환불 예정일 및 입금날짜·시간 초기값 설정
-      els.refundDate.value = getTodayDateString();
+      // 환불 예정일(화·목 14:00 마감 기준 자동 산출) 및 입금날짜·시간 초기값 설정
+      els.refundDate.value = getNextRefundDateString();
       CustomDatePicker.syncLabel(els.refundDate);
       els.depositDateTime.value = getCurrentDateTime24();
 
