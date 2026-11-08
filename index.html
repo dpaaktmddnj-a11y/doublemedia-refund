@@ -1975,17 +1975,17 @@
               <textarea id="cancelReason" class="textarea" placeholder="환불 유형과 금액을 입력하면 자동으로 채워지며, 직접 수정할 수도 있어요."></textarea>
             </div>
 
-            <div class="field">
+            <div class="field full-span">
               <label class="field-label" for="specialNote">특이사항 (J열)</label>
-              <input type="text" id="specialNote" class="input" placeholder="예: 오입금 금액 환불 요청 건">
+              <textarea id="specialNote" class="textarea" style="min-height: 76px;" placeholder="예: 오입금 금액 환불 요청 건"></textarea>
             </div>
 
-            <div class="field full-span" style="grid-column: span 2;">
+            <div class="field full-span">
               <label class="field-label" for="remarkNote">
                 <span>비고 (K열)</span>
                 <span id="remarkLockBadge" class="field-help" style="display: none; color: var(--accent-text);">일부 사용 유형 고정값</span>
               </label>
-              <input type="text" id="remarkNote" class="input" placeholder="예: 미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)">
+              <textarea id="remarkNote" class="textarea" style="min-height: 76px;" placeholder="예: 미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)"></textarea>
             </div>
           </div>
 
@@ -2184,7 +2184,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">원본 엑셀 업로드 및 지정 열 정리</h2>
-            <p class="card-subtitle">원본 파일에서 A, F, G, M, Q, R, T열만 남기고 '메모(관리자)' 열을 '번호' 열 바로 뒤로 이동한 뒤 번호(1부터) 오름차순 정렬 및 금액 ' 원' 단위를 제거해요.</p>
+            <p class="card-subtitle">원본 파일에서 필요한 열을 남기고 오름차순 정렬 및 금액 단위를 제거해요</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn btn-secondary" id="btnLoadSampleChargeExcel" style="height: 36px; font-size: 13px;">원본 샘플로 테스트</button>
@@ -2197,8 +2197,7 @@
           <div class="upload-dropzone-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
           </div>
-          <div class="upload-dropzone-title" id="chargeDropzoneTitle">여기를 클릭하거나 '원본.xlsx' 파일을 끌어다 놓으세요</div>
-          <div class="upload-dropzone-sub">추출 열 순서: 번호(A) → 메모(관리자)(T) → F → G → M → R (승인시간 제외 · 번호 1부터 오름차순 · 금액 열만 '원' 제거)</div>
+          <div class="upload-dropzone-title" id="chargeDropzoneTitle" style="margin-bottom: 0;">여기를 클릭하거나 '원본.xlsx' 파일을 끌어다 놓으세요</div>
         </div>
       </div>
 
@@ -2374,7 +2373,7 @@
             method: '휴대폰',
             amount: 97900,
             reason: '휴대폰 소액결제 후 미사용 하트 1,000개 환불\n잔여 하트 1,000개 = 110,000원 [수수료 11% 차감]\n110,000원 - 12,100원 = 97,900원',
-            special: '휴대폰 소액결제의 경우 당월이 지난 결제 건은 결제 수단으로서 취소 처리가 불가하여 수수료 11% 제외 후 환불금 입금',
+            special: '휴대폰 소액결제의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 11% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 110000,
             first: '2026-07-01'
@@ -2383,7 +2382,7 @@
             method: '신용카드',
             amount: 103950,
             reason: '신용카드 결제건 미사용 하트 1,000개 환불\n잔여 하트 1,000개 = 110,000원 [수수료 5.5% 차감]\n110,000원 - 6,050원 = 103,950원',
-            special: '신용카드 결제의 경우 결제일로부터 일정 기간이 경과하면 결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
+            special: '신용카드 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 440000,
             first: '2026-06-03'
@@ -2392,7 +2391,7 @@
             method: '토스페이',
             amount: 106975,
             reason: '토스페이 결제건 미사용 하트 1,000개 환불\n잔여 하트 1,000개 = 110,000원 [수수료 2.75% 차감]\n110,000원 - 3,025원 = 106,975원',
-            special: '토스페이 결제의 경우 결제일로부터 일정 기간이 경과하면 결제사 취소 처리가 불가하여 수수료 2.75% 제외 후 환불금 입금',
+            special: '토스페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 2.75% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 330000,
             first: '2026-06-22'
@@ -2401,7 +2400,7 @@
             method: '네이버페이',
             amount: 531300,
             reason: '네이버페이 결제건 미사용 하트 5,000개 환불\n잔여 하트 5,000개 = 550,000원 [수수료 3.4% 차감]\n550,000원 - 18,700원 = 531,300원',
-            special: '네이버페이 결제건의 경우 당월이 지난 결제 건은 결제 수단으로서 취소 처리가 불가하여 수수료 3.4% 제외 후 환불금 입금',
+            special: '네이버페이 결제건의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 3.4% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 880000,
             first: '2026-05-29'
@@ -2437,7 +2436,7 @@
             method: '컬쳐랜드상품권',
             amount: 49555,
             reason: '컬쳐랜드상품권 결제건 미사용 하트 500개 환불\n잔여 하트 500개 = 55,000원 [수수료 9.9% 차감]\n55,000원 - 5,445원 = 49,555원',
-            special: '컬쳐랜드 상품권 결제의 경우 일부 사용 시 결제사 페이지를 통한 부분 환불이 불가하여 수수료 9.9% 제외 후 환불금 입금',
+            special: '컬쳐랜드 상품권 결제의 경우 일부 사용 시\n결제사 페이지를 통한 부분 환불이 불가하여\n수수료 9.9% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 110000,
             first: '2026-07-02'
@@ -2755,12 +2754,12 @@
     };
 
     const PG_SPECIAL_NOTES = {
-      '휴대폰': '휴대폰 소액결제의 경우 당월이 지난 결제 건은 결제 수단으로서 취소 처리가 불가하여 수수료 11% 제외 후 환불금 입금',
-      '신용카드': '신용카드 결제의 경우 결제일로부터 일정 기간이 경과하면 결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
-      '네이버페이': '네이버페이 결제건의 경우 당월이 지난 결제 건은 결제 수단으로서 취소 처리가 불가하여 수수료 3.4% 제외 후 환불금 입금',
-      '토스페이': '토스페이 결제의 경우 결제일로부터 일정 기간이 경과하면 결제사 취소 처리가 불가하여 수수료 2.75% 제외 후 환불금 입금',
-      '삼성페이': '삼성페이 결제의 경우 결제일로부터 일정 기간이 경과하면 결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
-      '컬쳐랜드상품권': '컬쳐랜드 상품권 결제의 경우 일부 사용 시 결제사 페이지를 통한 부분 환불이 불가하여 수수료 9.9% 제외 후 환불금 입금'
+      '휴대폰': '휴대폰 소액결제의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 11% 제외 후 환불금 입금',
+      '신용카드': '신용카드 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
+      '네이버페이': '네이버페이 결제건의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 3.4% 제외 후 환불금 입금',
+      '토스페이': '토스페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 2.75% 제외 후 환불금 입금',
+      '삼성페이': '삼성페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
+      '컬쳐랜드상품권': '컬쳐랜드 상품권 결제의 경우 일부 사용 시\n결제사 페이지를 통한 부분 환불이 불가하여\n수수료 9.9% 제외 후 환불금 입금'
     };
 
     let refundRecords = StorageManager.loadAll();
@@ -3685,14 +3684,19 @@
         els.refundAmountHistory.value = formatNumber(finalAmount);
       }
 
+      if (autoSpecial) {
+        els.specialNote.value = autoSpecial;
+      } else if (method === '무통장' && type !== '미충전') {
+        els.specialNote.value = '';
+      }
+
       if (finalAmount > 0) {
         els.cancelReason.value = autoReason;
-        if (autoSpecial) els.specialNote.value = autoSpecial;
         if (autoRemark) els.remarkNote.value = autoRemark;
       } else {
         els.cancelReason.value = '';
         if (type === '일부사용') {
-          els.remarkNote.value = '일부 사용';
+          els.remarkNote.value = '일부 사용 하트 환불';
         }
       }
     }
