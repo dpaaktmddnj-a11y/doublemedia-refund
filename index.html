@@ -2159,12 +2159,12 @@
           <table>
             <thead>
               <tr>
-                <th>입금일시 (H)</th>
-                <th>아이디 / 성함</th>
-                <th>결제수단</th>
-                <th>환불 계좌</th>
-                <th style="text-align: right;">환불 금액</th>
-                <th>비고 / 사유</th>
+                <th style="text-align: center;">입금일시 (H)</th>
+                <th style="text-align: center;">아이디 / 성함</th>
+                <th style="text-align: center;">결제수단</th>
+                <th style="text-align: center;">환불 계좌</th>
+                <th style="text-align: center;">환불 금액</th>
+                <th style="text-align: center;">비고 / 사유</th>
               </tr>
             </thead>
             <tbody id="selectedDateTableBody">
@@ -2341,11 +2341,10 @@
   <script>
     /* ==========================================================================
        1. 저장소 모듈 (StorageManager)
-       - 브라우저 localStorage 관련 모든 로직을 이 객체 한 곳에 모았습니다.
-       - 추후 플레이그라운드 서버 DB로 교체할 때 이 모듈만 수정하면 됩니다.
+       - 브라우저 localStorage를 안전하게 감싸며, 초기 실행 시 시연용 예시 데이터를 채웁니다.
        ========================================================================== */
     const StorageManager = {
-      STORAGE_KEY: 'dm_refund_tool_records_v5',
+      STORAGE_KEY: 'doublemedia_bank_refund_records_v5',
 
       // 가짜 예시 데이터 (개인정보·사내 기밀 없이 2026년 7월~11월 화·목 정산일 기준 월별 23건, 총 115건 생성)
       getDemoSeedData() {
@@ -2541,24 +2540,24 @@
           const parsed = JSON.parse(raw);
           return Array.isArray(parsed) ? parsed : [];
         } catch (err) {
-          console.error('데이터 불러오기 오류:', err);
-          return [];
+          console.error('로컬 저장소 불러오기 오류:', err);
+          return this.getDemoSeedData();
         }
       },
 
       saveAll(records) {
         try {
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(records));
-          return true;
         } catch (err) {
-          console.error('데이터 저장 오류:', err);
-          return false;
+          console.error('로컬 저장소 저장 오류:', err);
+          showToast('저장 공간이 부족하여 일부 데이터가 저장되지 않았을 수 있어요.');
         }
       },
 
       addItem(item) {
         const list = this.loadAll();
         list.unshift(item);
+        list.sort((a, b) => b.date.localeCompare(a.date));
         this.saveAll(list);
         return list;
       },
@@ -2580,7 +2579,7 @@
        1-2. 무통장 입금 내역 저장소 모듈 (DepositLedgerStorage)
        ========================================================================== */
     const DepositLedgerStorage = {
-      STORAGE_KEY: 'dm_deposit_ledger_v6',
+      STORAGE_KEY: 'doublemedia_bank_deposit_ledger_v6',
 
       getDemoSeedData() {
         const ledger = {};
@@ -2687,18 +2686,17 @@
           const parsed = JSON.parse(raw);
           return parsed && typeof parsed === 'object' ? parsed : {};
         } catch (err) {
-          console.error('무통장 입금 내역 불러오기 오류:', err);
-          return {};
+          console.error('입금 내역 불러오기 오류:', err);
+          return this.getDemoSeedData();
         }
       },
 
       saveAll(ledger) {
         try {
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(ledger));
-          return true;
         } catch (err) {
-          console.error('무통장 입금 내역 저장 오류:', err);
-          return false;
+          console.error('입금 내역 저장 오류:', err);
+          showToast('입금 내역 저장 중 문제가 발생했어요.');
         }
       },
 
@@ -2753,7 +2751,7 @@
        1-3. 업무 공지사항 저장소 모듈 (NoticeStorage)
        ========================================================================== */
     const NoticeStorage = {
-      STORAGE_KEY: 'dm_cs_notices_v1',
+      STORAGE_KEY: 'doublemedia_cs_notices_v1',
 
       getDefaultNotices() {
         const titles = [
@@ -2796,10 +2794,9 @@
       saveAll(list) {
         try {
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
-          return true;
         } catch (err) {
           console.error('공지사항 저장 오류:', err);
-          return false;
+          showToast('공지사항 저장 중 문제가 발생했어요.');
         }
       },
 
