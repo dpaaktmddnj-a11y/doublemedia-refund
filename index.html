@@ -938,8 +938,9 @@
     .deposit-row-actions {
       display: flex;
       gap: 6px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
+      justify-content: center;
+      flex-wrap: nowrap;
+      white-space: nowrap;
     }
 
     .btn-row-edit {
@@ -1320,6 +1321,54 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* 커스텀 확인 모달 팝업 (confirm() 대체) */
+    .dm-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(22, 27, 34, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1100;
+    }
+
+    .dm-modal-backdrop.open {
+      display: flex;
+      animation: dpFadeIn 0.16s ease-out;
+    }
+
+    .dm-modal-card {
+      width: 100%;
+      max-width: 400px;
+      background-color: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(22, 27, 34, 0.2);
+    }
+
+    .dm-modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .dm-modal-desc {
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.55;
+      white-space: pre-line;
+      margin-bottom: 20px;
+    }
+
+    .dm-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
     /* ==========================================================================
        8. 공지사항 아코디언 스타일
        ========================================================================== */
@@ -1485,6 +1534,119 @@
     .upload-dropzone-sub {
       font-size: 13px;
       color: var(--ink-2);
+    }
+
+    /* 무통장 충전 정리 컴팩트 테이블 & 메모(관리자) 호버 흐르기 효과 */
+    .cc-compact-table {
+      min-width: 100%;
+      table-layout: fixed;
+    }
+
+    .cc-compact-table th,
+    .cc-compact-table td {
+      padding: 10px 8px;
+      font-size: 13px;
+    }
+
+    .cc-memo-cell {
+      width: 185px;
+      max-width: 185px;
+      text-align: center;
+    }
+
+    .cc-memo-marquee {
+      display: inline-block;
+      width: fit-content;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      vertical-align: middle;
+    }
+
+    .cc-memo-marquee.is-manual {
+      background-color: var(--accent-soft);
+      color: var(--accent-text);
+    }
+
+    .cc-memo-marquee.is-auto {
+      background-color: var(--canvas);
+      color: var(--ink-2);
+      border: 1px solid var(--line);
+    }
+
+    .cc-memo-track {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: bottom;
+    }
+
+    .cc-memo-marquee.has-overflow:hover .cc-memo-track {
+      max-width: none;
+      text-overflow: clip;
+      animation: ccMarqueeSlide 2.4s linear infinite;
+    }
+
+    @keyframes ccMarqueeSlide {
+      0%, 8% {
+        transform: translateX(0);
+      }
+      92%, 100% {
+        transform: translateX(var(--scroll-dist, -50%));
+      }
+    }
+
+    .cc-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .cc-page-buttons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cc-page-btn {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background-color: var(--white);
+      color: var(--ink-2);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .cc-page-btn:hover:not(:disabled) {
+      background-color: var(--canvas);
+      color: var(--ink);
+    }
+
+    .cc-page-btn.active {
+      background-color: var(--accent);
+      color: var(--white);
+      border-color: var(--accent);
+    }
+
+    .cc-page-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
   </style>
 </head>
@@ -1688,10 +1850,10 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 120px; text-align: center;">날짜</th>
+                <th style="width: 115px; text-align: center;">일자</th>
                 <th style="width: 165px; text-align: center;">입금 금액</th>
                 <th style="text-align: center;">특이사항 (차액 환불 거절 · 미처리 · 테스트 입금)</th>
-                <th style="width: 130px; text-align: center;">관리</th>
+                <th style="width: 125px; text-align: center;">관리</th>
               </tr>
             </thead>
             <tbody id="depositLedgerBody">
@@ -1701,17 +1863,18 @@
         </div>
       </div>
 
-      <!-- 카드 3: 일자별 입금 추이 꺾은선 그래프 -->
+      <!-- 카드 3: 월별 일자 입금 추이 꺾은선 그래프 -->
       <div class="card">
         <div class="card-header">
           <div>
             <h2 class="card-title" id="depChartCardTitle">2026년 11월 일자별 입금 추이</h2>
-            <p class="card-subtitle">해당 월 1일부터 말일까지 전체 날짜 기준 입금 흐름을 억 단위로 표시하며, 각 지점에 마우스를 올리면 상세 금액을 확인할 수 있어요.</p>
+            <p class="card-subtitle">그래프의 날짜 지점에 마우스를 올리면 해당 일자의 정확한 무통장 입금 금액을 확인할 수 있어요.</p>
           </div>
+          <span class="badge badge-blue">단위: 원</span>
         </div>
 
         <div class="chart-container" id="depositChartContainer">
-          <svg id="depositLineChart" class="chart-svg" viewBox="0 0 880 270" preserveAspectRatio="none" aria-label="일자별 무통장 입금 추이 꺾은선 그래프"></svg>
+          <svg id="depositLineChart" class="chart-svg" viewBox="0 0 880 270" preserveAspectRatio="none" role="img" aria-label="월별 일자 무통장 입금 추이 꺾은선 그래프"></svg>
           <div id="depositChartTooltip" class="chart-tooltip"></div>
         </div>
       </div>
@@ -2015,6 +2178,56 @@
         </form>
       </section>
 
+      <!-- 카드 1-2: 환불 예정일 대기 내역 -->
+      <section class="card">
+        <div class="card-header" style="flex-wrap: nowrap; align-items: flex-start;">
+          <div style="min-width: 0; flex: 1;">
+            <h2 class="card-title">
+              환불 예정일 대기 내역 (<span id="pendingQueueCount">0</span>건)
+            </h2>
+            <p class="card-subtitle">신규 환불 접수 시 이곳에 함께 담겨요. 날짜별로 엑셀 다운로드 후 일괄 삭제해도 아래 누적 이력에는 그대로 남아요.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-shrink: 0;">
+            <button type="button" class="btn btn-primary" id="btnExportPendingExcel">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              엑셀 다운로드 (.xlsx)
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-group">
+            <select id="pendingDateFilter" class="select" style="max-width: 185px;" aria-label="대기 목록 환불 예정일 필터">
+              <option value="ALL">전체 예정일</option>
+            </select>
+            <button type="button" class="btn btn-secondary" id="btnClearPendingQueue" style="color: var(--coral);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              일괄 삭제
+            </button>
+          </div>
+          <span class="badge badge-blue" id="pendingTotalBadge">0건 · 합계 0원</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: center;">예정일 (A)</th>
+                <th style="text-align: center;">아이디 / 예금주</th>
+                <th style="text-align: center;">결제수단 (C)</th>
+                <th style="text-align: center;">환불 계좌 / 입금일시</th>
+                <th style="text-align: center;">환불 금액 (F)</th>
+                <th style="text-align: center;">취소사유 · 특이사항</th>
+                <th style="text-align: center;">대기 제외</th>
+              </tr>
+            </thead>
+            <tbody id="pendingQueueTableBody">
+              <!-- 자바스크립트로 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- 카드 2: 저장된 환불 내역 및 엑셀 다운로드 -->
       <section class="card">
         <div class="card-header">
@@ -2052,13 +2265,13 @@
           <table>
             <thead>
               <tr>
-                <th>날짜 (A)</th>
-                <th>아이디 / 성함</th>
-                <th>결제수단 (C)</th>
-                <th>입금 계좌 (D·E)</th>
-                <th style="text-align: right;">환불 금액 (F)</th>
-                <th>취소 사유 · 특이사항 (I·J)</th>
-                <th>관리</th>
+                <th style="text-align: center;">예정일 (A)</th>
+                <th style="text-align: center;">아이디 / 예금주</th>
+                <th style="text-align: center;">결제수단 (C)</th>
+                <th style="text-align: center;">환불 계좌 / 입금일시</th>
+                <th style="text-align: center;">환불 금액 (F)</th>
+                <th style="text-align: center;">취소사유 · 특이사항</th>
+                <th style="text-align: center;">관리</th>
               </tr>
             </thead>
             <tbody id="refundTableBody">
@@ -2070,7 +2283,7 @@
     </main>
 
     <!-- ========================================================================
-         탭 2: 결제 대행사(PG) 스타일 환불 정산 달력
+         탭 2: 결제 대행사(PG) 스타일 월간 환불 정산 달력
          ======================================================================== -->
     <section id="tab-calendar" class="tab-panel">
       <!-- 월간 정산 요약 카드 3종 -->
@@ -2131,17 +2344,15 @@
             <thead>
               <tr>
                 <th style="text-align: center;">입금일시 (H)</th>
-                <th style="text-align: center;">아이디 / 성함</th>
-                <th style="text-align: center;">결제수단</th>
-                <th style="text-align: center;">환불 계좌</th>
-                <th style="text-align: center;">환불 금액</th>
+                <th style="text-align: center;">아이디 / 예금주</th>
+                <th style="text-align: center;">결제수단 (C)</th>
+                <th style="text-align: center;">환불 계좌 (D·E)</th>
+                <th style="text-align: center;">환불 금액 (F)</th>
                 <th style="text-align: center;">비고 / 사유</th>
               </tr>
             </thead>
             <tbody id="selectedDateTableBody">
-              <tr>
-                <td colspan="6" class="empty-state">달력에서 날짜를 클릭하면 상세 환불 내역이 나타나요.</td>
-              </tr>
+              <!-- 자바스크립트로 렌더링 -->
             </tbody>
           </table>
         </div>
@@ -2149,7 +2360,7 @@
     </section>
 
     <!-- ========================================================================
-         탭 2-2: 무통장 충전 정리 (원본 은행 거래내역 엑셀 -> 정리 양식 자동 변환)
+         탭 2-2: 무통장 충전 정리 (원본 엑셀 지정 열 추출 및 정리 다운로드)
          ======================================================================== -->
     <section id="tab-charge-clean" class="tab-panel">
       <!-- 상단 요약 카드 -->
@@ -2218,15 +2429,15 @@
         </div>
 
         <div class="table-wrap">
-          <table>
+          <table class="cc-compact-table">
             <thead id="chargeCleanTableHead">
               <tr>
-                <th style="width: 72px; text-align: center;">번호</th>
-                <th style="width: 180px; text-align: center;">메모(관리자)</th>
-                <th style="text-align: center;">F열</th>
-                <th style="text-align: center;">G열</th>
-                <th style="text-align: center;">M열</th>
-                <th style="text-align: center;">R열</th>
+                <th style="width: 58px; text-align: center;">번호</th>
+                <th style="width: 185px; text-align: center;">메모(관리자)</th>
+                <th style="width: 115px; text-align: center;">F열</th>
+                <th style="width: 115px; text-align: center;">G열</th>
+                <th style="width: 110px; text-align: center;">M열</th>
+                <th style="width: 115px; text-align: center;">R열</th>
               </tr>
             </thead>
             <tbody id="chargeCleanTableBody">
@@ -2235,6 +2446,11 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div id="ccPaginationBar" class="cc-pagination" style="display: none;">
+          <span class="field-help" id="ccPageRangeInfo">1 ~ 100건 표시 중</span>
+          <div class="cc-page-buttons" id="ccPageButtons"></div>
         </div>
       </div>
     </section>
@@ -2307,6 +2523,18 @@
 
   <!-- 안내 토스트 -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- 일괄 삭제 확인 모달 팝업 -->
+  <div id="dmConfirmModal" class="dm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="dmConfirmTitle">
+    <div class="dm-modal-card">
+      <h3 class="dm-modal-title" id="dmConfirmTitle">일괄 삭제 확인</h3>
+      <p class="dm-modal-desc" id="dmConfirmDesc">선택한 대기 내역을 삭제할까요?</p>
+      <div class="dm-modal-actions">
+        <button type="button" class="btn btn-secondary" id="btnConfirmCancel">취소</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmOk" style="background-color: var(--coral); border-color: var(--coral);">삭제하기</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     /* ==========================================================================
@@ -2556,6 +2784,37 @@
     };
 
     /* ==========================================================================
+       1-1. 환불 예정일별 다운로드 전용 대기 목록 저장소 (PendingRefundQueueStorage)
+       - 당일/예정일별 엑셀 다운로드 및 일괄 삭제 전용 저장소 (누적 이력과 독립 운영)
+       ========================================================================== */
+    const PendingRefundQueueStorage = {
+      STORAGE_KEY: 'doublemedia_pending_refund_queue_v1',
+
+      loadAll() {
+        try {
+          const raw = localStorage.getItem(this.STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          console.error('환불 다운로드 대기 목록 로드 실패:', error);
+          return [];
+        }
+      },
+
+      saveAll(records) {
+        try {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(records));
+          return true;
+        } catch (error) {
+          console.error('환불 다운로드 대기 목록 저장 실패:', error);
+          showToast('저장 공간이 부족해 대기 목록을 저장하지 못했어요.');
+          return false;
+        }
+      }
+    };
+
+    /* ==========================================================================
        1-2. 무통장 입금 내역 저장소 모듈 (DepositLedgerStorage)
        - 월별 일자 전체 입금 금액 및 특이사항 누적 저장 (오늘 2026-11-08까지만 생성)
        ========================================================================== */
@@ -2788,6 +3047,7 @@
     };
 
     let refundRecords = StorageManager.loadAll();
+    let pendingRefundQueue = PendingRefundQueueStorage.loadAll();
     let depositLedger = DepositLedgerStorage.loadAll();
     let noticeList = NoticeStorage.loadAll();
     let openNoticeIds = new Set();
@@ -2798,6 +3058,8 @@
     let chargeCleanAmountColIndex = -1;
     let chargeCleanFileName = '';
     let chargeCleanExcludedCount = 0;
+    let chargeCleanPage = 1;
+    const CHARGE_CLEAN_PAGE_SIZE = 100;
 
     const initialTodayStr = getTodayDateString();
     let currentCalYear = Number(initialTodayStr.slice(0, 4)) || 2026;
@@ -2915,6 +3177,21 @@
       toastTimer = setTimeout(() => {
         el.classList.remove('show');
       }, 2800);
+    }
+
+    let confirmModalAction = null;
+    function openConfirmModal(title, desc, onConfirm) {
+      const modal = document.getElementById('dmConfirmModal');
+      document.getElementById('dmConfirmTitle').textContent = title;
+      document.getElementById('dmConfirmDesc').textContent = desc;
+      confirmModalAction = onConfirm;
+      modal.classList.add('open');
+    }
+
+    function closeConfirmModal() {
+      const modal = document.getElementById('dmConfirmModal');
+      modal.classList.remove('open');
+      confirmModalAction = null;
     }
 
     function escapeHtml(str) {
@@ -3432,6 +3709,13 @@
       refundAmountHistory: document.getElementById('refundAmountHistory'),
 
       // 목록 및 엑셀 버튼
+      pendingQueueCount: document.getElementById('pendingQueueCount'),
+      pendingDateFilter: document.getElementById('pendingDateFilter'),
+      pendingTotalBadge: document.getElementById('pendingTotalBadge'),
+      pendingQueueTableBody: document.getElementById('pendingQueueTableBody'),
+      btnExportPendingExcel: document.getElementById('btnExportPendingExcel'),
+      btnClearPendingQueue: document.getElementById('btnClearPendingQueue'),
+
       totalListCount: document.getElementById('totalListCount'),
       filterMonth: document.getElementById('filterMonth'),
       searchInput: document.getElementById('searchInput'),
@@ -3481,6 +3765,9 @@
       ccFilteredSumBadge: document.getElementById('ccFilteredSumBadge'),
       chargeCleanTableHead: document.getElementById('chargeCleanTableHead'),
       chargeCleanTableBody: document.getElementById('chargeCleanTableBody'),
+      ccPaginationBar: document.getElementById('ccPaginationBar'),
+      ccPageRangeInfo: document.getElementById('ccPageRangeInfo'),
+      ccPageButtons: document.getElementById('ccPageButtons'),
 
       // 탭 3: 공지사항 요소
       noticeTotalCount: document.getElementById('noticeTotalCount'),
@@ -3880,7 +4167,7 @@
     function renderRefundTable() {
       updateMonthFilterOptions();
       const filtered = getFilteredRecords();
-      els.totalListCount.textContent = formatNumber(refundRecords.length);
+      els.totalListCount.textContent = formatNumber(filtered.length);
 
       const sumAmount = filtered.reduce((acc, cur) => acc + (Number(cur.refundAmount) || 0), 0);
       els.filteredTotalBadge.textContent = `${filtered.length}건 · 합계 ${formatNumber(sumAmount)}원`;
@@ -3932,6 +4219,120 @@
       renderRefundTable();
       renderCalendar();
       showToast('선택한 환불 접수 내역을 삭제했어요.');
+    }
+
+    /* ==========================================================================
+       8-2. 환불 예정일별 다운로드 전용 대기 목록 렌더링 및 일괄 삭제 로직
+       ========================================================================== */
+    function updatePendingDateFilterOptions() {
+      const currentVal = els.pendingDateFilter.value;
+      const dateSet = new Set();
+      pendingRefundQueue.forEach(r => {
+        if (r.refundDate) dateSet.add(r.refundDate);
+      });
+      const sortedDates = Array.from(dateSet).sort((a, b) => b.localeCompare(a));
+
+      els.pendingDateFilter.innerHTML = '<option value="ALL">전체 예정일</option>' +
+        sortedDates.map(d => `<option value="${d}">${d} 예정건</option>`).join('');
+
+      if (currentVal === 'ALL' || sortedDates.includes(currentVal)) {
+        els.pendingDateFilter.value = currentVal;
+      } else {
+        els.pendingDateFilter.value = 'ALL';
+      }
+      CustomSelectManager.sync(els.pendingDateFilter);
+    }
+
+    function getFilteredPendingQueue() {
+      const dateFilter = els.pendingDateFilter.value;
+      if (dateFilter === 'ALL') return pendingRefundQueue;
+      return pendingRefundQueue.filter(r => r.refundDate === dateFilter);
+    }
+
+    function renderPendingQueueTable() {
+      updatePendingDateFilterOptions();
+      const filtered = getFilteredPendingQueue();
+      els.pendingQueueCount.textContent = formatNumber(filtered.length);
+
+      const sumAmount = filtered.reduce((acc, cur) => acc + (Number(cur.refundAmount) || 0), 0);
+      els.pendingTotalBadge.textContent = `${filtered.length}건 · 합계 ${formatNumber(sumAmount)}원`;
+
+      if (filtered.length === 0) {
+        els.pendingQueueTableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">현재 다운로드 대기 중인 환불 건이 없어요. 위 입력창에서 환불 접수를 저장하면 이곳에 자동으로 담겨요.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      els.pendingQueueTableBody.innerHTML = filtered.map(item => {
+        const badgeClass = item.paymentMethod === '무통장' ? 'badge-blue' : 'badge-gray';
+        const specialHtml = item.specialNote
+          ? `<div style="margin-top: 4px; color: var(--accent-text); font-weight: 700; font-size: 12px;">※ ${escapeHtml(item.specialNote)}</div>`
+          : '';
+
+        return `
+          <tr>
+            <td style="white-space: nowrap; font-weight: 700; color: var(--accent-text);">${escapeHtml(item.refundDate)}</td>
+            <td>
+              <div style="font-weight: 700; color: var(--ink);">${escapeHtml(item.userId)}</div>
+              <div style="font-size: 13px; color: var(--ink-2);">${escapeHtml(item.holderName)}</div>
+            </td>
+            <td><span class="badge ${badgeClass}">${escapeHtml(item.paymentMethod)}</span></td>
+            <td>
+              <div style="font-weight: 700;">${escapeHtml(item.bankName)}</div>
+              <div style="font-size: 13px; color: var(--ink-2);">${escapeHtml(item.accountNumber)}</div>
+              <div style="font-size: 12px; color: var(--muted);">입금: ${escapeHtml(item.depositDateTime)}</div>
+            </td>
+            <td class="td-amount">${formatNumber(item.refundAmount)}원</td>
+            <td class="td-reason">
+              ${escapeHtml(item.cancelReason)}
+              ${specialHtml}
+            </td>
+            <td style="white-space: nowrap; text-align: center;">
+              <button type="button" class="btn-danger-ghost" data-remove-pending-id="${escapeHtml(item.id)}">제외</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function removePendingQueueItem(id) {
+      pendingRefundQueue = pendingRefundQueue.filter(r => r.id !== id);
+      PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+      renderPendingQueueTable();
+      showToast('대기 목록에서 해당 건을 제외했어요. (아래 누적 내역에는 유지됩니다)');
+    }
+
+    function clearPendingQueueItems() {
+      const dateFilter = els.pendingDateFilter.value;
+      const targetList = getFilteredPendingQueue();
+      if (targetList.length === 0) {
+        showToast('삭제할 대기 목록 내역이 없어요.');
+        return;
+      }
+
+      const targetLabel = dateFilter === 'ALL'
+        ? `전체 대기 내역 ${targetList.length}건`
+        : `${dateFilter} 예정 대기 내역 ${targetList.length}건`;
+
+      openConfirmModal(
+        '환불 예정일 대기 내역 일괄 삭제',
+        `${targetLabel}을(를) 대기 목록에서 삭제할까요?\n(삭제해도 하단의 '접수된 환불 내역'에는 그대로 남아 있어요.)`,
+        () => {
+          if (dateFilter === 'ALL') {
+            pendingRefundQueue = [];
+          } else {
+            pendingRefundQueue = pendingRefundQueue.filter(r => r.refundDate !== dateFilter);
+          }
+          PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+          renderPendingQueueTable();
+          showToast(dateFilter === 'ALL'
+            ? '다운로드 대기 목록을 모두 비웠어요. (누적 내역은 그대로 유지됩니다)'
+            : `${dateFilter} 예정 대기 목록 ${targetList.length}건을 일괄 삭제했어요.`);
+        }
+      );
     }
 
     /* ==========================================================================
@@ -4249,7 +4650,9 @@
 
       let xLabelsHtml = '';
       coords.forEach((c, idx) => {
-        const showLabel = coords.length <= 16 || c.day === 1 || c.day % 3 === 0 || idx === coords.length - 1;
+        const isLastDay = idx === coords.length - 1;
+        const skip30On31Month = coords.length === 31 && c.day === 30;
+        const showLabel = coords.length <= 16 || c.day === 1 || (c.day % 3 === 0 && !skip30On31Month) || isLastDay;
         if (showLabel) {
           xLabelsHtml += `
             <text x="${c.x.toFixed(1)}" y="${height - 14}" text-anchor="middle" fill="#7a8492" font-size="11.5" font-weight="600">
@@ -4635,7 +5038,8 @@
        ========================================================================== */
     function isManualApprovalMemo(memoVal) {
       const m = String(memoVal || '').trim();
-      return m.length > 0 && m !== '무통장 자동승인';
+      const compact = m.replace(/\s+/g, '');
+      return m.length > 0 && compact !== '무통장자동승인';
     }
 
     function normalizeChargeCellDate(val) {
@@ -4818,6 +5222,7 @@
           chargeCleanAmountColIndex = result.amountColIdx;
           chargeCleanFileName = file.name;
           chargeCleanExcludedCount = result.excluded;
+          chargeCleanPage = 1;
 
           els.chargeDropzoneTitle.textContent = `업로드 완료: ${file.name}`;
           renderChargeCleanTable();
@@ -4835,11 +5240,12 @@
       chargeCleanAmountColIndex = 4;
       chargeCleanFileName = '원본_샘플.xlsx';
       chargeCleanExcludedCount = 0;
+      chargeCleanPage = 1;
       chargeCleanRows = [
         [1, '무통장 자동승인', '김지원', '김지원', 110000, '시스템'],
-        [2, '차액 600원 확인 후 수동 승인', '박서원', '박서원', 220600, '관리자A'],
+        [2, '차액 600원 확인 후 수동 승인 처리 완료 건 (입금자명 불일치 확인)', '박서원', '박서원', 220600, '관리자A'],
         [3, '무통장 자동승인', '이정연', '이정연', 550000, '시스템'],
-        [4, '1원 테스트 입금 건', '정선주', '정선주', 1, '관리자B'],
+        [4, '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)', '정선주', '정선주', 1, '관리자B'],
         [5, '무통장 자동승인', '고우정', '고우정', 1100000, '시스템']
       ];
       els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName}`;
@@ -4890,7 +5296,13 @@
       els.chargeCleanTableHead.innerHTML = `
         <tr>
           ${chargeCleanHeaders.map((h, idx) => {
-            const widthStyle = idx === 0 ? 'width: 72px;' : '';
+            const label = String(h || '');
+            let widthStyle = '';
+            if (idx === 0) widthStyle = 'width: 58px;';
+            else if (idx === 1) widthStyle = 'width: 185px;';
+            else if (idx === chargeCleanAmountColIndex) widthStyle = 'width: 110px;';
+            else if (idx === chargeCleanHeaders.length - 1 || label.includes('승인자')) widthStyle = 'width: 115px;';
+            else if (label.includes('입금자') || label.includes('이름')) widthStyle = 'width: 110px;';
             return `<th style="${widthStyle} text-align: center;">${escapeHtml(h)}</th>`;
           }).join('')}
         </tr>
@@ -4903,6 +5315,7 @@
       els.ccFilteredSumBadge.textContent = `${filtered.length}건 · 금액 합계 ${formatNumber(filteredSum)}원`;
 
       if (filtered.length === 0) {
+        els.ccPaginationBar.style.display = 'none';
         const msg = totalCount === 0
           ? '위 영역에 원본 엑셀 파일을 업로드하면 지정된 열이 정리되어 여기에 표시돼요.'
           : '검색 조건에 일치하는 정리 내역이 없어요.';
@@ -4914,7 +5327,15 @@
         return;
       }
 
-      els.chargeCleanTableBody.innerHTML = filtered.map(cells => {
+      const totalPages = Math.max(1, Math.ceil(filtered.length / CHARGE_CLEAN_PAGE_SIZE));
+      if (chargeCleanPage > totalPages) chargeCleanPage = totalPages;
+      if (chargeCleanPage < 1) chargeCleanPage = 1;
+
+      const startIdx = (chargeCleanPage - 1) * CHARGE_CLEAN_PAGE_SIZE;
+      const endIdx = Math.min(startIdx + CHARGE_CLEAN_PAGE_SIZE, filtered.length);
+      const pageRows = filtered.slice(startIdx, endIdx);
+
+      els.chargeCleanTableBody.innerHTML = pageRows.map(cells => {
         const tds = cells.map((val, cIdx) => {
           if (cIdx === 0) {
             return `<td style="text-align: center; font-weight: 800; color: var(--accent-text); white-space: nowrap;">${escapeHtml(val)}</td>`;
@@ -4922,24 +5343,58 @@
           if (cIdx === 1) {
             const memoStr = String(val ?? '').trim();
             if (!memoStr) {
-              return `<td style="color: var(--muted);">-</td>`;
+              return `<td class="cc-memo-cell" style="text-align: center; color: var(--muted);">-</td>`;
             }
             const isManual = isManualApprovalMemo(memoStr);
-            const badgeCls = isManual ? 'badge-blue' : 'badge-gray';
-            return `<td><span class="badge ${badgeCls}">${escapeHtml(memoStr)}</span></td>`;
+            const stateCls = isManual ? 'is-manual' : 'is-auto';
+            return `
+              <td class="cc-memo-cell">
+                <div class="cc-memo-marquee ${stateCls}" title="${escapeHtml(memoStr)}">
+                  <span class="cc-memo-track">${escapeHtml(memoStr)}</span>
+                </div>
+              </td>
+            `;
           }
           if (cIdx === chargeCleanAmountColIndex) {
             const numVal = typeof val === 'number' ? val : Number(String(val ?? '').replace(/[^\d.-]/g, ''));
             const displayAmt = !isNaN(numVal) && String(val ?? '').trim() !== ''
               ? `${formatNumber(numVal)}원`
               : `${escapeHtml(val)}원`;
-            return `<td class="td-amount">${displayAmt}</td>`;
+            return `<td class="td-amount" style="white-space: nowrap;">${displayAmt}</td>`;
           }
-          return `<td style="white-space: nowrap;">${escapeHtml(val)}</td>`;
+          return `<td style="text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(val)}">${escapeHtml(val)}</td>`;
         }).join('');
 
         return `<tr>${tds}</tr>`;
       }).join('');
+      // 수동 승인 항목은 모두 호버 시 흐르기 효과를 부여하고, 길이가 넘치는 경우 실제 초과 거리만큼 이동
+      requestAnimationFrame(() => {
+        els.chargeCleanTableBody.querySelectorAll('.cc-memo-marquee').forEach(box => {
+          const track = box.querySelector('.cc-memo-track');
+          if (!track) return;
+          const overflowPx = track.scrollWidth - box.clientWidth;
+          if (box.classList.contains('is-manual') || overflowPx > 2) {
+            box.classList.add('has-overflow');
+            const distPx = overflowPx > 2 ? overflowPx + 12 : Math.max(24, Math.round(track.scrollWidth * 0.35));
+            box.style.setProperty('--scroll-dist', `-${distPx}px`);
+          }
+        });
+      });
+
+      // 페이지네이션 바 렌더링 (100건 단위)
+      if (filtered.length > CHARGE_CLEAN_PAGE_SIZE) {
+        els.ccPaginationBar.style.display = 'flex';
+        els.ccPageRangeInfo.textContent = `전체 ${formatNumber(filtered.length)}건 중 ${formatNumber(startIdx + 1)} ~ ${formatNumber(endIdx)}건 표시 (${chargeCleanPage} / ${totalPages}페이지)`;
+
+        let btnsHtml = `<button type="button" class="cc-page-btn" data-cc-page="${chargeCleanPage - 1}" ${chargeCleanPage <= 1 ? 'disabled' : ''}>이전</button>`;
+        for (let p = 1; p <= totalPages; p++) {
+          btnsHtml += `<button type="button" class="cc-page-btn ${p === chargeCleanPage ? 'active' : ''}" data-cc-page="${p}">${p}</button>`;
+        }
+        btnsHtml += `<button type="button" class="cc-page-btn" data-cc-page="${chargeCleanPage + 1}" ${chargeCleanPage >= totalPages ? 'disabled' : ''}>다음</button>`;
+        els.ccPageButtons.innerHTML = btnsHtml;
+      } else {
+        els.ccPaginationBar.style.display = 'none';
+      }
     }
 
     function downloadCleanedChargeExcel() {
@@ -5127,15 +5582,19 @@
       refundRecords.unshift(newRecord);
       StorageManager.saveAll(refundRecords);
 
+      pendingRefundQueue.unshift({ ...newRecord });
+      PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+
       const [y, m] = refundDate.split('-').map(Number);
       currentCalYear = y;
       currentCalMonth = m;
       selectedCalDate = refundDate;
 
+      renderPendingQueueTable();
       renderRefundTable();
       renderCalendar();
       clearInputForm(false);
-      showToast(`${holderName}(${userId}) 님의 환불 접수(${formatNumber(refundAmount)}원)가 저장됐어요.`);
+      showToast(`${holderName}(${userId}) 님의 환불 접수(${formatNumber(refundAmount)}원)가 대기 목록과 누적 내역에 모두 저장됐어요.`);
     }
 
     function clearInputForm(showMsg = true) {
@@ -5178,6 +5637,18 @@
     function initApp() {
       CustomSelectManager.initAll();
       CustomDatePicker.initAll();
+
+      // 확인 모달 버튼 이벤트
+      const confirmModal = document.getElementById('dmConfirmModal');
+      document.getElementById('btnConfirmCancel').addEventListener('click', closeConfirmModal);
+      document.getElementById('btnConfirmOk').addEventListener('click', () => {
+        const fn = confirmModalAction;
+        closeConfirmModal();
+        if (typeof fn === 'function') fn();
+      });
+      confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) closeConfirmModal();
+      });
 
       // 탭 전환
       els.tabBtns.forEach(btn => {
@@ -5332,6 +5803,23 @@
       els.btnClearForm.addEventListener('click', () => clearInputForm(true));
 
       // 검색 및 필터
+      els.pendingDateFilter.addEventListener('change', renderPendingQueueTable);
+      els.pendingQueueTableBody.addEventListener('click', (e) => {
+        const remBtn = e.target.closest('[data-remove-pending-id]');
+        if (remBtn) {
+          removePendingQueueItem(remBtn.dataset.removePendingId);
+        }
+      });
+      els.btnExportPendingExcel.addEventListener('click', () => {
+        const filtered = getFilteredPendingQueue();
+        const dateFilter = els.pendingDateFilter.value;
+        const customName = dateFilter !== 'ALL'
+          ? `무통장_환불_정산내역_${dateFilter}.xlsx`
+          : `무통장_환불_대기목록_${getTodayDateString()}.xlsx`;
+        exportToExcel(filtered, customName);
+      });
+      els.btnClearPendingQueue.addEventListener('click', clearPendingQueueItems);
+
       els.filterMonth.addEventListener('change', renderRefundTable);
       els.searchInput.addEventListener('input', renderRefundTable);
       els.filterMethod.addEventListener('change', renderRefundTable);
@@ -5449,6 +5937,7 @@
         chargeCleanAmountColIndex = -1;
         chargeCleanFileName = '';
         chargeCleanExcludedCount = 0;
+        chargeCleanPage = 1;
         els.ccSearchInput.value = '';
         els.ccFilterType.value = 'ALL';
         CustomSelectManager.sync(els.ccFilterType);
@@ -5457,8 +5946,20 @@
         showToast('무통장 충전 정리 내역을 초기화했어요.');
       });
 
-      els.ccSearchInput.addEventListener('input', renderChargeCleanTable);
-      els.ccFilterType.addEventListener('change', renderChargeCleanTable);
+      els.ccSearchInput.addEventListener('input', () => {
+        chargeCleanPage = 1;
+        renderChargeCleanTable();
+      });
+      els.ccFilterType.addEventListener('change', () => {
+        chargeCleanPage = 1;
+        renderChargeCleanTable();
+      });
+      els.ccPageButtons.addEventListener('click', (e) => {
+        const pageBtn = e.target.closest('[data-cc-page]');
+        if (!pageBtn || pageBtn.disabled) return;
+        chargeCleanPage = Number(pageBtn.dataset.ccPage) || 1;
+        renderChargeCleanTable();
+      });
       els.btnDownloadCleanedExcel.addEventListener('click', downloadCleanedChargeExcel);
 
       // 탭 3: 공지사항 아코디언 이벤트 바인딩
@@ -5505,6 +6006,7 @@
       updateDepositNoteBoxes();
       renderDepositLedger();
       updateCalculatorPanels();
+      renderPendingQueueTable();
       renderRefundTable();
       renderCalendar();
       renderChargeCleanTable();
