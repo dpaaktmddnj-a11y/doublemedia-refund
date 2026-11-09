@@ -2248,11 +2248,11 @@
           <table>
             <thead>
               <tr>
-                <th style="text-align: center;">예정일 (A)</th>
+                <th style="text-align: center;">예정일</th>
                 <th style="text-align: center;">아이디 / 예금주</th>
-                <th style="text-align: center;">결제수단 (C)</th>
+                <th style="text-align: center;">결제수단</th>
                 <th style="text-align: center;">환불 계좌 / 입금일시</th>
-                <th style="text-align: center;">환불 금액 (F)</th>
+                <th style="text-align: center;">환불 금액</th>
                 <th style="text-align: center;">취소사유 · 특이사항</th>
                 <th style="text-align: center;">관리</th>
               </tr>
@@ -2301,16 +2301,15 @@
           <table>
             <thead>
               <tr>
-                <th style="text-align: center;">예정일 (A)</th>
+                <th style="text-align: center;">예정일</th>
                 <th style="text-align: center;">아이디 / 예금주</th>
-                <th style="text-align: center;">결제수단 (C)</th>
+                <th style="text-align: center;">결제수단</th>
                 <th style="text-align: center;">환불 계좌 / 입금일시</th>
-                <th style="text-align: center;">환불 금액 (F)</th>
+                <th style="text-align: center;">환불 금액</th>
                 <th style="text-align: center;">취소사유 · 특이사항</th>
                 <th style="text-align: center;">관리</th>
               </tr>
             </thead>
-            <tbody id="pendingQueueTableBody">
             <tbody id="refundTableBody">
               <!-- 자바스크립트로 렌더링 -->
             </tbody>
@@ -2380,11 +2379,11 @@
           <table>
             <thead>
               <tr>
-                <th style="text-align: center;">입금일시 (H)</th>
+                <th style="text-align: center;">입금일시</th>
                 <th style="text-align: center;">아이디 / 예금주</th>
-                <th style="text-align: center;">결제수단 (C)</th>
-                <th style="text-align: center;">환불 계좌 (D·E)</th>
-                <th style="text-align: center;">환불 금액 (F)</th>
+                <th style="text-align: center;">결제수단</th>
+                <th style="text-align: center;">환불 계좌</th>
+                <th style="text-align: center;">환불 금액</th>
                 <th style="text-align: center;">비고 / 사유</th>
               </tr>
             </thead>
@@ -6062,7 +6061,7 @@
           '업로드된 원본 파일과 정리 완료 내역 미리보기가 모두 초기화됩니다.\n초기화할까요?',
           () => {
             chargeCleanRows = [];
-            chargeCleanHeaders = ['번호', '메모(관리자)', 'F열', 'G열', 'M열', 'R열'];
+            chargeCleanHeaders = ['번호', '메모(관리자)', '이름(인증이름)', '입금자명', '금액', '승인자'];
             chargeCleanAmountColIndex = -1;
             chargeCleanFileName = '';
             chargeCleanExcludedCount = 0;
