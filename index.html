@@ -2310,6 +2310,7 @@
                 <th style="text-align: center;">관리</th>
               </tr>
             </thead>
+            <tbody id="pendingQueueTableBody">
             <tbody id="refundTableBody">
               <!-- 자바스크립트로 렌더링 -->
             </tbody>
@@ -4328,11 +4329,61 @@
               ${specialHtml}
             </td>
             <td style="white-space: nowrap; text-align: center;">
-              <button type="button" class="btn-danger-ghost" data-remove-pending-id="${escapeHtml(item.id)}">제외</button>
+              <div style="display: inline-flex; flex-direction: column; gap: 6px; align-items: stretch;">
+                <button type="button" class="btn-row-edit" style="height: 32px; padding: 0 12px;" data-copy-reply-id="${escapeHtml(item.id)}">답변</button>
+                <button type="button" class="btn-danger-ghost" data-remove-pending-id="${escapeHtml(item.id)}">삭제</button>
+              </div>
             </td>
           </tr>
         `;
       }).join('');
+    }
+
+    function buildRefundReplyText(item) {
+      const firstLine = String(item.cancelReason || '').split('\n')[0].trim();
+      const isUncharged = firstLine.includes('미충전') || String(item.remarkNote || '').startsWith('미충전');
+      const subjectPhrase = isUncharged
+        ? `입금 후 미충전으로 인한 금액 ${formatNumber(item.refundAmount)}원`
+        : (firstLine.replace(/\s*환불(\s*요청)?\s*$/, '').trim() || firstLine);
+
+      return [
+        `요청하신 "${subjectPhrase}" 환불 접수 정상적으로 완료되었습니다.`,
+        '',
+        '오입금 포함 무통장 결제 수단의 환불은 공휴일 제외 매주 화요일과 목요일 일괄로 처리되고 있음에 이용에 참고 부탁드립니다.',
+        '',
+        '(추가로 환불 접수 이후 하트를 사용하는 경우, 환불 접수는 자동으로 철회가 되오니 이용에 참고 부탁드립니다)'
+      ].join('\n');
+    }
+
+    function copyTextWithLineBreaks(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      let ok = false;
+      try {
+        ok = document.execCommand('copy');
+      } catch (err) {
+        ok = false;
+      }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    function copyPendingRefundReply(id) {
+      const target = pendingRefundQueue.find(r => r.id === id);
+      if (!target) return;
+      const replyText = buildRefundReplyText(target);
+      const copied = copyTextWithLineBreaks(replyText);
+      if (copied) {
+        showToast(`${target.holderName}(${target.userId}) 님 환불 접수 안내 답변을 복사했어요.`);
+      } else {
+        showToast('답변 복사에 실패했어요. 다시 시도해 주세요.');
+      }
     }
 
     function removePendingQueueItem(id) {
@@ -5866,6 +5917,11 @@
         const remBtn = e.target.closest('[data-remove-pending-id]');
         if (remBtn) {
           removePendingQueueItem(remBtn.dataset.removePendingId);
+          return;
+        }
+        const replyBtn = e.target.closest('[data-copy-reply-id]');
+        if (replyBtn) {
+          copyPendingRefundReply(replyBtn.dataset.copyReplyId);
         }
       });
       els.btnExportPendingExcel.addEventListener('click', () => {
