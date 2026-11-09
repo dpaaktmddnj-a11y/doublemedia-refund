@@ -2158,7 +2158,7 @@
             </div>
             <div class="field">
               <label class="field-label" for="refundCountHistory">환불 누적횟수 (N열)</label>
-              <input type="number" id="refundCountHistory" class="input" value="0" min="0">
+              <input type="number" id="refundCountHistory" class="input" value="1" min="1">
             </div>
             <div class="field">
               <label class="field-label" for="refundAmountHistory">환불 누적금액 (O열, 원)</label>
@@ -5619,7 +5619,7 @@
       els.remarkNote.value = '';
       els.totalPaidHistory.value = '0';
       els.firstPaidDate.value = '-';
-      els.refundCountHistory.value = '0';
+      els.refundCountHistory.value = '1';
       els.refundAmountHistory.value = '0';
       els.depositDateTime.value = getCurrentDateTime24();
       [
@@ -5776,12 +5776,26 @@
         els.bonusNoteDetail,
         els.manualDeductValue,
         els.manualDeductReason
-      ].forEach(el => {
-        el.addEventListener('input', recalculateRefund);
+      ].forEach(input => {
+        if (input) input.addEventListener('input', recalculateRefund);
       });
 
       els.unusedSpecialHeartType.addEventListener('change', recalculateRefund);
       els.unusedItemType.addEventListener('change', recalculateRefund);
+
+      // 환불 누적횟수: 기본값 1, 마우스 클릭/포커스 시 바로 새 숫자를 입력할 수 있도록 비우고 미입력 이탈 시 1로 복원
+      els.refundCountHistory.addEventListener('focus', () => {
+        els.refundCountHistory.value = '';
+      });
+
+      els.refundCountHistory.addEventListener('blur', () => {
+        const val = parseInt(els.refundCountHistory.value, 10);
+        if (!val || val < 1) {
+          els.refundCountHistory.value = '1';
+          const calcAmt = parseFormattedNumber(els.refundAmount.value);
+          els.refundAmountHistory.value = formatNumber(calcAmt);
+        }
+      });
 
       // 환불 누적횟수가 1이면 이번 환불 계산기 금액을 환불 누적금액에 자동 동기화
       els.refundCountHistory.addEventListener('input', () => {
