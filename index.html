@@ -3216,10 +3216,11 @@
     }
 
     let confirmModalAction = null;
-    function openConfirmModal(title, desc, onConfirm) {
+    function openConfirmModal(title, desc, onConfirm, confirmLabel = '삭제하기') {
       const modal = document.getElementById('dmConfirmModal');
       document.getElementById('dmConfirmTitle').textContent = title;
       document.getElementById('dmConfirmDesc').textContent = desc;
+      document.getElementById('btnConfirmOk').textContent = confirmLabel;
       confirmModalAction = onConfirm;
       modal.classList.add('open');
     }
@@ -5890,16 +5891,23 @@
 
       // 샘플 데이터 초기화
       els.btnResetDemo.addEventListener('click', () => {
-        const todayStr = getTodayDateString();
-        refundRecords = StorageManager.resetToDemo();
-        depositLedger = DepositLedgerStorage.resetToDemo();
-        currentCalYear = Number(todayStr.slice(0, 4)) || 2026;
-        currentCalMonth = Number(todayStr.slice(5, 7)) || 11;
-        selectedCalDate = todayStr;
-        renderDepositLedger();
-        renderRefundTable();
-        renderCalendar();
-        showToast(`오늘(${todayStr}) 기준 샘플 데이터를 초기 상태로 복원했어요.`);
+        openConfirmModal(
+          '샘플 데이터 초기화 확인',
+          '기존에 직접 입력하거나 수정한 환불·입금 데이터가 모두 초기 샘플 상태로 되돌아갑니다.\n샘플 데이터를 초기화할까요?',
+          () => {
+            const todayStr = getTodayDateString();
+            refundRecords = StorageManager.resetToDemo();
+            depositLedger = DepositLedgerStorage.resetToDemo();
+            currentCalYear = Number(todayStr.slice(0, 4)) || 2026;
+            currentCalMonth = Number(todayStr.slice(5, 7)) || 11;
+            selectedCalDate = todayStr;
+            renderDepositLedger();
+            renderRefundTable();
+            renderCalendar();
+            showToast(`오늘(${todayStr}) 기준 샘플 데이터를 초기 상태로 복원했어요.`);
+          },
+          '초기화하기'
+        );
       });
 
       // 달력 월 이동 및 날짜 클릭
@@ -5982,18 +5990,29 @@
       els.btnLoadSampleChargeExcel.addEventListener('click', loadSampleChargeCleanData);
 
       els.btnClearChargeClean.addEventListener('click', () => {
-        chargeCleanRows = [];
-        chargeCleanHeaders = ['번호', '메모(관리자)', 'F열', 'G열', 'M열', 'R열'];
-        chargeCleanAmountColIndex = -1;
-        chargeCleanFileName = '';
-        chargeCleanExcludedCount = 0;
-        chargeCleanPage = 1;
-        els.ccSearchInput.value = '';
-        els.ccFilterType.value = 'ALL';
-        CustomSelectManager.sync(els.ccFilterType);
-        els.chargeDropzoneTitle.textContent = "여기를 클릭하거나 '원본.xlsx' 파일을 끌어다 놓으세요";
-        renderChargeCleanTable();
-        showToast('무통장 충전 정리 내역을 초기화했어요.');
+        if (chargeCleanRows.length === 0 && !chargeCleanFileName) {
+          showToast('초기화할 업로드 내역이 없어요.');
+          return;
+        }
+        openConfirmModal(
+          '무통장 충전 정리 초기화 확인',
+          '업로드된 원본 파일과 정리 완료 내역 미리보기가 모두 초기화됩니다.\n초기화할까요?',
+          () => {
+            chargeCleanRows = [];
+            chargeCleanHeaders = ['번호', '메모(관리자)', 'F열', 'G열', 'M열', 'R열'];
+            chargeCleanAmountColIndex = -1;
+            chargeCleanFileName = '';
+            chargeCleanExcludedCount = 0;
+            chargeCleanPage = 1;
+            els.ccSearchInput.value = '';
+            els.ccFilterType.value = 'ALL';
+            CustomSelectManager.sync(els.ccFilterType);
+            els.chargeDropzoneTitle.textContent = "여기를 클릭하거나 '원본.xlsx' 파일을 끌어다 놓으세요";
+            renderChargeCleanTable();
+            showToast('무통장 충전 정리 내역을 초기화했어요.');
+          },
+          '초기화하기'
+        );
       });
 
       els.ccSearchInput.addEventListener('input', () => {
