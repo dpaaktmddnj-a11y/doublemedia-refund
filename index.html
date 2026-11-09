@@ -2335,7 +2335,7 @@
           <div class="stat-sub" id="calStatAvgAmount">건당 평균 0원</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">무통장 vs PG/간편결제 비중</div>
+          <div class="stat-label">무통장 / PG 결제 비중</div>
           <div class="stat-value" id="calStatBankRatio">0% / 0%</div>
           <div class="stat-sub" id="calStatBreakdown">무통장 0건 · 기타 0건</div>
         </div>
@@ -2407,7 +2407,7 @@
           <div class="stat-sub" id="ccStatExcluded">번호(A열) 오름차순 · 1부터 정렬</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">금액 열 합계 (' 원' 제거)</div>
+          <div class="stat-label">금액 열 합계</div>
           <div class="stat-value accent" id="ccStatTotalAmount">0원</div>
           <div class="stat-sub" id="ccStatFileName">파일을 업로드하면 자동 합산돼요</div>
         </div>
@@ -2449,7 +2449,7 @@
           </div>
           <button type="button" class="btn btn-primary" id="btnDownloadCleanedExcel" disabled>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            정리 파일 다운로드 (.xlsx)
+            엑셀 다운로드 (.xlsx)
           </button>
         </div>
 
@@ -2470,10 +2470,10 @@
               <tr>
                 <th style="width: 58px; text-align: center;">번호</th>
                 <th style="width: 185px; text-align: center;">메모(관리자)</th>
-                <th style="width: 115px; text-align: center;">F열</th>
-                <th style="width: 115px; text-align: center;">G열</th>
-                <th style="width: 110px; text-align: center;">M열</th>
-                <th style="width: 115px; text-align: center;">R열</th>
+                <th style="width: 115px; text-align: center;">이름(인증이름)</th>
+                <th style="width: 115px; text-align: center;">입금자명</th>
+                <th style="width: 110px; text-align: center;">금액</th>
+                <th style="width: 115px; text-align: center;">승인자</th>
               </tr>
             </thead>
             <tbody id="chargeCleanTableBody">
@@ -3090,7 +3090,7 @@
     let editingNoticeId = null;
 
     let chargeCleanRows = [];
-    let chargeCleanHeaders = ['번호', '메모(관리자)', 'F열', 'G열', 'M열', 'R열'];
+    let chargeCleanHeaders = ['번호', '메모(관리자)', '이름(인증이름)', '입금자명 ', '금액', '승인자'];
     let chargeCleanAmountColIndex = -1;
     let chargeCleanFileName = '';
     let chargeCleanExcludedCount = 0;
