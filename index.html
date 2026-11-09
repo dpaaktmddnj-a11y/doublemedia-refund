@@ -5767,10 +5767,17 @@
       });
 
       els.btnResetDepositDemo.addEventListener('click', () => {
-        depositLedger = DepositLedgerStorage.resetToDemo();
-        renderDepositLedger();
-        renderCalendar();
-        showToast('무통장 입금 및 특이사항 샘플 데이터를 초기 상태로 복원했어요.');
+        openConfirmModal(
+          '입금 샘플 초기화 확인',
+          '기존에 기록하거나 수정한 일자별 무통장 입금 금액과 특이사항이 초기 샘플 상태로 되돌아갑니다.\n입금 샘플 데이터를 초기화할까요?',
+          () => {
+            depositLedger = DepositLedgerStorage.resetToDemo();
+            renderDepositLedger();
+            renderCalendar();
+            showToast('무통장 입금 및 특이사항 샘플 데이터를 초기 상태로 복원했어요.');
+          },
+          '초기화하기'
+        );
       });
 
       // 환불 예정일(화·목 14:00 마감 기준 자동 산출) 및 입금날짜·시간 초기값 설정
