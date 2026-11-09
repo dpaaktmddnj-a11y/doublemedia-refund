@@ -822,6 +822,43 @@
       color: var(--accent-text);
     }
 
+    /* 특이사항 유형별 입력 박스 색상 테마 (하단 내역 표기와 동일하게 매칭) */
+    .calc-box.theme-test {
+      background-color: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .calc-box.theme-test .calc-box-title {
+      color: #b45309;
+    }
+
+    .calc-box.theme-test .calc-result-banner {
+      border-top-color: #fde68a;
+    }
+
+    .calc-box.theme-test .input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px #fef3c7;
+    }
+
+    .calc-box.theme-rejected {
+      background-color: rgba(239, 91, 106, 0.06);
+      border-color: rgba(239, 91, 106, 0.28);
+    }
+
+    .calc-box.theme-rejected .calc-box-title {
+      color: var(--coral);
+    }
+
+    .calc-box.theme-rejected .calc-result-banner {
+      border-top-color: rgba(239, 91, 106, 0.25);
+    }
+
+    .calc-box.theme-rejected .input:focus {
+      border-color: var(--coral);
+      box-shadow: 0 0 0 3px rgba(239, 91, 106, 0.14);
+    }
+
     .section-divider {
       height: 1px;
       background-color: var(--line);
@@ -1742,35 +1779,14 @@
               <label class="field-label" for="depNoteType">특이사항 유형 선택</label>
               <select id="depNoteType" class="select">
                 <option value="none">특이사항 없음</option>
-                <option value="rejected">차액 환불 거절</option>
                 <option value="unprocessed">미처리</option>
                 <option value="test">테스트 입금</option>
+                <option value="rejected">차액 환불 거절</option>
               </select>
             </div>
           </div>
 
-          <!-- 차액 환불 거절 입력 칸 -->
-          <div id="depRejectedBox" class="calc-box" style="display: none;">
-            <div class="calc-box-header">
-              <span class="calc-box-title">차액 환불 거절 양식 입력</span>
-              <span class="field-help">금액과 입금자명만 적으면 아래 양식으로 자동 변환되어 누적돼요.</span>
-            </div>
-            <div class="form-grid-2">
-              <div class="field">
-                <label class="field-label" for="depRejAmount">차액 금액 (숫자, 원) <span class="req">필수</span></label>
-                <input type="text" inputmode="numeric" id="depRejAmount" class="input" placeholder="예: 600">
-              </div>
-              <div class="field">
-                <label class="field-label" for="depRejName">입금자명 <span class="req">필수</span></label>
-                <input type="text" id="depRejName" class="input" placeholder="예: 차경호">
-              </div>
-            </div>
-            <div class="calc-result-banner">
-              <span class="calc-formula-text" id="depRejPreview">미리보기: 차액 0원 환불 거절 (입금자명 : 홍길동)</span>
-            </div>
-          </div>
-
-          <!-- 미처리 입력 칸 -->
+          <!-- 미처리 입력 칸 (파란색 테마) -->
           <div id="depUnprocessedBox" class="calc-box" style="display: none;">
             <div class="calc-box-header">
               <span class="calc-box-title">미처리 건 양식 입력</span>
@@ -1795,24 +1811,45 @@
             </div>
           </div>
 
-          <!-- 테스트 입금 입력 칸 -->
-          <div id="depTestBox" class="calc-box" style="display: none;">
+          <!-- 테스트 입금 입력 칸 (노란색 테마) -->
+          <div id="depTestBox" class="calc-box theme-test" style="display: none;">
             <div class="calc-box-header">
               <span class="calc-box-title">테스트 입금 건 양식 입력</span>
               <span class="field-help">날짜·시각과 입금자명만 적으면 1원 테스트 입금 양식으로 자동 누적돼요.</span>
             </div>
             <div class="form-grid-2">
               <div class="field">
-                <label class="field-label" for="depTestDateTime">입금 날짜·시각 <span class="req">필수</span></label>
+                <label class="field-label" for="depTestDateTime">입금 날짜·시각 <span class="req" style="color: #b45309;">필수</span></label>
                 <input type="text" id="depTestDateTime" class="input" placeholder="예: 2026-10-08 12:11">
               </div>
               <div class="field">
-                <label class="field-label" for="depTestName">입금자명 <span class="req">필수</span></label>
+                <label class="field-label" for="depTestName">입금자명 <span class="req" style="color: #b45309;">필수</span></label>
                 <input type="text" id="depTestName" class="input" placeholder="예: 박선우">
               </div>
             </div>
             <div class="calc-result-banner">
               <span class="calc-formula-text" id="depTestPreview">미리보기: 2026-10-08 12:11 / 박선우 / 1원 / 테스트 입금 건</span>
+            </div>
+          </div>
+
+          <!-- 차액 환불 거절 입력 칸 (붉은색 테마) -->
+          <div id="depRejectedBox" class="calc-box theme-rejected" style="display: none;">
+            <div class="calc-box-header">
+              <span class="calc-box-title">차액 환불 거절 양식 입력</span>
+              <span class="field-help">금액과 입금자명만 적으면 아래 양식으로 자동 변환되어 누적돼요.</span>
+            </div>
+            <div class="form-grid-2">
+              <div class="field">
+                <label class="field-label" for="depRejAmount">차액 금액 (숫자, 원) <span class="req" style="color: var(--coral);">필수</span></label>
+                <input type="text" inputmode="numeric" id="depRejAmount" class="input" placeholder="예: 600">
+              </div>
+              <div class="field">
+                <label class="field-label" for="depRejName">입금자명 <span class="req" style="color: var(--coral);">필수</span></label>
+                <input type="text" id="depRejName" class="input" placeholder="예: 차경호">
+              </div>
+            </div>
+            <div class="calc-result-banner">
+              <span class="calc-formula-text" id="depRejPreview">미리보기: 차액 0원 환불 거절 (입금자명 : 홍길동)</span>
             </div>
           </div>
 
