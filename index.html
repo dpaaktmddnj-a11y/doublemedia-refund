@@ -6114,22 +6114,65 @@
       });
 
       // 탭 전환
-      els.tabBtns.forEach(btn => {
+      const switchMainTabByIndex = (nextIdx) => {
+        const btns = Array.from(els.tabBtns);
+        if (btns.length === 0) return;
+        const normalizedIdx = (nextIdx + btns.length) % btns.length;
+        const targetBtn = btns[normalizedIdx];
+        const targetId = targetBtn.dataset.tab;
+
+        btns.forEach(b => b.classList.toggle('active', b === targetBtn));
+        els.tabPanels.forEach(p => p.classList.toggle('active', p.id === targetId));
+        updateTabIndicator(true);
+
+        if (targetId === 'tab-calendar') {
+          renderCalendar();
+        } else if (targetId === 'tab-deposit') {
+          renderDepositLedger();
+        } else if (targetId === 'tab-charge-clean') {
+          renderChargeCleanTable();
+        } else if (targetId === 'tab-notice') {
+          renderNotices();
+        }
+      };
+
+      els.tabBtns.forEach((btn, idx) => {
         btn.addEventListener('click', () => {
-          const targetId = btn.dataset.tab;
-          els.tabBtns.forEach(b => b.classList.toggle('active', b === btn));
-          els.tabPanels.forEach(p => p.classList.toggle('active', p.id === targetId));
-          updateTabIndicator(true);
-          if (targetId === 'tab-calendar') {
-            renderCalendar();
-          } else if (targetId === 'tab-deposit') {
-            renderDepositLedger();
-          } else if (targetId === 'tab-charge-clean') {
-            renderChargeCleanTable();
-          } else if (targetId === 'tab-notice') {
-            renderNotices();
-          }
+          switchMainTabByIndex(idx);
         });
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+        const mainContainer = document.getElementById('appMainContainer');
+        if (!mainContainer || mainContainer.style.display === 'none') return;
+
+        const activeEl = document.activeElement;
+        if (activeEl && (
+          activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          activeEl.tagName === 'SELECT' ||
+          activeEl.isContentEditable
+        )) {
+          return;
+        }
+
+        const confirmModalEl = document.getElementById('dmConfirmModal');
+        const datePopoverEl = document.getElementById('dmDatePopover');
+        if ((confirmModalEl && confirmModalEl.classList.contains('open')) ||
+            (datePopoverEl && datePopoverEl.classList.contains('open'))) {
+          return;
+        }
+
+        const btns = Array.from(els.tabBtns);
+        const currentIdx = btns.findIndex(b => b.classList.contains('active'));
+        if (currentIdx === -1) return;
+
+        e.preventDefault();
+        const delta = e.key === 'ArrowRight' ? 1 : -1;
+        switchMainTabByIndex(currentIdx + delta);
       });
 
       window.addEventListener('resize', () => updateTabIndicator(false));
