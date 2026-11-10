@@ -6097,12 +6097,19 @@
       els.noticeSearchInput.addEventListener('input', renderNotices);
 
       els.btnResetNotices.addEventListener('click', () => {
-        noticeList = NoticeStorage.reset();
-        openNoticeIds.clear();
-        editingNoticeId = null;
-        els.noticeSearchInput.value = '';
-        renderNotices();
-        showToast('공지사항 목록을 초기 상태로 되돌렸어요.');
+        openConfirmModal(
+          '공지사항 목록 초기화 확인',
+          '기존에 작성하거나 수정한 공지사항 상세 내용이 모두 기본 상태로 초기화됩니다.\n공지사항 목록을 초기화할까요?',
+          () => {
+            noticeList = NoticeStorage.reset();
+            openNoticeIds.clear();
+            editingNoticeId = null;
+            els.noticeSearchInput.value = '';
+            renderNotices();
+            showToast('공지사항 목록을 초기 상태로 되돌렸어요.');
+          },
+          '초기화하기'
+        );
       });
 
       els.noticeListContainer.addEventListener('click', (e) => {
