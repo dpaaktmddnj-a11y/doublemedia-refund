@@ -2156,13 +2156,7 @@
           <!-- 엑셀 자동 생성 문구 영역 (I, J, K열) -->
           <div class="form-grid">
             <div class="field full-span">
-              <div class="field-label">
-                <span>취소 사유 (I열 — 엑셀 산출식 포함)</span>
-                <button type="button" class="btn btn-soft" id="btnAskAI" style="height: 32px; padding: 0 12px; font-size: 12px;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  AI 문구 다듬기
-                </button>
-              </div>
+              <label class="field-label" for="cancelReason">취소 사유 (I열 — 엑셀 산출식 포함)</label>
               <textarea id="cancelReason" class="textarea" placeholder="환불 유형과 금액을 입력하면 자동으로 채워지며, 직접 수정할 수도 있어요."></textarea>
             </div>
 
@@ -3785,7 +3779,6 @@
       btnUploadRefundExcel: document.getElementById('btnUploadRefundExcel'),
       btnCheckHistory: document.getElementById('btnCheckHistory'),
       btnClearForm: document.getElementById('btnClearForm'),
-      btnAskAI: document.getElementById('btnAskAI'),
       btnResetDemo: document.getElementById('btnResetDemo'),
 
       // 달력 요소
@@ -4136,41 +4129,6 @@
       if (!silent) {
         showToast(`'${targetId}' 고객의 기존 환불 ${matched.length}건 이력을 자동으로 채웠어요.`);
       }
-    }
-
-    /* ==========================================================================
-       7. AI 문구 다듬기 (규칙 기반 즉시 생성 + 폴백 보장)
-       ========================================================================== */
-    function polishReasonWithAI() {
-      const type = els.refundType.value;
-      const method = els.paymentMethod.value;
-      const amount = parseFormattedNumber(els.refundAmount.value);
-      const currentReason = els.cancelReason.value.trim();
-
-      if (!amount && !currentReason) {
-        showToast('환불 금액이나 환불 유형을 먼저 입력해 주세요.');
-        return;
-      }
-
-      if (currentReason.includes('(') && currentReason.includes(')')) {
-        const lines = currentReason.split('\n');
-        if (!lines[0].endsWith('요청')) {
-          lines[0] = `${lines[0].replace(/\.$/, '')} 요청`;
-        }
-        els.cancelReason.value = lines.join('\n');
-      } else {
-        const prefixMap = {
-          '미충전': '입금 후 미충전으로 인한 환불 요청',
-          '미사용': '미사용 하트 환불 요청',
-          '미사용스페셜하트': '미사용 스페셜하트 환불 요청',
-          '미사용아이템': '미사용 아이템 환불 요청',
-          '일부사용': '일부 사용 후 잔여 하트 환불 요청'
-        };
-        const baseLine = prefixMap[type] || '고객 요청에 따른 환불 처리';
-        els.cancelReason.value = `${baseLine}\n(${method} 결제 건 / 최종 환불액 ${formatNumber(amount)}원)`;
-      }
-
-      showToast('엑셀 보고서 양식에 맞게 취소 사유 문구를 깔끔하게 정리했어요.');
     }
 
     /* ==========================================================================
@@ -6081,9 +6039,6 @@
       // 아이디 포커스 아웃 또는 버튼 클릭 시 과거 이력 조회
       els.userId.addEventListener('blur', () => fillHistoryByUserId(true));
       els.btnCheckHistory.addEventListener('click', () => fillHistoryByUserId(false));
-
-      // AI 문구 다듬기
-      els.btnAskAI.addEventListener('click', polishReasonWithAI);
 
       // 폼 제출 및 초기화
       els.form.addEventListener('submit', handleFormSubmit);
