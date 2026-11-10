@@ -74,7 +74,24 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 16px;
-      flex-wrap: wrap;
+    }
+
+    .header-title-area {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 720px) {
+      .header-top {
+        flex-wrap: wrap;
+      }
     }
 
     .badge-service {
@@ -1685,23 +1702,119 @@
       opacity: 0.45;
       cursor: not-allowed;
     }
+
+    /* ==========================================================================
+       10. 관리자 로그인 게이트 화면 스타일
+       ========================================================================== */
+    .login-gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-color: var(--canvas);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 32px 28px;
+      box-shadow: 0 12px 32px rgba(22, 27, 34, 0.06);
+    }
+
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin-top: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .login-error-msg {
+      display: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--coral);
+      background-color: rgba(239, 91, 106, 0.08);
+      border: 1px solid rgba(239, 91, 106, 0.25);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .login-error-msg.show {
+      display: block;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- 관리자 로그인 게이트 화면 -->
+  <div id="loginGate" class="login-gate">
+    <div class="login-card">
+      <div>
+        <span class="badge-service">DoubleMedia AI 플레이그라운드</span>
+        <h2 class="login-title">무통장 환불 접수 및 정산 관리</h2>
+        <p class="login-subtitle">인가된 관리자 전용 아이디와 비밀번호를 입력해 로그인해 주세요.</p>
+      </div>
+
+      <form id="loginForm" class="login-form" novalidate>
+        <div class="field">
+          <label class="field-label" for="loginIdInput">아이디</label>
+          <input type="email" id="loginIdInput" class="input" placeholder="아이디를 입력하세요" autocomplete="username" required>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="loginPwInput">비밀번호</label>
+          <input type="password" id="loginPwInput" class="input" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
+        </div>
+
+        <div id="loginErrorMsg" class="login-error-msg" role="alert">
+          아이디 또는 비밀번호가 일치하지 않습니다.
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; height: 44px; margin-top: 4px;">
+          로그인
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="container" id="appMainContainer" style="display: none;">
     <!-- 상단 헤더 -->
     <header class="page-header">
       <div class="header-top">
-        <div>
+        <div class="header-title-area">
           <span class="badge-service">DoubleMedia AI 플레이그라운드</span>
           <h1 class="page-title" style="margin-top: 6px;">무통장 환불 접수 및 정산 관리</h1>
-          <p class="page-desc">드롭다운 선택만으로 환불 산출식과 사유를 자동 완성하고, 기존 양식 그대로 엑셀 다운로드 및 월간 정산 달력을 확인해요.</p>
         </div>
-        <button type="button" class="btn btn-secondary" id="btnResetDemo" title="예시 데이터를 초기 상태로 되돌립니다">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-          샘플 데이터 초기화
-        </button>
+        <div class="header-actions">
+          <button type="button" class="btn btn-secondary" id="btnResetDemo" title="예시 데이터를 초기 상태로 되돌립니다">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+            샘플 데이터 초기화
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnLogout" style="color: var(--coral);" title="현재 세션을 잠그고 로그인 화면으로 이동합니다">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            로그아웃
+          </button>
+        </div>
       </div>
+      <p class="page-desc">드롭다운 선택만으로 환불 산출식과 사유를 자동 완성하고, 기존 양식 그대로 엑셀 다운로드 및 월간 정산 달력을 확인해요.</p>
     </header>
 
     <!-- 탭 내비게이션 -->
@@ -5858,7 +5971,90 @@
     /* ==========================================================================
        12. 이벤트 바인딩 및 앱 초기화
        ========================================================================== */
+    const AUTH_CONFIG = {
+      ID: 'help@pandalive.co.kr',
+      PW: 'PANDA8428601445',
+      SESSION_KEY: 'doublemedia_refund_admin_auth_v1'
+    };
+
+    function applyAuthViewState(isAuthenticated) {
+      const loginGate = document.getElementById('loginGate');
+      const mainContainer = document.getElementById('appMainContainer');
+      const loginError = document.getElementById('loginErrorMsg');
+
+      if (isAuthenticated) {
+        loginGate.style.display = 'none';
+        mainContainer.style.display = 'block';
+        if (loginError) loginError.classList.remove('show');
+      } else {
+        mainContainer.style.display = 'none';
+        loginGate.style.display = 'flex';
+        const idInput = document.getElementById('loginIdInput');
+        if (idInput) idInput.focus();
+      }
+    }
+
+    function initAuthGate() {
+      const loginForm = document.getElementById('loginForm');
+      const idInput = document.getElementById('loginIdInput');
+      const pwInput = document.getElementById('loginPwInput');
+      const loginError = document.getElementById('loginErrorMsg');
+      const btnLogout = document.getElementById('btnLogout');
+
+      let isLoggedIn = false;
+      try {
+        isLoggedIn = sessionStorage.getItem(AUTH_CONFIG.SESSION_KEY) === 'true';
+      } catch (err) {
+        isLoggedIn = false;
+      }
+
+      applyAuthViewState(isLoggedIn);
+
+      [idInput, pwInput].forEach(inp => {
+        if (inp) {
+          inp.addEventListener('input', () => {
+            loginError.classList.remove('show');
+          });
+        }
+      });
+
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const enteredId = idInput.value.trim();
+        const enteredPw = pwInput.value;
+
+        if (enteredId === AUTH_CONFIG.ID && enteredPw === AUTH_CONFIG.PW) {
+          try {
+            sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'true');
+          } catch (err) {
+            // sessionStorage 제한 환경에서도 현재 화면 전환은 정상 진행
+          }
+          pwInput.value = '';
+          applyAuthViewState(true);
+          renderDepositLedger();
+          showToast('관리자 계정으로 로그인되었습니다.');
+        } else {
+          loginError.classList.add('show');
+          pwInput.value = '';
+          pwInput.focus();
+        }
+      });
+
+      btnLogout.addEventListener('click', () => {
+        try {
+          sessionStorage.removeItem(AUTH_CONFIG.SESSION_KEY);
+        } catch (err) {
+          // 무시
+        }
+        idInput.value = '';
+        pwInput.value = '';
+        applyAuthViewState(false);
+        showToast('로그아웃되었습니다.');
+      });
+    }
+
     function initApp() {
+      initAuthGate();
       CustomSelectManager.initAll();
       CustomDatePicker.initAll();
 
