@@ -3204,16 +3204,31 @@
 
       loadAll() {
         try {
+          const defaults = this.getDefaultNotices();
           const raw = localStorage.getItem(this.STORAGE_KEY);
           if (raw) {
             const parsed = JSON.parse(raw);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              return parsed;
+              const savedById = new Map(parsed.map(item => [item.id, item]));
+              const synced = defaults.map(defItem => {
+                const existing = savedById.get(defItem.id);
+                return {
+                  id: defItem.id,
+                  title: defItem.title,
+                  content: existing && typeof existing.content === 'string' ? existing.content : defItem.content
+                };
+              });
+              parsed.forEach(item => {
+                if (!defaults.some(d => d.id === item.id)) {
+                  synced.push(item);
+                }
+              });
+              this.saveAll(synced);
+              return synced;
             }
           }
 
           // 이전 버전에서 작성한 본문이 있다면 동일 ID 기준으로 보존해 이관
-          const defaults = this.getDefaultNotices();
           const legacyRaw = localStorage.getItem(this.LEGACY_STORAGE_KEY);
           if (legacyRaw) {
             const legacyParsed = JSON.parse(legacyRaw);
@@ -5897,7 +5912,7 @@
           bodyInnerHtml = `
             <div class="notice-content-view">${escapeHtml(item.content)}</div>
             <div class="notice-body-actions">
-              <button type="button" class="btn btn-soft" style="height: 34px; font-size: 13px;" data-edit-notice-id="${escapeHtml(item.id)}">내용 수정</button>
+              <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px;" data-edit-notice-id="${escapeHtml(item.id)}">내용 수정하기</button>
             </div>
           `;
         } else {
