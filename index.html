@@ -943,50 +943,43 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      background-color: var(--canvas);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 6px 10px;
+      gap: 10px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 3px 0;
       font-size: 13px;
       color: var(--ink);
     }
 
-    .deposit-note-item.is-unprocessed {
-      background-color: var(--accent-soft);
-      border-color: var(--accent-line);
-    }
-
-    .deposit-note-item.is-rejected {
-      background-color: rgba(239, 91, 106, 0.06);
-      border-color: rgba(239, 91, 106, 0.25);
-    }
-
-    .deposit-note-item.is-test {
-      background-color: #fffbeb;
-      border-color: #fde68a;
-    }
-
     .deposit-note-text {
       word-break: keep-all;
-      line-height: 1.45;
+      line-height: 1.6;
     }
 
-    .btn-mini-del {
-      flex-shrink: 0;
-      background: var(--white);
-      border: 1px solid var(--line);
-      color: var(--coral);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
+    .deposit-note-highlight {
+      display: inline;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      background: linear-gradient(transparent 32%, rgba(22, 27, 34, 0.08) 32% 92%, transparent 92%);
     }
 
-    .btn-mini-del:hover {
-      border-color: var(--coral);
-      background-color: var(--canvas);
+    .deposit-note-item.is-unprocessed .deposit-note-highlight {
+      background: linear-gradient(transparent 32%, #d8efff 32% 92%, transparent 92%);
+      color: #0b4a7d;
+    }
+
+    .deposit-note-item.is-rejected .deposit-note-highlight {
+      background: linear-gradient(transparent 32%, #ffe0e4 32% 92%, transparent 92%);
+      color: #8f1d2c;
+    }
+
+    .deposit-note-item.is-test .deposit-note-highlight {
+      background: linear-gradient(transparent 32%, #fef08a 32% 92%, transparent 92%);
+      color: #78350f;
     }
 
     .deposit-row-actions {
@@ -2427,7 +2420,7 @@
         <div class="section-divider" style="margin: 20px 0 16px;"></div>
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
           <div>
-            <div style="font-size: 14px; font-weight: 800; color: var(--ink);">환불 내역 엑셀 업로드 (.xlsx)</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--ink);">환불 내역 엑셀 업로드</div>
             <div class="field-help">기존 '무통장 환불' 15열 양식 엑셀 파일을 올리면 [접수된 환불 내역]과 [환불 정산 달력]에 자동 반영돼요.</div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -4869,9 +4862,8 @@
             return `
               <div class="deposit-note-item ${cls}">
                 <div class="deposit-note-text">
-                  ${escapeHtml(note.text)}
+                  <span class="deposit-note-highlight">${escapeHtml(note.text)}</span>
                 </div>
-                <button type="button" class="btn-mini-del" data-dep-date="${dateStr}" data-note-id="${escapeHtml(note.id)}">삭제</button>
               </div>
             `;
           }).join('') + `</div>`;
@@ -6127,11 +6119,6 @@
       els.depositEntryForm.addEventListener('submit', handleSaveDepositEntry);
 
       els.depositLedgerBody.addEventListener('click', (e) => {
-        const delBtn = e.target.closest('[data-note-id]');
-        if (delBtn) {
-          deleteDepositNote(delBtn.dataset.depDate, delBtn.dataset.noteId);
-          return;
-        }
         const clearDayBtn = e.target.closest('[data-clear-dep-date]');
         if (clearDayBtn) {
           clearDepositDay(clearDayBtn.dataset.clearDepDate);
