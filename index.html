@@ -124,6 +124,7 @@
 
     /* 탭 전환 컨트롤 */
     .tab-bar {
+      position: relative;
       display: flex;
       gap: 8px;
       background-color: var(--white);
@@ -135,7 +136,40 @@
       overflow-x: auto;
     }
 
+    .tab-indicator {
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 0;
+      width: 0;
+      pointer-events: none;
+      z-index: 0;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .tab-indicator::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: -6px;
+      height: 3px;
+      border-radius: 999px;
+      background-color: var(--accent);
+      z-index: 1;
+    }
+
+    .tab-indicator::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      background-color: #eceff3;
+    }
+
     .tab-btn {
+      position: relative;
+      z-index: 1;
       flex: 1;
       height: 40px;
       padding: 0 12px;
@@ -155,15 +189,16 @@
       transition: background-color 0.15s, color 0.15s;
     }
 
-    .tab-btn:hover {
+    .tab-btn:hover:not(.active) {
       background-color: var(--canvas);
       color: var(--ink);
     }
 
     .tab-btn.active {
-      background-color: var(--accent-soft);
-      color: var(--accent-text);
-      border: 1px solid var(--accent-line);
+      background-color: transparent;
+      color: var(--ink);
+      font-weight: 800;
+      border: none;
     }
 
     .tab-panel {
@@ -1811,7 +1846,8 @@
     </header>
 
     <!-- 탭 내비게이션 -->
-    <nav class="tab-bar" aria-label="주요 메뉴">
+    <nav class="tab-bar" id="mainTabBar" aria-label="주요 메뉴">
+      <div class="tab-indicator" id="mainTabIndicator" aria-hidden="true"></div>
       <button type="button" class="tab-btn active" data-tab="tab-deposit" id="tabBtnDeposit">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
         무통장 입금 내역
@@ -5950,24 +5986,38 @@
       els.firstPaidDate.value = '-';
       els.refundCountHistory.value = '1';
       els.refundAmountHistory.value = '0';
+      els.refundDate.value = getNextRefundDateString();
+      CustomDatePicker.syncLabel(els.refundDate);
       els.depositDateTime.value = getCurrentDateTime24();
-      [
-        els.unusedSpecialHeartType,
-        els.unusedItemType,
-        els.manualDeductType
-      ].forEach(sel => CustomSelectManager.sync(sel));
-      updateCalculatorPanels();
-      if (showMsg) showToast('입력칸을 깔끔하게 비웠어요.');
+      recalculateRefund();
+      if (showMsg) {
+        showToast('입력창을 깔끔하게 비웠어요.');
+      }
     }
 
-    /* ==========================================================================
-       12. 이벤트 바인딩 및 앱 초기화
-       ========================================================================== */
     const AUTH_CONFIG = {
       ID: 'help@pandalive.co.kr',
       PW: 'PANDA8428601445',
       SESSION_KEY: 'doublemedia_refund_admin_auth_v1'
     };
+
+    function updateTabIndicator(animate = true) {
+      const tabBar = document.getElementById('mainTabBar');
+      const indicator = document.getElementById('mainTabIndicator');
+      const activeBtn = tabBar ? tabBar.querySelector('.tab-btn.active') : null;
+      if (!tabBar || !indicator || !activeBtn) return;
+
+      if (!animate) {
+        indicator.style.transition = 'none';
+      }
+      indicator.style.width = `${activeBtn.offsetWidth}px`;
+      indicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+
+      if (!animate) {
+        indicator.offsetHeight;
+        indicator.style.transition = '';
+      }
+    }
 
     function applyAuthViewState(isAuthenticated) {
       const loginGate = document.getElementById('loginGate');
@@ -5978,6 +6028,7 @@
         loginGate.style.display = 'none';
         mainContainer.style.display = 'block';
         if (loginError) loginError.classList.remove('show');
+        requestAnimationFrame(() => updateTabIndicator(false));
       } else {
         mainContainer.style.display = 'none';
         loginGate.style.display = 'flex';
@@ -6068,6 +6119,7 @@
           const targetId = btn.dataset.tab;
           els.tabBtns.forEach(b => b.classList.toggle('active', b === btn));
           els.tabPanels.forEach(p => p.classList.toggle('active', p.id === targetId));
+          updateTabIndicator(true);
           if (targetId === 'tab-calendar') {
             renderCalendar();
           } else if (targetId === 'tab-deposit') {
@@ -6079,6 +6131,9 @@
           }
         });
       });
+
+      window.addEventListener('resize', () => updateTabIndicator(false));
+      updateTabIndicator(false);
 
       // 숫자 콤마 자동 포맷 바인딩
       [
