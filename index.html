@@ -1772,7 +1772,7 @@
 
             <div class="field">
               <label class="field-label" for="depDailyAmount">해당 일자 입금 금액 (원)</label>
-              <input type="text" inputmode="numeric" id="depDailyAmount" class="input" placeholder="예: 254,300,100 (비워두면 기존 금액 유지)">
+              <input type="text" inputmode="numeric" id="depDailyAmount" class="input" placeholder="비워두면 기존 금액 유지">
             </div>
 
             <div class="field">
@@ -1849,7 +1849,7 @@
               </div>
             </div>
             <div class="calc-result-banner">
-              <span class="calc-formula-text" id="depRejPreview">미리보기: 차액 0원 환불 거절 (입금자명 : 홍길동)</span>
+              <span class="calc-formula-text" id="depRejPreview">미리보기: 차액 0원 환불 거절 (입금자명 : 판대리)</span>
             </div>
           </div>
 
@@ -1928,7 +1928,7 @@
             <p class="card-subtitle">필수 항목만 입력하고 환불 유형을 선택하면 산출식과 엑셀용 문구가 자동으로 채워져요.</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-soft" id="btnCheckHistory">
+            <button type="button" class="btn btn-primary" id="btnCheckHistory">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               아이디 이력 자동 채우기
             </button>
@@ -1950,7 +1950,7 @@
 
             <div class="field">
               <label class="field-label" for="holderName">예금주 성함 (G열) <span class="req">필수</span></label>
-              <input type="text" id="holderName" class="input" placeholder="예: 홍길동" required>
+              <input type="text" id="holderName" class="input" placeholder="예: 판대리" required>
             </div>
 
             <div class="field">
@@ -1994,7 +1994,7 @@
 
             <div class="field">
               <label class="field-label" for="accountNumber">환불 계좌번호 (E열) <span class="req">필수</span></label>
-              <input type="text" id="accountNumber" class="input" placeholder="예: 3333-01-1234567" required>
+              <input type="text" id="accountNumber" class="input" placeholder="예: 842-86-01445" required>
             </div>
 
             <div class="field">
@@ -2315,6 +2315,26 @@
             </tbody>
           </table>
         </div>
+
+        <!-- 하단 과거/실제 환불 내역 엑셀 일괄 업로드 영역 -->
+        <div class="section-divider" style="margin: 20px 0 16px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--ink);">환불 내역 엑셀 업로드 (.xlsx)</div>
+            <div class="field-help">기존 '무통장 환불' 15열 양식 엑셀 파일을 올리면 [접수된 환불 내역]과 [환불 정산 달력]에 자동 반영돼요.</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <select id="refundImportMode" class="select" style="width: 175px; height: 38px; font-size: 13px;" aria-label="엑셀 업로드 반영 방식">
+              <option value="append">기존 내역에 추가하기</option>
+              <option value="replace">기존 내역 덮어쓰기</option>
+            </select>
+            <input type="file" id="refundExcelInput" accept=".xlsx,.xls,.csv" style="display: none;">
+            <button type="button" class="btn btn-primary" id="btnUploadRefundExcel" style="height: 38px; font-size: 13px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              엑셀 업로드 (.xlsx)
+            </button>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -2350,7 +2370,7 @@
           </button>
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;">
             <h2 class="calendar-month-title" id="calendarMonthTitle">2026년 11월</h2>
-            <button type="button" class="btn btn-soft" id="btnJumpSampleMonth" style="height: 32px; padding: 0 12px; font-size: 12px;">이번 달로 이동</button>
+            <button type="button" class="btn btn-primary" id="btnJumpSampleMonth" style="height: 32px; padding: 0 12px; font-size: 12px;">이번 달로 이동</button>
           </div>
           <button type="button" class="btn btn-secondary" id="btnNextMonth">
             다음 달
@@ -2370,8 +2390,8 @@
             <h3 class="card-title" id="selectedDateTitle">날짜를 선택해 주세요</h3>
             <p class="card-subtitle" id="selectedDateSubtitle">달력에서 파란색으로 표시된 날짜를 누르면 해당 일자의 환불 내역을 바로 확인할 수 있어요.</p>
           </div>
-          <button type="button" class="btn btn-soft" id="btnExportSelectedDate" style="display: none;">
-            선택일만 엑셀 다운로드
+          <button type="button" class="btn btn-primary" id="btnExportSelectedDate" style="display: none;">
+            엑셀 다운로드 (.xlsx)
           </button>
         </div>
 
@@ -2995,16 +3015,16 @@
 
       getDefaultNotices() {
         return [
-          { id: 'notice-1', title: '플랫폼운영팀 CS 인수인계 사항', content: '' },
-          { id: 'notice-2', title: 'SNS 연동 탈퇴 계정 복구 처리 기준', content: '' },
-          { id: 'notice-3', title: '글로벌 / RT 방송 등록 관련 문의 응대 기준', content: '' },
-          { id: 'notice-4', title: '이의 신청 접수 방식 변경 사항', content: '' },
-          { id: 'notice-5', title: '11-2 영구정지자의 이의 신청 처리 기준', content: '' },
-          { id: 'notice-6', title: '수사기관 가입자 정보 요청 유선 응대 기준', content: '' },
-          { id: 'notice-7', title: '하트 소멸 및 환불 정책 변경 관련 안내', content: '' },
-          { id: 'notice-8', title: '타인 명의 환전 위임장 접수 안내 기준 ', content: '' },
-          { id: 'notice-9', title: '납세증명서 & 완납증명서 요청 기준', content: '' },
-          { id: 'notice-10', title: '개인사업자 회원 현금영수증 접수 기준', content: '' }
+          { id: 'notice-1', title: '공지사항 예시 1', content: '' },
+          { id: 'notice-2', title: '공지사항 예시 2', content: '' },
+          { id: 'notice-3', title: '공지사항 예시 3', content: '' },
+          { id: 'notice-4', title: '공지사항 예시 4', content: '' },
+          { id: 'notice-5', title: '공지사항 예시 5', content: '' },
+          { id: 'notice-6', title: '공지사항 예시 6', content: '' },
+          { id: 'notice-7', title: '공지사항 예시 7', content: '' },
+          { id: 'notice-8', title: '공지사항 예시 8', content: '' },
+          { id: 'notice-9', title: '공지사항 예시 9', content: '' },
+          { id: 'notice-10', title: '공지사항 예시 10', content: '' }
         ];
       },
 
@@ -3760,6 +3780,9 @@
       filteredTotalBadge: document.getElementById('filteredTotalBadge'),
       refundTableBody: document.getElementById('refundTableBody'),
       btnExportExcel: document.getElementById('btnExportExcel'),
+      refundImportMode: document.getElementById('refundImportMode'),
+      refundExcelInput: document.getElementById('refundExcelInput'),
+      btnUploadRefundExcel: document.getElementById('btnUploadRefundExcel'),
       btnCheckHistory: document.getElementById('btnCheckHistory'),
       btnClearForm: document.getElementById('btnClearForm'),
       btnAskAI: document.getElementById('btnAskAI'),
@@ -4524,6 +4547,158 @@
       showToast(`엑셀 파일(${fileName}) 다운로드를 시작했어요.`);
     }
 
+    function normalizeImportedRefundDate(val) {
+      if (val instanceof Date && !isNaN(val.getTime())) {
+        const y = val.getFullYear();
+        const m = String(val.getMonth() + 1).padStart(2, '0');
+        const d = String(val.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      if (typeof val === 'number' && val > 25000 && val < 90000) {
+        const utcDays = Math.floor(val - 25569);
+        const dateInfo = new Date(utcDays * 86400 * 1000);
+        const y = dateInfo.getUTCFullYear();
+        const m = String(dateInfo.getUTCMonth() + 1).padStart(2, '0');
+        const d = String(dateInfo.getUTCDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      const str = String(val ?? '').trim();
+      const matched = str.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/);
+      if (matched) {
+        return `${matched[1]}-${matched[2].padStart(2, '0')}-${matched[3].padStart(2, '0')}`;
+      }
+      return '';
+    }
+
+    function handleImportRefundExcel(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+
+          const preferredSheet = workbook.SheetNames.find(name => name.includes('환불')) || workbook.SheetNames[0];
+          const ws = workbook.Sheets[preferredSheet];
+          if (!ws) {
+            showToast('엑셀 시트를 읽지 못했어요. 파일을 확인해 주세요.');
+            return;
+          }
+
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
+          let headerRowIdx = -1;
+          for (let i = 0; i < Math.min(rows.length, 15); i++) {
+            const row = rows[i];
+            if (!Array.isArray(row)) continue;
+            const joined = row.map(c => String(c ?? '').replace(/\s+/g, '')).join('|');
+            if (joined.includes('날짜') && joined.includes('아이디') && joined.includes('계좌번호')) {
+              headerRowIdx = i;
+              break;
+            }
+          }
+
+          let startRow = headerRowIdx >= 0 ? headerRowIdx + 1 : 0;
+          if (headerRowIdx >= 0 && Array.isArray(rows[headerRowIdx + 1])) {
+            const subJoined = rows[headerRowIdx + 1].map(c => String(c ?? '').replace(/\s+/g, '')).join('|');
+            if (subJoined.includes('누적결제') || subJoined.includes('첫결제') || subJoined.includes('누적횟수')) {
+              startRow = headerRowIdx + 2;
+            }
+          }
+
+          const imported = [];
+          const baseTs = Date.now();
+
+          for (let r = startRow; r < rows.length; r++) {
+            const row = rows[r];
+            if (!Array.isArray(row)) continue;
+
+            const refundDate = normalizeImportedRefundDate(row[0]);
+            const userId = String(row[1] ?? '').trim();
+            const refundAmount = parseFormattedNumber(row[5]);
+
+            if (!refundDate || !userId || refundAmount <= 0) continue;
+
+            const firstPaidRaw = row[12];
+            const firstPaidNormalized = normalizeImportedRefundDate(firstPaidRaw) || String(firstPaidRaw ?? '-').trim() || '-';
+
+            imported.push({
+              id: `imp-${baseTs}-${r}`,
+              refundDate,
+              userId,
+              paymentMethod: String(row[2] ?? '무통장').trim() || '무통장',
+              bankName: String(row[3] ?? '').trim(),
+              accountNumber: String(row[4] ?? '').trim(),
+              refundAmount,
+              holderName: String(row[6] ?? '').trim(),
+              depositDateTime: normalizeChargeCellDate(row[7]) || '-',
+              cancelReason: String(row[8] ?? '').trim() || '고객 요청에 따른 환불 처리',
+              specialNote: String(row[9] ?? '').trim(),
+              remarkNote: String(row[10] ?? '').trim(),
+              totalPaidHistory: parseFormattedNumber(row[11]),
+              firstPaidDate: firstPaidNormalized,
+              refundCountHistory: parseInt(String(row[13] ?? '').replace(/[^\d]/g, ''), 10) || 1,
+              refundAmountHistory: parseFormattedNumber(row[14]) || refundAmount
+            });
+          }
+
+          if (imported.length === 0) {
+            showToast('업로드한 파일에서 유효한 환불 접수 내역 행을 찾지 못했어요. 15열 양식을 확인해 주세요.');
+            return;
+          }
+
+          const mode = els.refundImportMode.value;
+          const applyImported = () => {
+            if (mode === 'replace') {
+              refundRecords = imported;
+            } else {
+              refundRecords = [...imported, ...refundRecords];
+            }
+            StorageManager.saveAll(refundRecords);
+
+            const latestDate = imported
+              .map(item => item.refundDate)
+              .sort((a, b) => b.localeCompare(a))[0];
+
+            if (latestDate) {
+              const latestYm = latestDate.slice(0, 7);
+              updateMonthFilterOptions();
+              els.filterMonth.value = latestYm;
+              CustomSelectManager.sync(els.filterMonth);
+
+              const [y, m] = latestDate.split('-').map(Number);
+              currentCalYear = y;
+              currentCalMonth = m;
+              selectedCalDate = latestDate;
+            }
+
+            renderRefundTable();
+            renderCalendar();
+            showToast(`${file.name}에서 ${formatNumber(imported.length)}건을 불러와 접수 내역과 달력에 반영했어요.`);
+          };
+
+          if (mode === 'replace') {
+            openConfirmModal(
+              '기존 접수 내역 교체 확인',
+              `기존에 저장된 접수 내역을 모두 지우고, 업로드한 파일(${imported.length}건)로 교체할까요?`,
+              applyImported,
+              '교체하기'
+            );
+          } else {
+            applyImported();
+          }
+        } catch (err) {
+          console.error('환불 엑셀 업로드 오류:', err);
+          showToast('엑셀 파일을 읽는 중 오류가 발생했어요. .xlsx 또는 .xls 파일인지 확인해 주세요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
     /* ==========================================================================
        9-2. 무통장 입금 내역 탭 렌더링 및 특이사항 누적 입력/삭제 로직
        ========================================================================== */
@@ -4537,7 +4712,7 @@
 
     function updateDepositNotePreviews() {
       const rejAmt = parseFormattedNumber(els.depRejAmount.value);
-      const rejName = els.depRejName.value.trim() || '홍길동';
+      const rejName = els.depRejName.value.trim() || '판대리';
       els.depRejPreview.textContent = `미리보기: 차액 ${formatNumber(rejAmt)}원 환불 거절 (입금자명 : ${rejName})`;
 
       const unprocDt = els.depUnprocDateTime.value.trim() || '2026.10.29 15:33:54';
@@ -5334,9 +5509,9 @@
       chargeCleanPage = 1;
       chargeCleanRows = [
         [1, '무통장 자동승인', '김지원', '김지원', 110000, '시스템'],
-        [2, '차액 600원 확인 후 수동 승인 처리 완료 건 (입금자명 불일치 확인)', '박서원', '박서원', 220600, '관리자A'],
+        [2, '2026-11-10 17:15 / 박서원 / 100,000원 + 2026-11-10 17:30 / 박서원 / 10,000원', '박서원', '박서원', 220600, '판대리'],
         [3, '무통장 자동승인', '이정연', '이정연', 550000, '시스템'],
-        [4, '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)', '정선주', '정선주', 1, '관리자B'],
+        [4, '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)', '정선주', '정선주', 1, '판사원'],
         [5, '무통장 자동승인', '고우정', '고우정', 1100000, '시스템']
       ];
       els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName}`;
@@ -5953,6 +6128,17 @@
       els.btnExportExcel.addEventListener('click', () => {
         const filtered = getFilteredRecords();
         exportToExcel(filtered);
+      });
+
+      // 실제 환불 내역 엑셀 업로드
+      els.btnUploadRefundExcel.addEventListener('click', () => {
+        els.refundExcelInput.click();
+      });
+
+      els.refundExcelInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) handleImportRefundExcel(file);
+        e.target.value = '';
       });
 
       // 샘플 데이터 초기화
