@@ -4203,7 +4203,11 @@
 
     function renderRefundTable() {
       updateMonthFilterOptions();
-      const filtered = getFilteredRecords();
+      const filtered = [...getFilteredRecords()].sort((a, b) => {
+        const dateCmp = String(b.refundDate || '').localeCompare(String(a.refundDate || ''));
+        if (dateCmp !== 0) return dateCmp;
+        return String(b.depositDateTime || '').localeCompare(String(a.depositDateTime || ''));
+      });
       els.totalListCount.textContent = formatNumber(filtered.length);
 
       const sumAmount = filtered.reduce((acc, cur) => acc + (Number(cur.refundAmount) || 0), 0);
