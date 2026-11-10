@@ -963,6 +963,49 @@
       color: var(--coral);
     }
 
+    /* 일자 형광펜 스타일 배지 (결제수단 · 메모(관리자) 공용) */
+    .hl-badge {
+      display: inline;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.5;
+      white-space: nowrap;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    .hl-badge-blue {
+      background: linear-gradient(transparent 32%, #d8efff 32% 92%, transparent 92%);
+      color: #0b4a7d;
+    }
+
+    .hl-badge-gray {
+      background: linear-gradient(transparent 32%, rgba(22, 27, 34, 0.08) 32% 92%, transparent 92%);
+      color: var(--ink-2);
+    }
+
+    .hl-badge-orange {
+      background: linear-gradient(transparent 32%, #ffedd5 32% 92%, transparent 92%);
+      color: #9a3412;
+    }
+
+    .hl-badge-green {
+      background: linear-gradient(transparent 32%, #dcfce7 32% 92%, transparent 92%);
+      color: #166534;
+    }
+
+    .hl-badge-navy {
+      background: linear-gradient(transparent 32%, #e0e7ff 32% 92%, transparent 92%);
+      color: #1e3a8a;
+    }
+
+    .hl-badge-pink {
+      background: linear-gradient(transparent 32%, #fce7f3 32% 92%, transparent 92%);
+      color: #9d174d;
+    }
+
     /* 무통장 입금 내역 탭 전용 스타일 */
     .deposit-note-list {
       display: flex;
@@ -1638,23 +1681,22 @@
       max-width: 100%;
       overflow: hidden;
       white-space: nowrap;
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 12px;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 12.5px;
       font-weight: 700;
-      line-height: 1.3;
+      line-height: 1.45;
       vertical-align: middle;
     }
 
     .cc-memo-marquee.is-manual {
-      background-color: var(--accent-soft);
-      color: var(--accent-text);
+      background: linear-gradient(transparent 32%, #d8efff 32% 92%, transparent 92%);
+      color: #0b4a7d;
     }
 
     .cc-memo-marquee.is-auto {
-      background-color: var(--canvas);
+      background: linear-gradient(transparent 32%, rgba(22, 27, 34, 0.08) 32% 92%, transparent 92%);
       color: var(--ink-2);
-      border: 1px solid var(--line);
     }
 
     .cc-memo-track {
@@ -1897,7 +1939,7 @@
             <p class="card-subtitle">날짜를 고르고 입금 금액을 저장하거나, 특이사항 유형을 선택해 양식에 맞게 여러 건 누적 기록할 수 있어요.</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary" id="btnResetDepositDemo" style="height: 36px; font-size: 13px;">입금 샘플 초기화</button>
+            <button type="button" class="btn btn-secondary" id="btnResetDepositDemo" style="height: 36px; font-size: 13px;">초기화</button>
           </div>
         </div>
 
@@ -2373,7 +2415,7 @@
               일괄 삭제
             </button>
           </div>
-          <span class="badge badge-blue" id="pendingTotalBadge">0건 · 합계 0원</span>
+          <span class="hl-badge hl-badge-blue" id="pendingTotalBadge">0건 · 합계 0원</span>
         </div>
 
         <div class="table-wrap">
@@ -2426,7 +2468,7 @@
               <option value="컬쳐랜드상품권">컬쳐랜드상품권</option>
             </select>
           </div>
-          <span class="badge badge-gray" id="filteredTotalBadge">합계 0원</span>
+          <span class="hl-badge hl-badge-blue" id="filteredTotalBadge">합계 0원</span>
         </div>
 
         <div class="table-wrap">
@@ -2613,7 +2655,7 @@
               <option value="MANUAL">수동 승인</option>
             </select>
           </div>
-          <span class="badge badge-blue" id="ccFilteredSumBadge">0건 · 금액 합계 0원</span>
+          <span class="hl-badge hl-badge-blue" id="ccFilteredSumBadge">0건 · 금액 합계 0원</span>
         </div>
 
         <div class="table-wrap">
@@ -2655,7 +2697,7 @@
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <input type="text" id="noticeSearchInput" class="input" style="width: 210px; height: 36px;" placeholder="공지 제목·내용 검색">
-            <button type="button" class="btn btn-secondary" id="btnResetNotices" style="height: 36px; font-size: 13px;">목록 초기화</button>
+            <button type="button" class="btn btn-secondary" id="btnResetNotices" style="height: 36px; font-size: 13px;">초기화</button>
           </div>
         </div>
 
@@ -3390,6 +3432,16 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+    }
+
+    function getPaymentMethodHighlightClass(method) {
+      const m = String(method || '').replace(/\s+/g, '');
+      if (m === '무통장') return 'hl-badge-blue';
+      if (m === '휴대폰') return 'hl-badge-orange';
+      if (m === '네이버페이') return 'hl-badge-green';
+      if (m === '토스페이') return 'hl-badge-navy';
+      if (m === '컬쳐랜드상품권') return 'hl-badge-pink';
+      return 'hl-badge-gray'; // 신용카드, 삼성페이 등
     }
 
     /* ==========================================================================
@@ -4342,7 +4394,7 @@
       }
 
       els.refundTableBody.innerHTML = filtered.map(item => {
-        const badgeClass = item.paymentMethod === '무통장' ? 'badge-blue' : 'badge-gray';
+        const hlClass = getPaymentMethodHighlightClass(item.paymentMethod);
         const specialHtml = item.specialNote
           ? `<div style="margin-top: 4px; color: var(--accent-text); font-weight: 700; font-size: 12px;">※ ${escapeHtml(item.specialNote)}</div>`
           : '';
@@ -4354,7 +4406,7 @@
               <div style="font-weight: 700; color: var(--ink);">${escapeHtml(item.userId)}</div>
               <div style="font-size: 13px; color: var(--ink-2);">${escapeHtml(item.holderName)}</div>
             </td>
-            <td><span class="badge ${badgeClass}">${escapeHtml(item.paymentMethod)}</span></td>
+            <td style="text-align: center;"><span class="hl-badge ${hlClass}">${escapeHtml(item.paymentMethod)}</span></td>
             <td>
               <div style="font-weight: 700;">${escapeHtml(item.bankName)}</div>
               <div style="font-size: 13px; color: var(--ink-2);">${escapeHtml(item.accountNumber)}</div>
@@ -4427,7 +4479,7 @@
       }
 
       els.pendingQueueTableBody.innerHTML = filtered.map(item => {
-        const badgeClass = item.paymentMethod === '무통장' ? 'badge-blue' : 'badge-gray';
+        const hlClass = getPaymentMethodHighlightClass(item.paymentMethod);
         const specialHtml = item.specialNote
           ? `<div style="margin-top: 4px; color: var(--accent-text); font-weight: 700; font-size: 12px;">※ ${escapeHtml(item.specialNote)}</div>`
           : '';
@@ -4439,7 +4491,7 @@
               <div style="font-weight: 700; color: var(--ink);">${escapeHtml(item.userId)}</div>
               <div style="font-size: 13px; color: var(--ink-2);">${escapeHtml(item.holderName)}</div>
             </td>
-            <td><span class="badge ${badgeClass}">${escapeHtml(item.paymentMethod)}</span></td>
+            <td style="text-align: center;"><span class="hl-badge ${hlClass}">${escapeHtml(item.paymentMethod)}</span></td>
             <td>
               <div style="font-weight: 700;">${escapeHtml(item.bankName)}</div>
               <div style="font-size: 13px; color: var(--ink-2);">${escapeHtml(item.accountNumber)}</div>
@@ -5377,7 +5429,7 @@
 
       els.btnExportSelectedDate.style.display = 'inline-flex';
       els.selectedDateTableBody.innerHTML = dayRecords.map(r => {
-        const badgeClass = r.paymentMethod === '무통장' ? 'badge-blue' : 'badge-gray';
+        const hlClass = getPaymentMethodHighlightClass(r.paymentMethod);
         return `
           <tr>
             <td style="white-space: nowrap;">${escapeHtml(r.depositDateTime)}</td>
@@ -5385,7 +5437,7 @@
               <strong>${escapeHtml(r.userId)}</strong>
               <span style="color: var(--ink-2);">(${escapeHtml(r.holderName)})</span>
             </td>
-            <td><span class="badge ${badgeClass}">${escapeHtml(r.paymentMethod)}</span></td>
+            <td style="text-align: center;"><span class="hl-badge ${hlClass}">${escapeHtml(r.paymentMethod)}</span></td>
             <td>${escapeHtml(r.bankName)} ${escapeHtml(r.accountNumber)}</td>
             <td class="td-amount">${formatNumber(r.refundAmount)}원</td>
             <td class="td-reason">${escapeHtml(r.remarkNote || r.cancelReason)}</td>
@@ -5852,7 +5904,7 @@
           bodyInnerHtml = `
             <div class="notice-content-empty">아직 등록된 상세 내용이 없어요. 아래 버튼을 눌러 공지 내용을 작성해 주세요.</div>
             <div class="notice-body-actions">
-              <button type="button" class="btn btn-soft" style="height: 34px; font-size: 13px;" data-edit-notice-id="${escapeHtml(item.id)}">내용 작성하기</button>
+              <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px;" data-edit-notice-id="${escapeHtml(item.id)}">내용 작성하기</button>
             </div>
           `;
         }
@@ -5864,7 +5916,7 @@
                 <span class="notice-title-text">${escapeHtml(item.title)}</span>
               </div>
               <div class="notice-right-meta">
-                ${hasContent ? '<span class="badge badge-blue">내용 등록됨</span>' : '<span class="badge badge-gray">내용 대기</span>'}
+                ${hasContent ? '<span class="hl-badge hl-badge-blue">내용 등록됨</span>' : '<span class="hl-badge hl-badge-gray">내용 대기</span>'}
                 <svg class="notice-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
             </button>
