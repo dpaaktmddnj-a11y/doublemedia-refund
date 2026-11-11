@@ -2050,7 +2050,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title" id="depTableCardTitle">2026년 11월 일자별 무통장 입금 내역</h2>
-            <p class="card-subtitle">1일부터 말일까지 각 날짜의 입금 금액과 누적된 특이사항을 한눈에 확인하고 개별 삭제할 수 있어요.</p>
+            <p class="card-subtitle">각 날짜의 입금 금액과 누적된 특이사항을 한눈에 확인하고 개별 삭제할 수 있어요.</p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <select id="depMonthSelect" class="select" style="width: 145px;" aria-label="조회 월 선택">
@@ -2060,6 +2060,10 @@
               <option value="2026-08">2026년 8월</option>
               <option value="2026-07">2026년 7월</option>
             </select>
+            <button type="button" class="btn btn-primary" id="btnExportDepositExcel">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              엑셀 다운로드 (.xlsx)
+            </button>
           </div>
         </div>
 
@@ -2077,6 +2081,26 @@
               <!-- 자바스크립트로 1일~말일 렌더링 -->
             </tbody>
           </table>
+        </div>
+
+        <!-- 하단 무통장 입금 내역 엑셀 일괄 업로드 영역 -->
+        <div class="section-divider" style="margin: 20px 0 16px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--ink);">입금 내역 엑셀 업로드</div>
+            <div class="field-help">[일자], [입금 금액], [특이사항] 양식의 엑셀 파일을 올리면 입금 내역과 달력, 추이 그래프에 자동 반영돼요.</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <select id="depositImportMode" class="select" style="width: 175px; height: 38px; font-size: 13px;" aria-label="입금 내역 엑셀 업로드 반영 방식">
+              <option value="append">기존 내역에 추가하기</option>
+              <option value="replace">기존 내역에 덮어쓰기</option>
+            </select>
+            <input type="file" id="depositExcelInput" accept=".xlsx,.xls,.csv" style="display: none;">
+            <button type="button" class="btn btn-primary" id="btnUploadDepositExcel" style="height: 38px; font-size: 13px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              엑셀 업로드 (.xlsx)
+            </button>
+          </div>
         </div>
       </div>
 
@@ -3917,6 +3941,10 @@
       depMonthSelect: document.getElementById('depMonthSelect'),
       depositLedgerBody: document.getElementById('depositLedgerBody'),
       btnResetDepositDemo: document.getElementById('btnResetDepositDemo'),
+      btnExportDepositExcel: document.getElementById('btnExportDepositExcel'),
+      depositImportMode: document.getElementById('depositImportMode'),
+      depositExcelInput: document.getElementById('depositExcelInput'),
+      btnUploadDepositExcel: document.getElementById('btnUploadDepositExcel'),
       depChartCardTitle: document.getElementById('depChartCardTitle'),
       depositChartContainer: document.getElementById('depositChartContainer'),
       depositLineChart: document.getElementById('depositLineChart'),
@@ -5308,6 +5336,209 @@
     }
 
     /* ==========================================================================
+       9-3. 무통장 입금 내역 엑셀 다운로드 및 일괄 업로드 파싱 로직
+       ========================================================================== */
+    function exportDepositLedgerToExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const ym = els.depMonthSelect.value || '2026-11';
+      const [yearStr, monthStr] = ym.split('-');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+      const headerRow = ['일자', '입금 금액', '특이사항 (차액 환불 거절 · 미처리 · 테스트 입금)'];
+      const dataRows = [];
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dd = String(d).padStart(2, '0');
+        const dateStr = `${ym}-${dd}`;
+        const dowLabel = dowNames[new Date(`${dateStr}T00:00:00`).getDay()];
+        const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
+        const amount = Number(entry.amount) || 0;
+        const notes = Array.isArray(entry.notes) ? entry.notes : [];
+
+        // 복수 특이사항은 줄바꿈(\n)으로 모두 보존
+        const notesText = notes.map(n => n.text).join('\n');
+
+        dataRows.push([
+          `${dateStr} (${dowLabel})`,
+          amount,
+          notesText
+        ]);
+      }
+
+      const wsData = [headerRow, ...dataRows];
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+      ws['!cols'] = [
+        { wch: 18 }, // 일자
+        { wch: 18 }, // 입금 금액
+        { wch: 60 }  // 특이사항
+      ];
+
+      // 금액 서식 적용 (#,#0)
+      for (let rIdx = 1; rIdx < wsData.length; rIdx++) {
+        const cellRef = XLSX.utils.encode_cell({ r: rIdx, c: 1 });
+        if (ws[cellRef] && typeof ws[cellRef].v === 'number') {
+          ws[cellRef].z = '#,##0';
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `${year}년 ${month}월 입금내역`);
+
+      const fileName = `무통장_입금내역_${ym}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast(`${fileName} 파일 다운로드를 시작했어요.`);
+    }
+
+    function detectDepositNoteType(text) {
+      const str = String(text || '');
+      if (str.includes('거절') || str.includes('차액')) return 'rejected';
+      if (str.includes('테스트')) return 'test';
+      return 'unprocessed';
+    }
+
+    function handleImportDepositExcel(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+
+          const sheetName = workbook.SheetNames.find(n => n.includes('입금')) || workbook.SheetNames[0];
+          const ws = workbook.Sheets[sheetName];
+          if (!ws) {
+            showToast('엑셀 시트를 읽지 못했어요. 파일을 확인해 주세요.');
+            return;
+          }
+
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
+          if (!rows || rows.length === 0) {
+            showToast('엑셀 파일에 데이터가 없습니다.');
+            return;
+          }
+
+          // 헤더 행 자동 감지
+          let headerRowIdx = -1;
+          for (let i = 0; i < Math.min(rows.length, 10); i++) {
+            const row = rows[i];
+            if (!Array.isArray(row)) continue;
+            const joined = row.map(c => String(c ?? '').replace(/\s+/g, '')).join('|');
+            if (joined.includes('일자') || joined.includes('날짜') || joined.includes('입금금액')) {
+              headerRowIdx = i;
+              break;
+            }
+          }
+
+          const startRow = headerRowIdx >= 0 ? headerRowIdx + 1 : 0;
+          const parsedLedger = {};
+          let importedDatesCount = 0;
+          let latestYm = '';
+
+          for (let r = startRow; r < rows.length; r++) {
+            const row = rows[r];
+            if (!Array.isArray(row)) continue;
+
+            const dateStr = normalizeImportedRefundDate(row[0]);
+            if (!dateStr) continue;
+
+            const amount = parseFormattedNumber(row[1]);
+            const rawNotes = String(row[2] ?? '').trim();
+
+            const notesList = [];
+            if (rawNotes) {
+              const lines = rawNotes.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+              lines.forEach((line, lIdx) => {
+                notesList.push({
+                  id: `dn-imp-${dateStr}-${r}-${lIdx}`,
+                  type: detectDepositNoteType(line),
+                  text: line
+                });
+              });
+            }
+
+            parsedLedger[dateStr] = {
+              amount,
+              notes: notesList
+            };
+
+            importedDatesCount += 1;
+            if (!latestYm || dateStr > latestYm) {
+              latestYm = dateStr.slice(0, 7);
+            }
+          }
+
+          if (importedDatesCount === 0) {
+            showToast('업로드한 파일에서 유효한 일자 및 입금 금액 행을 찾지 못했어요.');
+            return;
+          }
+
+          const mode = els.depositImportMode.value;
+          const applyImport = () => {
+            if (mode === 'replace') {
+              depositLedger = { ...parsedLedger };
+            } else {
+              // 추가/합산 모드
+              Object.entries(parsedLedger).forEach(([dStr, item]) => {
+                const existing = depositLedger[dStr] || { amount: 0, notes: [] };
+                depositLedger[dStr] = {
+                  amount: item.amount > 0 ? item.amount : existing.amount,
+                  notes: [...(existing.notes || []), ...item.notes]
+                };
+              });
+            }
+
+            DepositLedgerStorage.saveAll(depositLedger);
+
+            // 조회 월 드롭다운 옵션 보정 및 이동
+            if (latestYm) {
+              if (!Array.from(els.depMonthSelect.options).some(opt => opt.value === latestYm)) {
+                const [y, m] = latestYm.split('-');
+                const opt = document.createElement('option');
+                opt.value = latestYm;
+                opt.textContent = `${y}년 ${Number(m)}월`;
+                els.depMonthSelect.insertBefore(opt, els.depMonthSelect.firstChild);
+              }
+              els.depMonthSelect.value = latestYm;
+              CustomSelectManager.sync(els.depMonthSelect);
+            }
+
+            renderDepositLedger();
+            renderCalendar();
+            showToast(`${file.name}에서 ${formatNumber(importedDatesCount)}개 일자의 입금 내역을 불러와 반영했어요.`);
+          };
+
+          if (mode === 'replace') {
+            openConfirmModal(
+              '입금 내역 덮어쓰기 확인',
+              `기존에 저장된 모든 입금 내역과 특이사항을 지우고, 업로드한 파일(${importedDatesCount}개 일자)로 교체할까요?`,
+              applyImport,
+              '교체하기'
+            );
+          } else {
+            applyImport();
+          }
+        } catch (err) {
+          console.error('입금 내역 엑셀 업로드 오류:', err);
+          showToast('엑셀 파일을 읽는 중 오류가 발생했어요. .xlsx 또는 .xls 파일인지 확인해 주세요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /* ==========================================================================
        10. 결제 대행사(PG) 스타일 월간 환불 정산 달력 렌더링
        ========================================================================== */
     function renderCalendar() {
@@ -5631,6 +5862,51 @@
       return { rows, headers, amountColIdx, excluded };
     }
 
+    function generate150SampleChargeCleanRows() {
+      const names = [
+        '김지원', '박서원', '이정연', '정선주', '고우정', '최민호', '윤지아', '한승우', '강예은', '장도윤',
+        '임소율', '송하은', '오태양', '배수빈', '신우진', '안채원', '황준서', '유다인', '문서진', '권시우'
+      ];
+      const amounts = [
+        11000, 33000, 55000, 110000, 220000, 330000, 550000, 1100000, 2200000, 3300000
+      ];
+      const manualMemos = [
+        '2026-11-10 17:15 / {name} / 100,000원 + 2026-11-10 17:30 / {name} / 10,000원',
+        '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)',
+        '차액 입금 확인 후 수동 충전 승인 완료 ({name})',
+        '동일 금액 중복 입금 건 확인 및 관리자 수동 승인 처리',
+        '2026-11-09 14:20 / {name} / 550,000원 입금 확인 건',
+        '입금자명 불일치 고객센터 유선 확인 후 수동 승인 처리'
+      ];
+      const approvers = ['시스템', '판대리', '판사원', '김팀장', '이주임'];
+
+      const rows = [];
+      for (let i = 1; i <= 150; i++) {
+        const name = names[(i * 7 + 3) % names.length];
+        const isManual = (i % 6 === 2 || i % 6 === 4);
+        let memo = '무통장 자동승인';
+        let approver = '시스템';
+
+        if (isManual) {
+          const tpl = manualMemos[(i * 3) % manualMemos.length];
+          memo = tpl.replace('{name}', name);
+          approver = approvers[1 + (i % (approvers.length - 1))];
+        }
+
+        const amount = (memo.includes('1원 테스트')) ? 1 : amounts[(i * 11 + 5) % amounts.length];
+
+        rows.push([
+          i,
+          memo,
+          name,
+          name,
+          amount,
+          approver
+        ]);
+      }
+      return rows;
+    }
+
     function handleChargeExcelFile(file) {
       if (!file) return;
       if (typeof XLSX === 'undefined') {
@@ -5674,16 +5950,10 @@
       chargeCleanFileName = '원본_샘플.xlsx';
       chargeCleanExcludedCount = 0;
       chargeCleanPage = 1;
-      chargeCleanRows = [
-        [1, '무통장 자동승인', '김지원', '김지원', 110000, '시스템'],
-        [2, '2026-11-10 17:15 / 박서원 / 100,000원 + 2026-11-10 17:30 / 박서원 / 10,000원', '박서원', '박서원', 220600, '판대리'],
-        [3, '무통장 자동승인', '이정연', '이정연', 550000, '시스템'],
-        [4, '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)', '정선주', '정선주', 1, '판사원'],
-        [5, '무통장 자동승인', '고우정', '고우정', 1100000, '시스템']
-      ];
-      els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName}`;
+      chargeCleanRows = generate150SampleChargeCleanRows();
+      els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName} (150건)`;
       renderChargeCleanTable();
-      showToast('원본 샘플 데이터를 지정된 열 순서와 규칙대로 정리했어요.');
+      showToast('원본 샘플 데이터 150건을 지정된 열 순서와 규칙대로 정리했어요.');
     }
 
     function initSampleChargeCleanData() {
@@ -5692,14 +5962,8 @@
       chargeCleanFileName = '원본_샘플.xlsx';
       chargeCleanExcludedCount = 0;
       chargeCleanPage = 1;
-      chargeCleanRows = [
-        [1, '무통장 자동승인', '김지원', '김지원', 110000, '시스템'],
-        [2, '2026-11-10 17:15 / 박서원 / 100,000원 + 2026-11-10 17:30 / 박서원 / 10,000원', '박서원', '박서원', 220600, '판대리'],
-        [3, '무통장 자동승인', '이정연', '이정연', 550000, '시스템'],
-        [4, '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)', '정선주', '정선주', 1, '판사원'],
-        [5, '무통장 자동승인', '고우정', '고우정', 1100000, '시스템']
-      ];
-      els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName}`;
+      chargeCleanRows = generate150SampleChargeCleanRows();
+      els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName} (150건)`;
     }
 
     function getFilteredChargeCleanRows() {
@@ -6299,6 +6563,17 @@
 
       els.depMonthSelect.addEventListener('change', renderDepositLedger);
       els.depositEntryForm.addEventListener('submit', handleSaveDepositEntry);
+
+      // 입금 내역 엑셀 다운로드 및 업로드 바인딩
+      els.btnExportDepositExcel.addEventListener('click', exportDepositLedgerToExcel);
+      els.btnUploadDepositExcel.addEventListener('click', () => {
+        els.depositExcelInput.click();
+      });
+      els.depositExcelInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) handleImportDepositExcel(file);
+        e.target.value = '';
+      });
 
       els.depositLedgerBody.addEventListener('click', (e) => {
         const clearDayBtn = e.target.closest('[data-clear-dep-date]');
