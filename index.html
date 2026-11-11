@@ -2053,7 +2053,8 @@
             <p class="card-subtitle">각 날짜의 입금 금액과 누적된 특이사항을 한눈에 확인하고 개별 삭제할 수 있어요.</p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <select id="depMonthSelect" class="select" style="width: 145px;" aria-label="조회 월 선택">
+            <select id="depMonthSelect" class="select" style="width: 175px;" aria-label="조회 월 선택">
+              <option value="ALL">2026년 전체 월</option>
               <option value="2026-11">2026년 11월</option>
               <option value="2026-10">2026년 10월</option>
               <option value="2026-09">2026년 9월</option>
@@ -2109,7 +2110,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title" id="depChartCardTitle">2026년 11월 일자별 입금 추이</h2>
-            <p class="card-subtitle">그래프의 날짜 지점에 마우스를 올리면 해당 일자의 정확한 무통장 입금 금액을 확인할 수 있어요.</p>
+            <p class="card-subtitle" id="depChartCardSubtitle">그래프의 날짜 지점에 마우스를 올리면 해당 일자의 정확한 무통장 입금 금액을 확인할 수 있어요.</p>
           </div>
         </div>
 
@@ -2477,8 +2478,8 @@
 
         <div class="toolbar">
           <div class="search-group">
-            <select id="filterMonth" class="select" style="max-width: 155px;" aria-label="월별 필터">
-              <option value="ALL">전체 월</option>
+            <select id="filterMonth" class="select" style="max-width: 175px;" aria-label="월별 필터">
+              <option value="ALL">2026년 전체 월</option>
             </select>
             <input type="text" id="searchInput" class="input" style="flex: 1; min-width: 180px;" placeholder="아이디, 예금주, 은행, 계좌번호 검색">
             <select id="filterMethod" class="select" style="max-width: 155px;" aria-label="결제수단 필터">
@@ -2793,14 +2794,21 @@
   <script>
     /* ==========================================================================
        1. 저장소 모듈 (StorageManager)
-       - 브라우저 localStorage를 안전하게 감싸며, 오늘(2026-11-08)까지만 샘플을 생성합니다.
+       - 2026년 1월 1일부터 오늘(2026-11)까지 11개월간의 샘플 데이터를 생성합니다.
        ========================================================================== */
     const StorageManager = {
-      STORAGE_KEY: 'doublemedia_bank_refund_records_v7',
+      STORAGE_KEY: 'doublemedia_bank_refund_records_v8',
 
       getDemoSeedData() {
         const todayStr = getTodayDateString();
+        // 2026년 1월 ~ 11월 화·목 정산 스케줄
         const monthlySchedules = {
+          '2026-01': ['2026-01-06', '2026-01-08', '2026-01-13', '2026-01-15', '2026-01-20', '2026-01-22', '2026-01-27', '2026-01-29'],
+          '2026-02': ['2026-02-03', '2026-02-05', '2026-02-10', '2026-02-12', '2026-02-19', '2026-02-24', '2026-02-26'],
+          '2026-03': ['2026-03-03', '2026-03-05', '2026-03-10', '2026-03-12', '2026-03-17', '2026-03-19', '2026-03-24', '2026-03-26', '2026-03-31'],
+          '2026-04': ['2026-04-02', '2026-04-07', '2026-04-09', '2026-04-14', '2026-04-16', '2026-04-21', '2026-04-23', '2026-04-28', '2026-04-30'],
+          '2026-05': ['2026-05-07', '2026-05-12', '2026-05-14', '2026-05-19', '2026-05-21', '2026-05-26', '2026-05-28'],
+          '2026-06': ['2026-06-02', '2026-06-04', '2026-06-09', '2026-06-11', '2026-06-16', '2026-06-18', '2026-06-23', '2026-06-25', '2026-06-30'],
           '2026-07': ['2026-07-02', '2026-07-07', '2026-07-09', '2026-07-14', '2026-07-16', '2026-07-21', '2026-07-23', '2026-07-28', '2026-07-30'],
           '2026-08': ['2026-08-04', '2026-08-06', '2026-08-11', '2026-08-13', '2026-08-18', '2026-08-20', '2026-08-25', '2026-08-27'],
           '2026-09': ['2026-09-01', '2026-09-03', '2026-09-08', '2026-09-10', '2026-09-15', '2026-09-17', '2026-09-22', '2026-09-24', '2026-09-29'],
@@ -2812,7 +2820,7 @@
         const virtualNames = [
           '김도윤', '이서연', '박하준', '정지우', '최민준', '강서윤', '조시우', '윤하은', '장주원', '임지민',
           '한지호', '오수빈', '서예준', '신유진', '권건우', '황소율', '안현우', '송채원', '전우진', '홍다은',
-          '유승현', '고은서', '문준서', '양지아'
+          '유승현', '고은서', '문준서', '양지아', '김태윤', '이채은', '박성민', '최예린'
         ];
 
         const templates = [
@@ -2832,7 +2840,7 @@
             special: '미충전 입금 금액 환불 요청 건',
             remark: '미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)',
             paid: 1100000,
-            first: '2026-05-14'
+            first: '2026-01-14'
           },
           {
             method: '무통장',
@@ -2841,7 +2849,7 @@
             special: '',
             remark: '일부 사용 하트 환불',
             paid: 1100000,
-            first: '2026-06-19'
+            first: '2026-02-19'
           },
           {
             method: '휴대폰',
@@ -2850,7 +2858,7 @@
             special: '휴대폰 소액결제의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 11% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 110000,
-            first: '2026-07-01'
+            first: '2026-03-01'
           },
           {
             method: '신용카드',
@@ -2859,7 +2867,7 @@
             special: '신용카드 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 440000,
-            first: '2026-06-03'
+            first: '2026-03-12'
           },
           {
             method: '토스페이',
@@ -2868,7 +2876,7 @@
             special: '토스페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 2.75% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 330000,
-            first: '2026-06-22'
+            first: '2026-04-05'
           },
           {
             method: '네이버페이',
@@ -2877,7 +2885,7 @@
             special: '네이버페이 결제건의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 3.4% 제외 후 환불금 입금',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 880000,
-            first: '2026-05-29'
+            first: '2026-04-18'
           },
           {
             method: '무통장',
@@ -2895,7 +2903,7 @@
             special: '',
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 566500,
-            first: '2026-06-08'
+            first: '2026-05-08'
           },
           {
             method: '무통장',
@@ -2904,16 +2912,7 @@
             special: '',
             remark: '미사용 스페셜하트 (스페셜하트 10,000개 환불)',
             paid: 1650000,
-            first: '2026-06-08'
-          },
-          {
-            method: '무통장',
-            amount: 3300,
-            reason: '무통장 결제 후 미사용 풀방입장권 아이템 1개 환불',
-            special: '',
-            remark: '미사용 아이템 (풀방 입장권 30일 환불)',
-            paid: 330000,
-            first: '2026-06-14'
+            first: '2026-05-15'
           },
           {
             method: '삼성페이',
@@ -2932,30 +2931,10 @@
             remark: '미사용 (결제 후 미사용 하트 환불)',
             paid: 110000,
             first: '2026-07-02'
-          },
-          {
-            method: '무통장',
-            amount: 103730,
-            reason: '무통장 결제 일부 사용 후 잔여 하트 963개 환불\n잔여 하트 963개 - 20개 = 943개 [보너스 하트 전체 차감]\n943개 * 110원 = 103,730원',
-            special: '',
-            remark: '일부 사용 하트 환불',
-            paid: 330000,
-            first: '2026-05-19'
-          },
-          {
-            method: '무통장',
-            amount: 1100000,
-            reason: '입금 후 미충전으로 인한 환불 요청',
-            special: '중복 입금 금액 환불 요청 건',
-            remark: '미충전 (동일 금액 중복 입금으로 인한 환불 요청)',
-            paid: 3300000,
-            first: '2026-03-18'
           }
         ];
 
-        // 각 화·목 정산일마다 최소 3건 ~ 최대 10건까지 실제처럼 변칙적으로 배정
-        const irregularDailyCounts = [4, 7, 3, 9, 5, 10, 6, 3, 8];
-
+        const irregularDailyCounts = [4, 6, 3, 8, 5, 7, 6, 4, 8];
         const generated = [];
         let seq = 1;
 
@@ -3070,20 +3049,27 @@
 
     /* ==========================================================================
        1-2. 무통장 입금 내역 저장소 모듈 (DepositLedgerStorage)
-       - 월별 일자 전체 입금 금액 및 특이사항 누적 저장 (오늘 2026-11-08까지만 생성)
+       - 2026년 1월 1일부터 오늘(2026-11)까지 11개월 전 기간 샘플 자동 구축
        ========================================================================== */
     const DepositLedgerStorage = {
-      STORAGE_KEY: 'doublemedia_deposit_ledger_v9',
+      STORAGE_KEY: 'doublemedia_deposit_ledger_v10',
 
       getDemoSeedData() {
         const todayStr = getTodayDateString();
         const data = {};
+        // 2026년 1월 ~ 11월 (일자 수 및 월별 기준 매출 규모)
         const months = [
-          { ym: '2026-07', days: 31, base: 185000000 },
-          { ym: '2026-08', days: 31, base: 204000000 },
-          { ym: '2026-09', days: 30, base: 221000000 },
-          { ym: '2026-10', days: 31, base: 242000000 },
-          { ym: '2026-11', days: 30, base: 256000000 }
+          { ym: '2026-01', days: 31, base: 142000000 },
+          { ym: '2026-02', days: 28, base: 135000000 },
+          { ym: '2026-03', days: 31, base: 156000000 },
+          { ym: '2026-04', days: 30, base: 168000000 },
+          { ym: '2026-05', days: 31, base: 175000000 },
+          { ym: '2026-06', days: 30, base: 181000000 },
+          { ym: '2026-07', days: 31, base: 195000000 },
+          { ym: '2026-08', days: 31, base: 210000000 },
+          { ym: '2026-09', days: 30, base: 224000000 },
+          { ym: '2026-10', days: 31, base: 245000000 },
+          { ym: '2026-11', days: 30, base: 258000000 }
         ];
 
         const sampleNames = [
@@ -3104,20 +3090,20 @@
               dayCounts[d] = novPattern[d % novPattern.length];
             }
           } else {
-            let remaining = 30;
+            let remaining = 24 + (mIdx % 7);
             let cursor = (mIdx * 5) % m.days;
             while (remaining > 0) {
               const step = 1 + ((cursor + mIdx) % 3);
               cursor = (cursor + step) % m.days;
               if (dayCounts[cursor] < 4) {
-                const add = Math.min(remaining, 4 - dayCounts[cursor], 1 + ((cursor * 3 + mIdx) % 4));
+                const add = Math.min(remaining, 3 - dayCounts[cursor], 1 + ((cursor * 2 + mIdx) % 3));
                 dayCounts[cursor] += add;
                 remaining -= add;
               }
             }
           }
 
-          let seq = 1;
+          let seq = 1 + mIdx * 17;
           for (let d = 1; d <= m.days; d++) {
             const dd = String(d).padStart(2, '0');
             const dateStr = `${m.ym}-${dd}`;
@@ -3125,8 +3111,10 @@
 
             const dow = new Date(`${dateStr}T00:00:00`).getDay();
             const isWeekend = (dow === 0 || dow === 6);
-            const variance = ((d * 17 + mIdx * 13) % 45) * 1450000;
-            const amount = Math.round((m.base * (isWeekend ? 0.72 : 1.05) + variance) / 100) * 100;
+            // 요일 편차 및 월 중반/말일 정산 피크 반영
+            const dayPeak = (d === 10 || d === 15 || d === 25 || d === m.days) ? 1.35 : 1.0;
+            const variance = ((d * 19 + mIdx * 11) % 40) * 1650000;
+            const amount = Math.round((m.base * (isWeekend ? 0.72 : 1.08) * dayPeak + variance) / 100) * 100;
 
             const notes = [];
             const noteCount = dayCounts[d - 1];
@@ -3946,6 +3934,7 @@
       depositExcelInput: document.getElementById('depositExcelInput'),
       btnUploadDepositExcel: document.getElementById('btnUploadDepositExcel'),
       depChartCardTitle: document.getElementById('depChartCardTitle'),
+      depChartCardSubtitle: document.getElementById('depChartCardSubtitle'),
       depositChartContainer: document.getElementById('depositChartContainer'),
       depositLineChart: document.getElementById('depositLineChart'),
       depositChartTooltip: document.getElementById('depositChartTooltip'),
@@ -4386,7 +4375,7 @@
       });
       const sortedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
 
-      els.filterMonth.innerHTML = '<option value="ALL">전체 월</option>' +
+      els.filterMonth.innerHTML = '<option value="ALL">2026년 전체 월</option>' +
         sortedMonths.map(ym => {
           const [y, m] = ym.split('-');
           return `<option value="${ym}">${y}년 ${Number(m)}월</option>`;
@@ -4921,18 +4910,34 @@
       els.depTestPreview.textContent = `미리보기: ${testDt} / ${testName} / 1원 / 테스트 입금 건`;
     }
 
+    function updateDepositMonthSelectOptions() {
+      const currentVal = els.depMonthSelect.value || '2026-11';
+      const monthSet = new Set();
+      Object.keys(depositLedger).forEach(dateStr => {
+        if (dateStr && dateStr.length >= 7) {
+          monthSet.add(dateStr.slice(0, 7));
+        }
+      });
+      const sortedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
+
+      els.depMonthSelect.innerHTML = '<option value="ALL">2026년 전체 월</option>' +
+        sortedMonths.map(ym => {
+          const [y, m] = ym.split('-');
+          return `<option value="${ym}">${y}년 ${Number(m)}월</option>`;
+        }).join('');
+
+      if (currentVal === 'ALL' || sortedMonths.includes(currentVal)) {
+        els.depMonthSelect.value = currentVal;
+      } else {
+        els.depMonthSelect.value = sortedMonths[0] || 'ALL';
+      }
+      CustomSelectManager.sync(els.depMonthSelect);
+    }
+
     function renderDepositLedger() {
       const ym = els.depMonthSelect.value || '2026-11';
-      const [yearStr, monthStr] = ym.split('-');
-      const year = Number(yearStr);
-      const month = Number(monthStr);
-      const daysInMonth = new Date(year, month, 0).getDate();
       const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
       const todayStr = getTodayDateString();
-
-      els.depStatMonthLabel.textContent = `${year}년 ${month}월 입금 합계`;
-      els.depTableCardTitle.textContent = `${year}년 ${month}월 일자별 무통장 입금 내역`;
-      els.depChartCardTitle.textContent = `${year}년 ${month}월 일자별 입금 추이`;
 
       let totalAmount = 0;
       let activeDays = 0;
@@ -4943,6 +4948,131 @@
       let testCount = 0;
 
       const rowsHtml = [];
+
+      if (ym === 'ALL') {
+        els.depStatMonthLabel.textContent = '2026년 누적 입금 합계';
+        els.depTableCardTitle.textContent = '2026년 전체 월 일자별 무통장 입금 내역';
+        els.depChartCardTitle.textContent = '2026년 월별 입금 추이 (최고 입금액 vs 일 평균 입금액)';
+        if (els.depChartCardSubtitle) {
+          els.depChartCardSubtitle.textContent = '월별 최대 일 입금 금액(파란색)과 일 평균 입금 금액(회색) 추이를 한눈에 비교할 수 있어요.';
+        }
+
+        // 전체 일자 목록 수집 (최신 날짜순 정렬)
+        const allDates = Object.keys(depositLedger).sort((a, b) => b.localeCompare(a));
+        const monthlyStats = {};
+
+        allDates.forEach(dateStr => {
+          const mKey = dateStr.slice(0, 7);
+          const isFutureDate = dateStr > todayStr;
+          const entry = isFutureDate ? { amount: 0, notes: [] } : (depositLedger[dateStr] || { amount: 0, notes: [] });
+          const amount = Number(entry.amount) || 0;
+          const notes = Array.isArray(entry.notes) ? entry.notes : [];
+
+          if (!monthlyStats[mKey]) {
+            monthlyStats[mKey] = { ym: mKey, totalAmt: 0, activeDays: 0, maxDayAmt: 0 };
+          }
+
+          if (amount > 0) {
+            totalAmount += amount;
+            activeDays += 1;
+            monthlyStats[mKey].totalAmt += amount;
+            monthlyStats[mKey].activeDays += 1;
+            if (amount > monthlyStats[mKey].maxDayAmt) {
+              monthlyStats[mKey].maxDayAmt = amount;
+            }
+            if (amount > maxDayAmt) {
+              maxDayAmt = amount;
+              maxDayStr = `${dateStr} (${formatNumber(amount)}원)`;
+            }
+          }
+
+          notes.forEach(n => {
+            if (n.type === 'rejected') rejectedCount += 1;
+            else if (n.type === 'unprocessed') unprocessedCount += 1;
+            else if (n.type === 'test') testCount += 1;
+          });
+
+          const dowIdx = new Date(`${dateStr}T00:00:00`).getDay();
+          const dowLabel = dowNames[dowIdx];
+          const dowColor = dowIdx === 0 ? 'var(--coral)' : (dowIdx === 6 ? 'var(--accent-text)' : 'var(--ink-2)');
+
+          let notesCellHtml = '<span style="color: var(--muted); font-size: 13px;">특이사항 없음</span>';
+          if (notes.length > 0) {
+            notesCellHtml = `<div class="deposit-note-list">` + notes.map(note => {
+              const cls = note.type === 'rejected' ? 'is-rejected' : (note.type === 'unprocessed' ? 'is-unprocessed' : 'is-test');
+              return `
+                <div class="deposit-note-item ${cls}">
+                  <div class="deposit-note-text">
+                    <span class="deposit-note-highlight">${escapeHtml(note.text)}</span>
+                  </div>
+                </div>
+              `;
+            }).join('') + `</div>`;
+          }
+
+          const amountCellHtml = isFutureDate
+            ? `<td class="td-amount" style="color: var(--muted);">-</td>`
+            : `<td class="td-amount" style="color: ${amount > 0 ? 'var(--ink)' : 'var(--muted)'};">${formatNumber(amount)}원</td>`;
+
+          rowsHtml.push(`
+            <tr style="${isFutureDate ? 'opacity: 0.55;' : ''}">
+              <td style="white-space: nowrap; font-weight: 700;">
+                ${dateStr} <span style="color: ${dowColor}; font-size: 12px;">(${dowLabel})</span>
+              </td>
+              ${amountCellHtml}
+              <td>${notesCellHtml}</td>
+              <td style="text-align: right; white-space: nowrap;">
+                <div class="deposit-row-actions">
+                  <button type="button" class="btn-row-edit" data-select-dep-date="${dateStr}">변경</button>
+                  <button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 10px;" data-clear-dep-date="${dateStr}">삭제</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        });
+
+        els.depositLedgerBody.innerHTML = rowsHtml.join('');
+
+        const avgAmt = activeDays > 0 ? Math.round(totalAmount / activeDays) : 0;
+        const totalNotes = rejectedCount + unprocessedCount + testCount;
+
+        els.depStatTotalAmount.textContent = `${formatNumber(totalAmount)}원`;
+        els.depStatActiveDays.textContent = `입금 발생일 ${activeDays}일 (전체 ${allDates.length}일)`;
+        els.depStatAvgAmount.textContent = `${formatNumber(avgAmt)}원`;
+        els.depStatMaxDay.textContent = `최고 입금일: ${maxDayStr}`;
+        els.depStatNoteCount.textContent = `${formatNumber(totalNotes)}건`;
+        els.depStatNoteBreakdown.textContent = `차액 거절 ${rejectedCount} · 미처리 ${unprocessedCount} · 테스트 ${testCount}`;
+
+        // 전체 월 전용 듀얼 꺾은선 차트 데이터 가공 (과거순 정렬)
+        const monthlyPoints = Object.keys(monthlyStats).sort().map(mKey => {
+          const stat = monthlyStats[mKey];
+          const avg = stat.activeDays > 0 ? Math.round(stat.totalAmt / stat.activeDays) : 0;
+          const [y, m] = mKey.split('-');
+          return {
+            ym: mKey,
+            label: `${y.slice(2)}년 ${Number(m)}월`,
+            maxAmount: stat.maxDayAmt,
+            avgAmount: avg
+          };
+        });
+
+        renderDepositMultiMonthChart(monthlyPoints);
+        return;
+      }
+
+      // 개별 월 선택 모드
+      const [yearStr, monthStr] = ym.split('-');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      els.depStatMonthLabel.textContent = `${year}년 ${month}월 입금 합계`;
+      els.depTableCardTitle.textContent = `${year}년 ${month}월 일자별 무통장 입금 내역`;
+      els.depChartCardTitle.textContent = `${year}년 ${month}월 일자별 입금 추이`;
+      if (els.depChartCardSubtitle) {
+        els.depChartCardSubtitle.textContent = '그래프의 날짜 지점에 마우스를 올리면 해당 일자의 정확한 무통장 입금 금액을 확인할 수 있어요.';
+      }
+
       const chartPoints = [];
 
       for (let d = 1; d <= daysInMonth; d++) {
@@ -4959,7 +5089,6 @@
         const amount = Number(entry.amount) || 0;
         const notes = Array.isArray(entry.notes) ? entry.notes : [];
 
-        // 해당 월의 1일~말일 전체 날짜를 차트 X축에 모두 포함
         chartPoints.push({
           day: d,
           dateStr,
@@ -5035,6 +5164,237 @@
       els.depStatNoteBreakdown.textContent = `차액 거절 ${rejectedCount} · 미처리 ${unprocessedCount} · 테스트 ${testCount}`;
 
       renderDepositLineChart(chartPoints, month);
+    }
+
+    function renderDepositMultiMonthChart(monthlyPoints) {
+      const svg = els.depositLineChart;
+      const tooltip = els.depositChartTooltip;
+      const container = els.depositChartContainer;
+      if (!svg) return;
+
+      tooltip.classList.remove('show');
+
+      if (!monthlyPoints || monthlyPoints.length === 0) {
+        svg.innerHTML = `
+          <text x="440" y="135" text-anchor="middle" fill="#7a8492" font-size="14" font-weight="600">
+            표시할 월별 입금 데이터가 없습니다.
+          </text>
+        `;
+        return;
+      }
+
+      const width = 880;
+      const height = 270;
+      const padLeft = 76;
+      const padRight = 40;
+      const padTop = 38;
+      const padBottom = 42;
+      const plotW = width - padLeft - padRight;
+      const plotH = height - padTop - padBottom;
+
+      // 전체 월 중 가장 높은 최대 입금액 기준 스케일 계산
+      const rawMax = Math.max(...monthlyPoints.map(p => p.maxAmount), 100000000);
+      const stepUnit = 50000000;
+      const maxVal = Math.ceil((rawMax * 1.15) / stepUnit) * stepUnit;
+      const tickCount = 4;
+
+      const n = monthlyPoints.length;
+      const xStep = n > 1 ? plotW / (n - 1) : plotW;
+
+      const coords = monthlyPoints.map((p, idx) => {
+        const x = n > 1 ? padLeft + idx * xStep : padLeft + plotW / 2;
+        const yMax = padTop + plotH - (maxVal > 0 ? (p.maxAmount / maxVal) * plotH : 0);
+        const yAvg = padTop + plotH - (maxVal > 0 ? (p.avgAmount / maxVal) * plotH : 0);
+        return { ...p, x, yMax, yAvg };
+      });
+
+      // 가로 가이드선 및 Y축 라벨
+      let gridHtml = '';
+      for (let i = 0; i <= tickCount; i++) {
+        const val = (maxVal / tickCount) * i;
+        const y = padTop + plotH - (plotH / tickCount) * i;
+        const eokVal = (val / 100000000);
+        const yLabel = val === 0 ? '0원' : `${Number.isInteger(eokVal) ? eokVal : eokVal.toFixed(1)}억`;
+
+        gridHtml += `
+          <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}"
+                stroke="${i === 0 ? '#dcdce1' : '#e6e9ee'}" stroke-width="1" ${i > 0 ? 'stroke-dasharray="4 4"' : ''} />
+          <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#7a8492" font-size="12" font-weight="600">
+            ${yLabel}
+          </text>
+        `;
+      }
+
+      // 두 곡선의 패스 생성
+      const maxLinePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.yMax.toFixed(1)}`).join(' ');
+      const avgLinePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.yAvg.toFixed(1)}`).join(' ');
+
+      // 파란색 최대 입금 라인 아래 옅은 그라데이션 영역
+      const baseY = (padTop + plotH).toFixed(1);
+      const firstX = coords[0].x.toFixed(1);
+      const lastX = coords[coords.length - 1].x.toFixed(1);
+      const maxAreaPath = `${maxLinePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
+
+      // 상단 범례(Legend)
+      const legendHtml = `
+        <g transform="translate(${width - padRight - 230}, 12)">
+          <line x1="0" y1="8" x2="18" y2="8" stroke="#0096ff" stroke-width="2.6" />
+          <circle cx="9" cy="8" r="3.5" fill="#ffffff" stroke="#0096ff" stroke-width="2" />
+          <text x="24" y="12" fill="#161b22" font-size="12" font-weight="700">당월 최대 입금</text>
+
+          <line x1="120" y1="8" x2="138" y2="8" stroke="#7a8492" stroke-width="2.6" />
+          <circle cx="129" cy="8" r="3.5" fill="#ffffff" stroke="#7a8492" stroke-width="2" />
+          <text x="144" y="12" fill="#4c5563" font-size="12" font-weight="700">일 평균 입금</text>
+        </g>
+      `;
+
+      // X축 월별 텍스트 라벨 (1월 ~ 11월)
+      let xLabelsHtml = '';
+      coords.forEach((c) => {
+        xLabelsHtml += `
+          <text x="${c.x.toFixed(1)}" y="${height - 14}" text-anchor="middle" fill="#4c5563" font-size="12" font-weight="700">
+            ${c.label}
+          </text>
+        `;
+      });
+
+      // 포인트 원형 표기 (회색 평균 / 파란색 최고액)
+      let pointsHtml = '';
+      coords.forEach((c) => {
+        pointsHtml += `
+          <circle cx="${c.x.toFixed(1)}" cy="${c.yAvg.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#7a8492" stroke-width="2.4" />
+          <circle cx="${c.x.toFixed(1)}" cy="${c.yMax.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.4" />
+        `;
+      });
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="multiMonthMaxGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.18" />
+            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
+          </linearGradient>
+        </defs>
+        ${gridHtml}
+        ${legendHtml}
+        <path d="${maxAreaPath}" fill="url(#multiMonthMaxGrad)" />
+        <path d="${avgLinePath}" fill="none" stroke="#7a8492" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${maxLinePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+        <line id="chartGuideLine" class="chart-guide-line" x1="0" y1="${padTop}" x2="0" y2="${baseY}"
+              stroke="#0096ff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0" pointer-events="none" />
+        <circle id="chartMaxRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
+                fill="#0096ff" stroke="#ffffff" stroke-width="2.5" opacity="0" pointer-events="none" />
+        <circle id="chartAvgRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
+                fill="#7a8492" stroke="#ffffff" stroke-width="2.5" opacity="0" pointer-events="none" />
+        ${xLabelsHtml}
+        ${pointsHtml}
+      `;
+
+      const guideLine = document.getElementById('chartGuideLine');
+      const maxRing = document.getElementById('chartMaxRing');
+      const avgRing = document.getElementById('chartAvgRing');
+      let currentHoverIdx = -1;
+
+      const showPointTooltip = (idx) => {
+        const pt = coords[idx];
+        if (!pt) return;
+        currentHoverIdx = idx;
+
+        guideLine.setAttribute('x1', pt.x.toFixed(1));
+        guideLine.setAttribute('x2', pt.x.toFixed(1));
+        guideLine.setAttribute('opacity', '1');
+
+        maxRing.setAttribute('cx', pt.x.toFixed(1));
+        maxRing.setAttribute('cy', pt.yMax.toFixed(1));
+        maxRing.setAttribute('opacity', '1');
+
+        avgRing.setAttribute('cx', pt.x.toFixed(1));
+        avgRing.setAttribute('cy', pt.yAvg.toFixed(1));
+        avgRing.setAttribute('opacity', '1');
+
+        const svgRect = svg.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const scaleX = svgRect.width / width;
+        const scaleY = svgRect.height / height;
+        const ptXInContainer = pt.x * scaleX;
+        const ptYInContainer = Math.min(pt.yMax, pt.yAvg) * scaleY;
+
+        tooltip.innerHTML = `
+          <div class="chart-tooltip-date">${pt.label} (${pt.ym})</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
+            <div style="font-size: 14px; font-weight: 800; color: #bfe3ff; display: flex; justify-content: space-between; gap: 12px;">
+              <span>당월 최고 일 입금:</span>
+              <span style="color: #ffffff;">${formatNumber(pt.maxAmount)}원</span>
+            </div>
+            <div style="font-size: 14px; font-weight: 800; color: #d0d7de; display: flex; justify-content: space-between; gap: 12px;">
+              <span>당월 일 평균 입금:</span>
+              <span style="color: #ffffff;">${formatNumber(pt.avgAmount)}원</span>
+            </div>
+          </div>
+        `;
+
+        // 툴팁의 실제 렌더링 크기 측정
+        tooltip.style.left = '0px';
+        tooltip.style.top = '0px';
+        tooltip.classList.add('show');
+        const tipW = tooltip.offsetWidth || 230;
+        const tipH = tooltip.offsetHeight || 90;
+
+        // X축: 오른쪽/왼쪽 경계 잘림 방지 (스크롤 위치 포함)
+        let leftPx = ptXInContainer + container.scrollLeft;
+        const minLeft = (tipW / 2) + 12;
+        const maxLeft = container.scrollLeft + container.clientWidth - (tipW / 2) - 16;
+        leftPx = Math.max(minLeft, Math.min(maxLeft, leftPx));
+
+        // Y축: 상단 잘림 방지 (위쪽 공간이 부족하면 포인트 아래쪽으로 자동 뒤집힘)
+        let topPx = ptYInContainer - 14;
+        if (ptYInContainer - tipH < 10) {
+          // 포인트 아래쪽에 배치
+          const lowerY = Math.max(pt.yMax, pt.yAvg) * scaleY;
+          topPx = lowerY + tipH + 16;
+          tooltip.style.transform = 'translate(-50%, -100%)';
+        } else {
+          tooltip.style.transform = 'translate(-50%, -100%)';
+        }
+
+        tooltip.style.left = `${leftPx}px`;
+        tooltip.style.top = `${Math.max(tipH + 6, topPx)}px`;
+      };
+
+      svg.onmousemove = (e) => {
+        const svgRect = svg.getBoundingClientRect();
+        if (svgRect.width <= 0) return;
+        const relX = ((e.clientX - svgRect.left) / svgRect.width) * width;
+        let nearestIdx = 0;
+        let minDist = Infinity;
+        for (let i = 0; i < coords.length; i++) {
+          const dist = Math.abs(coords[i].x - relX);
+          if (dist < minDist) {
+            minDist = dist;
+            nearestIdx = i;
+          }
+        }
+        if (nearestIdx !== currentHoverIdx) {
+          showPointTooltip(nearestIdx);
+        }
+      };
+
+      svg.onclick = () => {
+        if (currentHoverIdx >= 0 && coords[currentHoverIdx]) {
+          const pt = coords[currentHoverIdx];
+          els.depMonthSelect.value = pt.ym;
+          CustomSelectManager.sync(els.depMonthSelect);
+          renderDepositLedger();
+          showToast(`${pt.label} 상세 내역으로 이동했어요.`);
+        }
+      };
+
+      svg.onmouseleave = () => {
+        currentHoverIdx = -1;
+        guideLine.setAttribute('opacity', '0');
+        maxRing.setAttribute('opacity', '0');
+        avgRing.setAttribute('opacity', '0');
+        tooltip.classList.remove('show');
+      };
     }
 
     function renderDepositLineChart(points, month) {
@@ -5173,8 +5533,8 @@
         const svgRect = svg.getBoundingClientRect();
         const scaleX = svgRect.width / width;
         const scaleY = svgRect.height / height;
-        const leftPx = pt.x * scaleX + container.scrollLeft;
-        const topPx = pt.y * scaleY - 12;
+        const ptXInContainer = pt.x * scaleX;
+        const ptYInContainer = pt.y * scaleY;
 
         const amountLabel = pt.isFuture && pt.amount === 0
           ? '데이터 없음 (예정일)'
@@ -5184,13 +5544,34 @@
           <div class="chart-tooltip-date">${month}월 ${pt.day}일 (${pt.dowLabel})</div>
           <div class="chart-tooltip-amount">${amountLabel}</div>
         `;
-        tooltip.style.left = `${leftPx}px`;
-        tooltip.style.top = `${Math.max(46, topPx)}px`;
+
+        // 툴팁의 실제 렌더링 너비/높이 측정 및 스마트 경계 감지 적용
+        tooltip.style.left = '0px';
+        tooltip.style.top = '0px';
         tooltip.classList.add('show');
+        const tipW = tooltip.offsetWidth || 160;
+        const tipH = tooltip.offsetHeight || 58;
+
+        // X축: 오른쪽 및 왼쪽 컨테이너 경계 잘림 방지 (스크롤 위치 포함)
+        let leftPx = ptXInContainer + container.scrollLeft;
+        const minLeft = (tipW / 2) + 12;
+        const maxLeft = container.scrollLeft + container.clientWidth - (tipW / 2) - 16;
+        leftPx = Math.max(minLeft, Math.min(maxLeft, leftPx));
+
+        // Y축: 상단 잘림 방지 (상단 공간이 부족하면 포인트 아래쪽으로 자동 뒤집힘)
+        let topPx = ptYInContainer - 12;
+        if (ptYInContainer - tipH < 8) {
+          topPx = ptYInContainer + tipH + 16;
+          tooltip.style.transform = 'translate(-50%, -100%)';
+        } else {
+          tooltip.style.transform = 'translate(-50%, -100%)';
+        }
+
+        tooltip.style.left = `${leftPx}px`;
+        tooltip.style.top = `${Math.max(tipH + 6, topPx)}px`;
       };
 
-      // 차트 영역 전체에서 마우스 X 좌표를 추적해 가장 가까운 날짜 지점으로 부드럽게 슬라이딩
-      svg.addEventListener('mousemove', (e) => {
+      svg.onmousemove = (e) => {
         const svgRect = svg.getBoundingClientRect();
         if (svgRect.width <= 0) return;
         const relX = ((e.clientX - svgRect.left) / svgRect.width) * width;
@@ -5206,9 +5587,9 @@
         if (nearestIdx !== currentHoverIdx) {
           showPointTooltip(nearestIdx);
         }
-      });
+      };
 
-      svg.addEventListener('click', () => {
+      svg.onclick = () => {
         if (currentHoverIdx >= 0 && coords[currentHoverIdx]) {
           const pt = coords[currentHoverIdx];
           els.depTargetDate.value = pt.dateStr;
@@ -5216,14 +5597,14 @@
           const existing = depositLedger[pt.dateStr];
           els.depDailyAmount.value = existing && existing.amount > 0 ? formatNumber(existing.amount) : '';
         }
-      });
+      };
 
-      svg.addEventListener('mouseleave', () => {
+      svg.onmouseleave = () => {
         currentHoverIdx = -1;
         guideLine.setAttribute('opacity', '0');
         activeRing.setAttribute('opacity', '0');
         tooltip.classList.remove('show');
-      });
+      };
     }
 
     function handleSaveDepositEntry(event) {
@@ -5345,31 +5726,55 @@
       }
 
       const ym = els.depMonthSelect.value || '2026-11';
-      const [yearStr, monthStr] = ym.split('-');
-      const year = Number(yearStr);
-      const month = Number(monthStr);
-      const daysInMonth = new Date(year, month, 0).getDate();
       const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
-
       const headerRow = ['일자', '입금 금액', '특이사항 (차액 환불 거절 · 미처리 · 테스트 입금)'];
       const dataRows = [];
+      let sheetTitle = '';
+      let fileName = '';
 
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dd = String(d).padStart(2, '0');
-        const dateStr = `${ym}-${dd}`;
-        const dowLabel = dowNames[new Date(`${dateStr}T00:00:00`).getDay()];
-        const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
-        const amount = Number(entry.amount) || 0;
-        const notes = Array.isArray(entry.notes) ? entry.notes : [];
+      if (ym === 'ALL') {
+        sheetTitle = '전체 무통장 입금내역';
+        fileName = `무통장_입금내역_전체_${getTodayDateString()}.xlsx`;
 
-        // 복수 특이사항은 줄바꿈(\n)으로 모두 보존
-        const notesText = notes.map(n => n.text).join('\n');
+        // 전체 일자 목록을 과거 -> 최신순으로 정렬하여 다운로드
+        const allDates = Object.keys(depositLedger).sort();
+        allDates.forEach(dateStr => {
+          const dowLabel = dowNames[new Date(`${dateStr}T00:00:00`).getDay()];
+          const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
+          const amount = Number(entry.amount) || 0;
+          const notes = Array.isArray(entry.notes) ? entry.notes : [];
+          const notesText = notes.map(n => n.text).join('\n');
 
-        dataRows.push([
-          `${dateStr} (${dowLabel})`,
-          amount,
-          notesText
-        ]);
+          dataRows.push([
+            `${dateStr} (${dowLabel})`,
+            amount,
+            notesText
+          ]);
+        });
+      } else {
+        const [yearStr, monthStr] = ym.split('-');
+        const year = Number(yearStr);
+        const month = Number(monthStr);
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        sheetTitle = `${year}년 ${month}월 입금내역`;
+        fileName = `무통장_입금내역_${ym}.xlsx`;
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dd = String(d).padStart(2, '0');
+          const dateStr = `${ym}-${dd}`;
+          const dowLabel = dowNames[new Date(`${dateStr}T00:00:00`).getDay()];
+          const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
+          const amount = Number(entry.amount) || 0;
+          const notes = Array.isArray(entry.notes) ? entry.notes : [];
+          const notesText = notes.map(n => n.text).join('\n');
+
+          dataRows.push([
+            `${dateStr} (${dowLabel})`,
+            amount,
+            notesText
+          ]);
+        }
       }
 
       const wsData = [headerRow, ...dataRows];
@@ -5390,9 +5795,8 @@
       }
 
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, `${year}년 ${month}월 입금내역`);
+      XLSX.utils.book_append_sheet(wb, ws, sheetTitle);
 
-      const fileName = `무통장_입금내역_${ym}.xlsx`;
       XLSX.writeFile(wb, fileName);
       showToast(`${fileName} 파일 다운로드를 시작했어요.`);
     }
@@ -6545,6 +6949,7 @@
       // 탭 0: 무통장 입금 내역 이벤트 바인딩
       els.depTargetDate.value = getYesterdayDateString();
       CustomDatePicker.syncLabel(els.depTargetDate);
+      updateDepositMonthSelectOptions();
       els.depMonthSelect.value = '2026-11';
       CustomSelectManager.sync(els.depMonthSelect);
 
@@ -6928,6 +7333,7 @@
       // 초기 렌더링
       initSampleChargeCleanData();
       updateDepositNoteBoxes();
+      updateDepositMonthSelectOptions();
       renderDepositLedger();
       updateCalculatorPanels();
       renderPendingQueueTable();
