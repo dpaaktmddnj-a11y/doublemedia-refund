@@ -1216,6 +1216,15 @@
       gap: 12px;
     }
 
+    .calendar-nav-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
     .calendar-month-title {
       font-size: 20px;
       font-weight: 800;
@@ -1281,7 +1290,7 @@
     }
 
     .cal-cell.has-data {
-      background-color: var(--accent-soft);
+      background-color: var(--white);
     }
 
     .cal-cell.selected {
@@ -2567,9 +2576,22 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             이전 달
           </button>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;">
-            <h2 class="calendar-month-title" id="calendarMonthTitle">2026년 11월</h2>
-            <button type="button" class="btn btn-primary" id="btnJumpSampleMonth" style="height: 32px; padding: 0 12px; font-size: 12px;">이번 달로 이동</button>
+          <div class="calendar-nav-center">
+            <h3 class="calendar-month-title" id="calendarMonthTitle">2026년 11월</h3>
+            <select id="calendarMonthSelect" class="select" style="width: 175px;" aria-label="정산 달력 월 선택">
+              <option value="2026-12">2026년 12월</option>
+              <option value="2026-11">2026년 11월</option>
+              <option value="2026-10">2026년 10월</option>
+              <option value="2026-09">2026년 9월</option>
+              <option value="2026-08">2026년 8월</option>
+              <option value="2026-07">2026년 7월</option>
+              <option value="2026-06">2026년 6월</option>
+              <option value="2026-05">2026년 5월</option>
+              <option value="2026-04">2026년 4월</option>
+              <option value="2026-03">2026년 3월</option>
+              <option value="2026-02">2026년 2월</option>
+              <option value="2026-01">2026년 1월</option>
+            </select>
           </div>
           <button type="button" class="btn btn-secondary" id="btnNextMonth">
             다음 달
@@ -4015,10 +4037,10 @@
       calStatBankRatio: document.getElementById('calStatBankRatio'),
       calStatBreakdown: document.getElementById('calStatBreakdown'),
       calendarMonthTitle: document.getElementById('calendarMonthTitle'),
+      calendarMonthSelect: document.getElementById('calendarMonthSelect'),
       calendarGrid: document.getElementById('calendarGrid'),
       btnPrevMonth: document.getElementById('btnPrevMonth'),
       btnNextMonth: document.getElementById('btnNextMonth'),
-      btnJumpSampleMonth: document.getElementById('btnJumpSampleMonth'),
       selectedDateTitle: document.getElementById('selectedDateTitle'),
       selectedDateSubtitle: document.getElementById('selectedDateSubtitle'),
       selectedDateTableBody: document.getElementById('selectedDateTableBody'),
@@ -5934,7 +5956,24 @@
     function renderCalendar() {
       const ymPrefix = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
       const todayStr = getTodayDateString();
-      els.calendarMonthTitle.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
+
+      // 달력 년월 타이틀 동기화
+      if (els.calendarMonthTitle) {
+        els.calendarMonthTitle.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
+      }
+
+      // 달력 월 드롭다운 선택값 동기화
+      if (els.calendarMonthSelect) {
+        if (!Array.from(els.calendarMonthSelect.options).some(opt => opt.value === ymPrefix)) {
+          const newOpt = document.createElement('option');
+          newOpt.value = ymPrefix;
+          newOpt.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
+          els.calendarMonthSelect.appendChild(newOpt);
+        }
+        els.calendarMonthSelect.value = ymPrefix;
+        CustomSelectManager.sync(els.calendarMonthSelect);
+      }
+
       els.calStatMonthLabel.textContent = `${currentCalYear}년 ${currentCalMonth}월 총 환불 건수`;
 
       const monthRecords = refundRecords.filter(r => r.refundDate.startsWith(ymPrefix) && r.refundDate <= todayStr);
@@ -7169,13 +7208,19 @@
         renderCalendar();
       });
 
-      els.btnJumpSampleMonth.addEventListener('click', () => {
-        const todayStr = getTodayDateString();
-        currentCalYear = Number(todayStr.slice(0, 4)) || 2026;
-        currentCalMonth = Number(todayStr.slice(5, 7)) || 11;
-        selectedCalDate = todayStr;
-        renderCalendar();
-      });
+      if (els.calendarMonthSelect) {
+        els.calendarMonthSelect.addEventListener('change', () => {
+          const val = els.calendarMonthSelect.value;
+          if (val) {
+            const [y, m] = val.split('-').map(Number);
+            currentCalYear = y;
+            currentCalMonth = m;
+            selectedCalDate = null;
+            renderCalendar();
+            showToast(`${y}년 ${m}월 정산 달력으로 이동했어요.`);
+          }
+        });
+      }
 
       els.calendarGrid.addEventListener('click', (e) => {
         const cell = e.target.closest('[data-cal-date]');
