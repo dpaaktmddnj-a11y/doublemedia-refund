@@ -1975,7 +1975,7 @@
             <div class="form-grid">
               <div class="field">
                 <label class="field-label" for="depUnprocDateTime">입금 날짜·시각 <span class="req">필수</span></label>
-                <input type="text" id="depUnprocDateTime" class="input" placeholder="예: 2026.10.29 15:33:54">
+                <input type="text" id="depUnprocDateTime" class="input" placeholder="예: 2026-10-29 15:33">
               </div>
               <div class="field">
                 <label class="field-label" for="depUnprocName">입금자명 <span class="req">필수</span></label>
@@ -1987,7 +1987,7 @@
               </div>
             </div>
             <div class="calc-result-banner">
-              <span class="calc-formula-text" id="depUnprocPreview">미리보기: 2026.10.29 15:33:54 / 박정하 / 1,100,000원</span>
+              <span class="calc-formula-text" id="depUnprocPreview">미리보기: 2026-10-29 15:33 / 박정하 / 1,100,000원</span>
             </div>
           </div>
 
@@ -3052,7 +3052,7 @@
        - 2026년 1월 1일부터 오늘(2026-11)까지 11개월 전 기간 샘플 자동 구축
        ========================================================================== */
     const DepositLedgerStorage = {
-      STORAGE_KEY: 'doublemedia_deposit_ledger_v10',
+      STORAGE_KEY: 'doublemedia_deposit_ledger_v11',
 
       getDemoSeedData() {
         const todayStr = getTodayDateString();
@@ -3123,7 +3123,6 @@
               const kind = (seq + k + mIdx) % 3;
               const hh = String(9 + ((seq * 2 + k) % 13)).padStart(2, '0');
               const mm = String((seq * 11 + k * 7) % 60).padStart(2, '0');
-              const ss = String((seq * 17 + k * 13) % 60).padStart(2, '0');
 
               if (kind === 0) {
                 const diffAmt = diffAmounts[(seq + k) % diffAmounts.length];
@@ -3134,11 +3133,10 @@
                 });
               } else if (kind === 1) {
                 const unprocAmt = unprocAmounts[(seq + k) % unprocAmounts.length];
-                const dotDate = dateStr.replace(/-/g, '.');
                 notes.push({
                   id: `dn-${dateStr}-${seq}-${k}`,
                   type: 'unprocessed',
-                  text: `${dotDate} ${hh}:${mm}:${ss} / ${name} / ${formatNumber(unprocAmt)}원`
+                  text: `${dateStr} ${hh}:${mm} / ${name} / ${formatNumber(unprocAmt)}원`
                 });
               } else {
                 notes.push({
@@ -4900,7 +4898,8 @@
       const rejName = els.depRejName.value.trim() || '판대리';
       els.depRejPreview.textContent = `미리보기: 차액 ${formatNumber(rejAmt)}원 환불 거절 (입금자명 : ${rejName})`;
 
-      const unprocDt = els.depUnprocDateTime.value.trim() || '2026.10.29 15:33:54';
+      const rawUnprocDt = els.depUnprocDateTime.value.trim() || '2026-10-29 15:33';
+      const unprocDt = rawUnprocDt.replace(/^(\d{4})\.(\d{1,2})\.(\d{1,2})/, '$1-$2-$3');
       const unprocName = els.depUnprocName.value.trim() || '박정하';
       const unprocAmt = parseFormattedNumber(els.depUnprocAmount.value) || 1100000;
       els.depUnprocPreview.textContent = `미리보기: ${unprocDt} / ${unprocName} / ${formatNumber(unprocAmt)}원`;
@@ -4952,9 +4951,9 @@
       if (ym === 'ALL') {
         els.depStatMonthLabel.textContent = '2026년 누적 입금 합계';
         els.depTableCardTitle.textContent = '2026년 전체 월 일자별 무통장 입금 내역';
-        els.depChartCardTitle.textContent = '2026년 월별 입금 추이 (최고 입금액 vs 일 평균 입금액)';
+        els.depChartCardTitle.textContent = '2026년 월별 입금 추이 (월 총 입금 합계)';
         if (els.depChartCardSubtitle) {
-          els.depChartCardSubtitle.textContent = '월별 최대 일 입금 금액(파란색)과 일 평균 입금 금액(회색) 추이를 한눈에 비교할 수 있어요.';
+          els.depChartCardSubtitle.textContent = '각 월의 총 입금 합계 추이를 확인하고, 마우스를 올리면 당월 합계·최고액·평균액을 모두 볼 수 있어요.';
         }
 
         // 전체 일자 목록 수집 (최신 날짜순 정렬)
@@ -5043,7 +5042,7 @@
         els.depStatNoteCount.textContent = `${formatNumber(totalNotes)}건`;
         els.depStatNoteBreakdown.textContent = `차액 거절 ${rejectedCount} · 미처리 ${unprocessedCount} · 테스트 ${testCount}`;
 
-        // 전체 월 전용 듀얼 꺾은선 차트 데이터 가공 (과거순 정렬)
+        // 전체 월 전용 꺾은선 차트 데이터 가공 (과거순 정렬 - 월 총 입금 합계 기준)
         const monthlyPoints = Object.keys(monthlyStats).sort().map(mKey => {
           const stat = monthlyStats[mKey];
           const avg = stat.activeDays > 0 ? Math.round(stat.totalAmt / stat.activeDays) : 0;
@@ -5051,6 +5050,7 @@
           return {
             ym: mKey,
             label: `${y.slice(2)}년 ${Number(m)}월`,
+            totalAmount: stat.totalAmt,
             maxAmount: stat.maxDayAmt,
             avgAmount: avg
           };
@@ -5192,9 +5192,9 @@
       const plotW = width - padLeft - padRight;
       const plotH = height - padTop - padBottom;
 
-      // 전체 월 중 가장 높은 최대 입금액 기준 스케일 계산
-      const rawMax = Math.max(...monthlyPoints.map(p => p.maxAmount), 100000000);
-      const stepUnit = 50000000;
+      // 월 총 입금 합계 기준 최대 스케일 계산 (억/천만 단위 반올림)
+      const rawMax = Math.max(...monthlyPoints.map(p => p.totalAmount), 500000000);
+      const stepUnit = 100000000;
       const maxVal = Math.ceil((rawMax * 1.15) / stepUnit) * stepUnit;
       const tickCount = 4;
 
@@ -5203,9 +5203,8 @@
 
       const coords = monthlyPoints.map((p, idx) => {
         const x = n > 1 ? padLeft + idx * xStep : padLeft + plotW / 2;
-        const yMax = padTop + plotH - (maxVal > 0 ? (p.maxAmount / maxVal) * plotH : 0);
-        const yAvg = padTop + plotH - (maxVal > 0 ? (p.avgAmount / maxVal) * plotH : 0);
-        return { ...p, x, yMax, yAvg };
+        const y = padTop + plotH - (maxVal > 0 ? (p.totalAmount / maxVal) * plotH : 0);
+        return { ...p, x, y };
       });
 
       // 가로 가이드선 및 Y축 라벨
@@ -5225,26 +5224,21 @@
         `;
       }
 
-      // 두 곡선의 패스 생성
-      const maxLinePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.yMax.toFixed(1)}`).join(' ');
-      const avgLinePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.yAvg.toFixed(1)}`).join(' ');
+      // 단일 파란색 곡선의 패스 생성
+      const linePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
 
-      // 파란색 최대 입금 라인 아래 옅은 그라데이션 영역
+      // 파란색 라인 아래 은은한 그라데이션 영역
       const baseY = (padTop + plotH).toFixed(1);
       const firstX = coords[0].x.toFixed(1);
       const lastX = coords[coords.length - 1].x.toFixed(1);
-      const maxAreaPath = `${maxLinePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
+      const areaPath = `${linePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
 
       // 상단 범례(Legend)
       const legendHtml = `
-        <g transform="translate(${width - padRight - 230}, 12)">
+        <g transform="translate(${width - padRight - 110}, 12)">
           <line x1="0" y1="8" x2="18" y2="8" stroke="#0096ff" stroke-width="2.6" />
           <circle cx="9" cy="8" r="3.5" fill="#ffffff" stroke="#0096ff" stroke-width="2" />
-          <text x="24" y="12" fill="#161b22" font-size="12" font-weight="700">당월 최대 입금</text>
-
-          <line x1="120" y1="8" x2="138" y2="8" stroke="#7a8492" stroke-width="2.6" />
-          <circle cx="129" cy="8" r="3.5" fill="#ffffff" stroke="#7a8492" stroke-width="2" />
-          <text x="144" y="12" fill="#4c5563" font-size="12" font-weight="700">일 평균 입금</text>
+          <text x="24" y="12" fill="#161b22" font-size="12" font-weight="700">당월 입금 합계</text>
         </g>
       `;
 
@@ -5258,40 +5252,35 @@
         `;
       });
 
-      // 포인트 원형 표기 (회색 평균 / 파란색 최고액)
+      // 포인트 원형 표기 (파란색 단일)
       let pointsHtml = '';
       coords.forEach((c) => {
         pointsHtml += `
-          <circle cx="${c.x.toFixed(1)}" cy="${c.yAvg.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#7a8492" stroke-width="2.4" />
-          <circle cx="${c.x.toFixed(1)}" cy="${c.yMax.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.4" />
+          <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.4" />
         `;
       });
 
       svg.innerHTML = `
         <defs>
-          <linearGradient id="multiMonthMaxGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.18" />
+          <linearGradient id="multiMonthTotalGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.22" />
             <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
           </linearGradient>
         </defs>
         ${gridHtml}
         ${legendHtml}
-        <path d="${maxAreaPath}" fill="url(#multiMonthMaxGrad)" />
-        <path d="${avgLinePath}" fill="none" stroke="#7a8492" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="${maxLinePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${areaPath}" fill="url(#multiMonthTotalGrad)" />
+        <path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
         <line id="chartGuideLine" class="chart-guide-line" x1="0" y1="${padTop}" x2="0" y2="${baseY}"
               stroke="#0096ff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0" pointer-events="none" />
-        <circle id="chartMaxRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
+        <circle id="chartActiveRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
                 fill="#0096ff" stroke="#ffffff" stroke-width="2.5" opacity="0" pointer-events="none" />
-        <circle id="chartAvgRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
-                fill="#7a8492" stroke="#ffffff" stroke-width="2.5" opacity="0" pointer-events="none" />
         ${xLabelsHtml}
         ${pointsHtml}
       `;
 
       const guideLine = document.getElementById('chartGuideLine');
-      const maxRing = document.getElementById('chartMaxRing');
-      const avgRing = document.getElementById('chartAvgRing');
+      const activeRing = document.getElementById('chartActiveRing');
       let currentHoverIdx = -1;
 
       const showPointTooltip = (idx) => {
@@ -5303,31 +5292,30 @@
         guideLine.setAttribute('x2', pt.x.toFixed(1));
         guideLine.setAttribute('opacity', '1');
 
-        maxRing.setAttribute('cx', pt.x.toFixed(1));
-        maxRing.setAttribute('cy', pt.yMax.toFixed(1));
-        maxRing.setAttribute('opacity', '1');
-
-        avgRing.setAttribute('cx', pt.x.toFixed(1));
-        avgRing.setAttribute('cy', pt.yAvg.toFixed(1));
-        avgRing.setAttribute('opacity', '1');
+        activeRing.setAttribute('cx', pt.x.toFixed(1));
+        activeRing.setAttribute('cy', pt.y.toFixed(1));
+        activeRing.setAttribute('opacity', '1');
 
         const svgRect = svg.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
         const scaleX = svgRect.width / width;
         const scaleY = svgRect.height / height;
         const ptXInContainer = pt.x * scaleX;
-        const ptYInContainer = Math.min(pt.yMax, pt.yAvg) * scaleY;
+        const ptYInContainer = pt.y * scaleY;
 
         tooltip.innerHTML = `
           <div class="chart-tooltip-date">${pt.label} (${pt.ym})</div>
-          <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
-            <div style="font-size: 14px; font-weight: 800; color: #bfe3ff; display: flex; justify-content: space-between; gap: 12px;">
-              <span>당월 최고 일 입금:</span>
-              <span style="color: #ffffff;">${formatNumber(pt.maxAmount)}원</span>
+          <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 6px;">
+            <div style="font-size: 14.5px; font-weight: 800; color: #bfe3ff; display: flex; justify-content: space-between; gap: 14px;">
+              <span>당월 총 입금 합계:</span>
+              <span style="color: #ffffff;">${formatNumber(pt.totalAmount)}원</span>
             </div>
-            <div style="font-size: 14px; font-weight: 800; color: #d0d7de; display: flex; justify-content: space-between; gap: 12px;">
+            <div style="font-size: 12.5px; font-weight: 600; color: #aeb6c2; display: flex; justify-content: space-between; gap: 14px; margin-top: 2px;">
+              <span>당월 최고 일 입금:</span>
+              <span style="color: #e6e9ee; font-weight: 700;">${formatNumber(pt.maxAmount)}원</span>
+            </div>
+            <div style="font-size: 12.5px; font-weight: 600; color: #aeb6c2; display: flex; justify-content: space-between; gap: 14px;">
               <span>당월 일 평균 입금:</span>
-              <span style="color: #ffffff;">${formatNumber(pt.avgAmount)}원</span>
+              <span style="color: #e6e9ee; font-weight: 700;">${formatNumber(pt.avgAmount)}원</span>
             </div>
           </div>
         `;
@@ -5336,8 +5324,8 @@
         tooltip.style.left = '0px';
         tooltip.style.top = '0px';
         tooltip.classList.add('show');
-        const tipW = tooltip.offsetWidth || 230;
-        const tipH = tooltip.offsetHeight || 90;
+        const tipW = tooltip.offsetWidth || 240;
+        const tipH = tooltip.offsetHeight || 110;
 
         // X축: 오른쪽/왼쪽 경계 잘림 방지 (스크롤 위치 포함)
         let leftPx = ptXInContainer + container.scrollLeft;
@@ -5345,12 +5333,10 @@
         const maxLeft = container.scrollLeft + container.clientWidth - (tipW / 2) - 16;
         leftPx = Math.max(minLeft, Math.min(maxLeft, leftPx));
 
-        // Y축: 상단 잘림 방지 (위쪽 공간이 부족하면 포인트 아래쪽으로 자동 뒤집힘)
+        // Y축: 상단 잘림 방지 (위쪽 공간 부족 시 포인트 아래쪽으로 자동 뒤집힘)
         let topPx = ptYInContainer - 14;
         if (ptYInContainer - tipH < 10) {
-          // 포인트 아래쪽에 배치
-          const lowerY = Math.max(pt.yMax, pt.yAvg) * scaleY;
-          topPx = lowerY + tipH + 16;
+          topPx = ptYInContainer + tipH + 16;
           tooltip.style.transform = 'translate(-50%, -100%)';
         } else {
           tooltip.style.transform = 'translate(-50%, -100%)';
@@ -5391,8 +5377,7 @@
       svg.onmouseleave = () => {
         currentHoverIdx = -1;
         guideLine.setAttribute('opacity', '0');
-        maxRing.setAttribute('opacity', '0');
-        avgRing.setAttribute('opacity', '0');
+        activeRing.setAttribute('opacity', '0');
         tooltip.classList.remove('show');
       };
     }
@@ -5635,7 +5620,8 @@
           text: `차액 ${formatNumber(rejAmt)}원 환불 거절 (입금자명 : ${rejName})`
         };
       } else if (noteType === 'unprocessed') {
-        const dt = els.depUnprocDateTime.value.trim();
+        const rawDt = els.depUnprocDateTime.value.trim();
+        const dt = rawDt.replace(/^(\d{4})\.(\d{1,2})\.(\d{1,2})/, '$1-$2-$3');
         const name = els.depUnprocName.value.trim();
         const amt = parseFormattedNumber(els.depUnprocAmount.value);
         if (!dt || !name || !amt) {
