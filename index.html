@@ -5681,6 +5681,22 @@
       showToast('원본 샘플 데이터를 지정된 열 순서와 규칙대로 정리했어요.');
     }
 
+    function initSampleChargeCleanData() {
+      chargeCleanHeaders = ['번호', '메모(관리자)', '이름(인증이름)', '입금자명', '금액', '승인자'];
+      chargeCleanAmountColIndex = 4;
+      chargeCleanFileName = '원본_샘플.xlsx';
+      chargeCleanExcludedCount = 0;
+      chargeCleanPage = 1;
+      chargeCleanRows = [
+        [1, '무통장 자동승인', '김지원', '김지원', 110000, '시스템'],
+        [2, '2026-11-10 17:15 / 박서원 / 100,000원 + 2026-11-10 17:30 / 박서원 / 10,000원', '박서원', '박서원', 220600, '판대리'],
+        [3, '무통장 자동승인', '이정연', '이정연', 550000, '시스템'],
+        [4, '1원 테스트 입금 건 (계좌 인증 및 정상 입금 확인 완료)', '정선주', '정선주', 1, '판사원'],
+        [5, '무통장 자동승인', '고우정', '고우정', 1100000, '시스템']
+      ];
+      els.chargeDropzoneTitle.textContent = `샘플 로드 완료: ${chargeCleanFileName}`;
+    }
+
     function getFilteredChargeCleanRows() {
       const keyword = (els.ccSearchInput.value || '').trim().toLowerCase();
       const filterType = els.ccFilterType.value;
@@ -6630,6 +6646,7 @@
       });
 
       // 초기 렌더링
+      initSampleChargeCleanData();
       updateDepositNoteBoxes();
       renderDepositLedger();
       updateCalculatorPanels();
