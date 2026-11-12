@@ -1335,14 +1335,58 @@
     .cal-info {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      align-items: flex-start;
+      gap: 4px;
       margin-top: 6px;
     }
 
     .cal-deposit {
+      display: inline;
+      padding: 1px 5px;
+      border-radius: 3px;
       font-size: 11px;
       font-weight: 700;
-      color: var(--mint);
+      line-height: 1.45;
+      color: #166534;
+      background: linear-gradient(transparent 32%, #dcfce7 32% 92%, transparent 92%);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      white-space: nowrap;
+    }
+
+    .cal-count {
+      display: inline-block;
+      color: var(--accent-text);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .cal-sum {
+      display: inline;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11.5px;
+      font-weight: 800;
+      line-height: 1.45;
+      color: #0b4a7d;
+      background: linear-gradient(transparent 32%, #d8efff 32% 92%, transparent 92%);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      white-space: nowrap;
+    }
+
+    .cal-sum {
+      display: inline;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11.5px;
+      font-weight: 800;
+      line-height: 1.45;
+      color: #0b4a7d;
+      background: linear-gradient(transparent 32%, #d8efff 32% 92%, transparent 92%);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
       word-break: break-all;
     }
 
@@ -6050,10 +6094,10 @@
 
         const infoLines = [];
         if (depositAmt > 0) {
-          infoLines.push(`<span class="cal-deposit">입금 ${formatNumber(depositAmt)}원</span>`);
+          infoLines.push(`<span class="cal-deposit">${formatNumber(depositAmt)}원</span>`);
         }
         if (dayData) {
-          infoLines.push(`<span class="cal-sum">환불 ${formatNumber(dayData.amount)}원</span>`);
+          infoLines.push(`<span class="cal-sum">${formatNumber(dayData.amount)}원</span>`);
         }
         const infoHtml = infoLines.length > 0 ? `<div class="cal-info">${infoLines.join('')}</div>` : '';
         const countBadgeHtml = dayData ? `<span class="cal-count">${dayData.count}건</span>` : '';
