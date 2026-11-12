@@ -1216,13 +1216,26 @@
       gap: 12px;
     }
 
+    .calendar-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
     .calendar-nav-center {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
       flex: 1;
-      flex-wrap: wrap;
+      text-align: center;
+    }
+
+    .calendar-nav-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 1;
     }
 
     .calendar-month-title {
@@ -2572,12 +2585,22 @@
       <!-- 달력 카드 -->
       <div class="card">
         <div class="calendar-nav">
-          <button type="button" class="btn btn-secondary" id="btnPrevMonth">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            이전 달
-          </button>
+          <div class="calendar-nav-left">
+            <button type="button" class="btn btn-secondary" id="btnPrevMonth">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              이전 달
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnNextMonth">
+              다음 달
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+
           <div class="calendar-nav-center">
             <h3 class="calendar-month-title" id="calendarMonthTitle">2026년 11월</h3>
+          </div>
+
+          <div class="calendar-nav-right">
             <select id="calendarMonthSelect" class="select" style="width: 175px;" aria-label="정산 달력 월 선택">
               <option value="2026-12">2026년 12월</option>
               <option value="2026-11">2026년 11월</option>
@@ -2593,10 +2616,6 @@
               <option value="2026-01">2026년 1월</option>
             </select>
           </div>
-          <button type="button" class="btn btn-secondary" id="btnNextMonth">
-            다음 달
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
         </div>
 
         <div class="calendar-grid" id="calendarGrid">
