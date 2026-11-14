@@ -810,6 +810,67 @@
       font-weight: 800;
     }
 
+    /* 연간 12개월 월간 요약 그리드 (2026년 전체 월 전용) */
+    .year-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .year-calendar-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .year-calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .year-month-cell {
+      min-height: 112px;
+      padding: 12px;
+      background-color: var(--white);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .year-month-cell:hover {
+      background-color: var(--canvas);
+    }
+
+    .year-month-cell.selected {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      background-color: rgba(0, 150, 255, 0.02);
+    }
+
+    .year-month-label {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .year-month-label.is-current-month {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background-color: var(--ink);
+      color: var(--white);
+      font-size: 13px;
+    }
+
     /* 보너스/수수료 수기 입력 패널 */
     .manual-deduct-box {
       margin-top: 12px;
@@ -2709,7 +2770,7 @@
       <!-- 월간 정산 요약 카드 3종 -->
       <div class="summary-grid">
         <div class="stat-card">
-          <div class="stat-label">월 총 환불 정산 금액</div>
+          <div class="stat-label">연간 총 환불 정산 금액</div>
           <div class="stat-value accent" id="calStatAmount">0원</div>
           <div class="stat-sub" id="calStatAvgAmount">건당 평균 0원</div>
         </div>
@@ -2731,10 +2792,10 @@
           <div class="calendar-nav-left">
             <button type="button" class="btn btn-secondary" id="btnPrevMonth">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              이전 달
+              <span id="btnPrevMonthLabel">이전 달</span>
             </button>
             <button type="button" class="btn btn-secondary" id="btnNextMonth">
-              다음 달
+              <span id="btnNextMonthLabel">다음 달</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
           </div>
@@ -2745,6 +2806,7 @@
 
           <div class="calendar-nav-right">
             <select id="calendarMonthSelect" class="select" style="width: 175px;" aria-label="정산 달력 월 선택">
+              <option value="ALL">2026년 전체 월</option>
               <option value="2026-12">2026년 12월</option>
               <option value="2026-11">2026년 11월</option>
               <option value="2026-10">2026년 10월</option>
@@ -2794,6 +2856,21 @@
               <!-- 자바스크립트로 렌더링 -->
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- 연간 환불 정산 추이 꺾은선 그래프 ('2026년 전체 월' 선택 시에만 표시) -->
+      <div class="card" id="refundYearlyChartCard" style="display: none;">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title" id="refundYearlyChartTitle">2026년 월별 환불 정산 추이</h3>
+            <p class="card-subtitle">그래프의 월 지점에 마우스를 올리면 당월 환불 정산 합계, 최고 일 환불액, 처리일 평균 환불액을 확인할 수 있어요.</p>
+          </div>
+        </div>
+
+        <div class="chart-container" id="refundYearlyChartContainer">
+          <svg id="refundYearlyLineChart" class="chart-svg" viewBox="0 0 880 270" preserveAspectRatio="none" role="img" aria-label="2026년 월별 환불 정산 추이 꺾은선 그래프"></svg>
+          <div id="refundYearlyChartTooltip" class="chart-tooltip"></div>
         </div>
       </div>
     </section>
@@ -3639,6 +3716,8 @@
     let currentCalYear = Number(initialTodayStr.slice(0, 4)) || 2026;
     let currentCalMonth = Number(initialTodayStr.slice(5, 7)) || 11;
     let selectedCalDate = initialTodayStr;
+    let isCalendarAllMonths = false;
+    let selectedCalMonthYm = initialTodayStr.slice(0, 7);
 
     /* ==========================================================================
        3. 유틸리티 함수
@@ -4366,6 +4445,11 @@
       selectedDateSubtitle: document.getElementById('selectedDateSubtitle'),
       selectedDateTableBody: document.getElementById('selectedDateTableBody'),
       btnExportSelectedDate: document.getElementById('btnExportSelectedDate'),
+      refundYearlyChartCard: document.getElementById('refundYearlyChartCard'),
+      refundYearlyChartTitle: document.getElementById('refundYearlyChartTitle'),
+      refundYearlyChartContainer: document.getElementById('refundYearlyChartContainer'),
+      refundYearlyLineChart: document.getElementById('refundYearlyLineChart'),
+      refundYearlyChartTooltip: document.getElementById('refundYearlyChartTooltip'),
 
       // 탭 2-2: 무통장 충전 정리 요소
       ccStatCount: document.getElementById('ccStatCount'),
@@ -6522,13 +6606,134 @@
     /* ==========================================================================
        10-5. 환불 정산 달력 렌더링 및 엑셀 내보내기 / 가져오기
        ========================================================================== */
-    function renderCalendar() {
-      const ymStr = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
-      els.calendarMonthTitle.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
+    function updateCalendarNavAndDropdown() {
+      const prevLabelEl = document.getElementById('btnPrevMonthLabel');
+      const nextLabelEl = document.getElementById('btnNextMonthLabel');
+
+      if (prevLabelEl) {
+        prevLabelEl.textContent = isCalendarAllMonths ? '이전 해' : '이전 달';
+      }
+      if (nextLabelEl) {
+        nextLabelEl.textContent = isCalendarAllMonths ? '다음 해' : '다음 달';
+      }
+
       if (els.calendarMonthSelect) {
-        els.calendarMonthSelect.value = ymStr;
+        const yearStr = String(currentCalYear);
+        let optionsHtml = `<option value="ALL">${yearStr}년 전체 월</option>`;
+        for (let m = 12; m >= 1; m--) {
+          const mm = String(m).padStart(2, '0');
+          optionsHtml += `<option value="${yearStr}-${mm}">${yearStr}년 ${m}월</option>`;
+        }
+        els.calendarMonthSelect.innerHTML = optionsHtml;
+        els.calendarMonthSelect.value = isCalendarAllMonths
+          ? 'ALL'
+          : `${yearStr}-${String(currentCalMonth).padStart(2, '0')}`;
         CustomSelectManager.sync(els.calendarMonthSelect);
       }
+    }
+
+    function renderCalendar() {
+      const todayStr = getTodayDateString();
+      const yesterdayStr = getYesterdayDateString();
+      updateCalendarNavAndDropdown();
+
+      if (isCalendarAllMonths) {
+        const yearStr = String(currentCalYear);
+        els.calendarMonthTitle.textContent = `${yearStr}년 전체 월`;
+
+        const yearRecords = refundRecords.filter(r => r.refundDate && r.refundDate.startsWith(`${yearStr}-`));
+        const totalAmount = yearRecords.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
+        const avgAmount = yearRecords.length > 0 ? Math.round(totalAmount / yearRecords.length) : 0;
+        const activeDaySet = new Set(yearRecords.map(r => r.refundDate));
+        const bankCount = yearRecords.filter(r => r.paymentMethod === '무통장').length;
+        const pgCount = yearRecords.length - bankCount;
+        const bankRatio = yearRecords.length > 0 ? Math.round((bankCount / yearRecords.length) * 100) : 0;
+        const pgRatio = yearRecords.length > 0 ? 100 - bankRatio : 0;
+
+        els.calStatAmount.textContent = `${formatNumber(totalAmount)}원`;
+        els.calStatAvgAmount.textContent = `건당 평균 ${formatNumber(avgAmount)}원`;
+        els.calStatMonthLabel.textContent = `${yearStr}년 연간 총 환불 건수`;
+        els.calStatCount.textContent = `${formatNumber(yearRecords.length)}건`;
+        els.calStatActiveDays.textContent = `연간 환불 처리일 ${activeDaySet.size}일`;
+        els.calStatBankRatio.textContent = `${bankRatio}% / ${pgRatio}%`;
+        els.calStatBreakdown.textContent = `무통장 ${bankCount}건 · 기타 ${pgCount}건`;
+
+        // 1월 ~ 12월 월간 달력 그리드 렌더링
+        els.calendarGrid.className = 'year-calendar-grid';
+        const currentYm = todayStr.slice(0, 7);
+        const monthlySummaries = [];
+        let monthsHtml = '';
+
+        for (let m = 1; m <= 12; m++) {
+          const mm = String(m).padStart(2, '0');
+          const ym = `${yearStr}-${mm}`;
+
+          const mRefunds = yearRecords.filter(r => r.refundDate && r.refundDate.startsWith(ym));
+          const mRefundSum = mRefunds.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
+
+          let mDepositSum = 0;
+          Object.entries(depositLedger).forEach(([dStr, entry]) => {
+            if (dStr.startsWith(ym) && dStr <= yesterdayStr) {
+              mDepositSum += Number(entry && entry.amount) || 0;
+            }
+          });
+
+          monthlySummaries.push({
+            ym,
+            monthNum: m,
+            label: `${m}월`,
+            refundSum: mRefundSum,
+            refundCount: mRefunds.length,
+            depositSum: mDepositSum,
+            records: mRefunds
+          });
+
+          const isSelectedMonth = selectedCalMonthYm === ym;
+          const isCurrentMonth = currentYm === ym;
+          const topCountHtml = mRefunds.length > 0
+            ? `<span class="cal-count">${mRefunds.length}건</span>`
+            : '';
+
+          const infoParts = [];
+          if (mDepositSum > 0) {
+            infoParts.push(`<span class="cal-deposit">${formatNumber(mDepositSum)}원</span>`);
+          }
+          if (mRefundSum > 0) {
+            infoParts.push(`<span class="cal-sum">${formatNumber(mRefundSum)}원</span>`);
+          }
+
+          monthsHtml += `
+            <div class="year-month-cell ${isSelectedMonth ? 'selected' : ''}" data-cal-ym="${ym}">
+              <div class="cal-cell-header">
+                <span class="year-month-label ${isCurrentMonth ? 'is-current-month' : ''}">${m}월</span>
+                ${topCountHtml}
+              </div>
+              <div class="cal-info">${infoParts.join('')}</div>
+            </div>
+          `;
+        }
+
+        els.calendarGrid.innerHTML = monthsHtml;
+        renderSelectedMonthDetail(monthlySummaries);
+
+        if (els.refundYearlyChartCard) {
+          els.refundYearlyChartCard.style.display = 'block';
+          if (els.refundYearlyChartTitle) {
+            els.refundYearlyChartTitle.textContent = `${yearStr}년 월별 환불 정산 추이`;
+          }
+          renderRefundYearlyLineChart(monthlySummaries);
+        }
+        return;
+      }
+
+      // 개별 월 일자별 달력 모드
+      els.calendarGrid.className = 'calendar-grid';
+      if (els.refundYearlyChartCard) {
+        els.refundYearlyChartCard.style.display = 'none';
+      }
+
+      const ymStr = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+      els.calendarMonthTitle.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
 
       const monthRecords = refundRecords.filter(r => r.refundDate && r.refundDate.startsWith(ymStr));
       const totalAmount = monthRecords.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
@@ -6555,8 +6760,6 @@
 
       const firstDay = new Date(currentCalYear, currentCalMonth - 1, 1).getDay();
       const daysInMonth = new Date(currentCalYear, currentCalMonth, 0).getDate();
-      const todayStr = getTodayDateString();
-      const yesterdayStr = getYesterdayDateString();
 
       let cellsHtml = '';
       for (let i = 0; i < firstDay; i++) {
@@ -6604,6 +6807,232 @@
 
       els.calendarGrid.innerHTML = headerHtml + cellsHtml;
       renderSelectedDateDetail();
+    }
+
+    function renderSelectedMonthDetail(monthlySummaries) {
+      const targetYm = selectedCalMonthYm || `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+      const [y, m] = targetYm.split('-');
+      const monthInfo = (monthlySummaries || []).find(item => item.ym === targetYm);
+      const monthRecords = monthInfo
+        ? [...monthInfo.records].sort((a, b) => String(b.refundDate || '').localeCompare(String(a.refundDate || '')))
+        : refundRecords.filter(r => r.refundDate && r.refundDate.startsWith(targetYm));
+      const monthSum = monthRecords.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
+
+      let depAmt = 0;
+      const yesterdayStr = getYesterdayDateString();
+      Object.entries(depositLedger).forEach(([dStr, entry]) => {
+        if (dStr.startsWith(targetYm) && dStr <= yesterdayStr) {
+          depAmt += Number(entry && entry.amount) || 0;
+        }
+      });
+
+      els.selectedDateTitle.textContent = `${y}년 ${Number(m)}월 정산 상세 (${monthRecords.length}건)`;
+      els.selectedDateSubtitle.textContent = `환불 정산 합계 ${formatNumber(monthSum)}원 · 무통장 입금 합계 ${formatNumber(depAmt)}원`;
+
+      if (monthRecords.length === 0) {
+        els.btnExportSelectedDate.style.display = 'none';
+        els.selectedDateTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">${y}년 ${Number(m)}월에 접수된 환불 정산 내역이 없어요.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      els.btnExportSelectedDate.style.display = 'inline-flex';
+      els.selectedDateTableBody.innerHTML = monthRecords.map(r => {
+        const hlClass = getPaymentMethodHighlightClass(r.paymentMethod);
+        return `
+          <tr>
+            <td style="white-space: nowrap; font-size: 13px; color: var(--ink-2);">${escapeHtml(r.depositDateTime)}</td>
+            <td>
+              <div style="font-weight: 700;">${escapeHtml(r.userId)}</div>
+              <div style="font-size: 12px; color: var(--ink-2);">${escapeHtml(r.holderName)}</div>
+            </td>
+            <td style="text-align: center;"><span class="hl-badge ${hlClass}">${escapeHtml(r.paymentMethod)}</span></td>
+            <td>
+              <div style="font-weight: 700;">${escapeHtml(r.bankName)}</div>
+              <div style="font-size: 12px; color: var(--ink-2);">${escapeHtml(r.accountNumber)}</div>
+            </td>
+            <td class="td-amount">${formatNumber(r.refundAmount)}원</td>
+            <td class="td-reason">${escapeHtml(r.remarkNote || r.cancelReason)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderRefundYearlyLineChart(monthlySummaries) {
+      const svg = els.refundYearlyLineChart;
+      const tooltip = els.refundYearlyChartTooltip;
+      const container = els.refundYearlyChartContainer;
+      if (!svg || !tooltip || !container) return;
+
+      tooltip.classList.remove('show');
+      svg.onmousemove = null;
+      svg.onmouseleave = null;
+
+      // 실적이 발생한 월(1월~11월 등)을 중심으로 꺾은선 추이 구성
+      const activeMonths = (monthlySummaries || []).filter(s => s.refundSum > 0 || s.depositSum > 0);
+      const targetSeries = activeMonths.length > 0 ? activeMonths : (monthlySummaries || []);
+
+      const stats = targetSeries.map(s => {
+        const dayTotals = new Map();
+        (s.records || []).forEach(r => {
+          const d = r.refundDate;
+          dayTotals.set(d, (dayTotals.get(d) || 0) + (Number(r.refundAmount) || 0));
+        });
+        const maxDayAmt = dayTotals.size > 0 ? Math.max(...dayTotals.values()) : 0;
+        const avgDayAmt = dayTotals.size > 0 ? Math.round(s.refundSum / dayTotals.size) : 0;
+        return {
+          ...s,
+          maxDayAmt,
+          avgDayAmt
+        };
+      });
+
+      const W = 880;
+      const H = 270;
+      const padL = 54;
+      const padR = 54;
+      const padT = 26;
+      const padB = 38;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      const rawMax = Math.max(10000000, ...stats.map(s => s.refundSum));
+      // 억 단위 또는 천만 단위 깔끔한 눈금 산출
+      let stepUnit = 10000000;
+      if (rawMax >= 100000000) {
+        stepUnit = Math.max(1, Math.ceil(rawMax / 400000000)) * 100000000;
+      } else if (rawMax >= 40000000) {
+        stepUnit = 20000000;
+      }
+      const stepCount = Math.max(1, Math.ceil(rawMax / stepUnit));
+      const maxVal = stepCount * stepUnit;
+
+      const formatAxisLabel = (val) => {
+        if (val === 0) return '0';
+        if (val >= 100000000) {
+          const eok = val / 100000000;
+          return Number.isInteger(eok) ? `${formatNumber(eok)}억` : `${eok.toFixed(1)}억`;
+        }
+        return `${formatNumber(Math.round(val / 10000))}만`;
+      };
+
+      const yGridHtml = [];
+      for (let i = 0; i <= stepCount; i++) {
+        const ratio = i / stepCount;
+        const y = padT + plotH - ratio * plotH;
+        const label = formatAxisLabel(i * stepUnit);
+        yGridHtml.push(`
+          <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
+          <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
+        `);
+      }
+
+      const n = Math.max(1, stats.length);
+      const points = stats.map((s, idx) => {
+        const x = n === 1 ? padL + plotW / 2 : padL + (idx / (n - 1)) * plotW;
+        const y = padT + plotH - (s.refundSum / maxVal) * plotH;
+        return { ...s, x, y };
+      });
+
+      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const areaPath = points.length > 0
+        ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(padT + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`
+        : '';
+
+      const xLabelsHtml = points.map(p => `
+        <text x="${p.x.toFixed(1)}" y="${H - 12}" text-anchor="middle" font-size="11.5" fill="#4c5563" font-weight="700">${p.label}</text>
+      `).join('');
+
+      const dotsHtml = points.map(p => `
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.2" />
+      `).join('');
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="refYearAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.24" />
+            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
+          </linearGradient>
+        </defs>
+        ${yGridHtml.join('')}
+        ${areaPath ? `<path d="${areaPath}" fill="url(#refYearAreaGrad)" />` : ''}
+        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />` : ''}
+        ${xLabelsHtml}
+        <line id="refYearGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.4" stroke-dasharray="3 3" opacity="0" />
+        ${dotsHtml}
+        <g id="refYearActiveMarker" opacity="0">
+          <circle id="refYearActiveHalo" cx="0" cy="0" r="10" fill="#0096ff" fill-opacity="0.18" />
+          <circle id="refYearActiveRing" cx="0" cy="0" r="5.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" />
+        </g>
+      `;
+
+      const guideLine = svg.querySelector('#refYearGuideLine');
+      const activeMarker = svg.querySelector('#refYearActiveMarker');
+      const activeHalo = svg.querySelector('#refYearActiveHalo');
+      const activeRing = svg.querySelector('#refYearActiveRing');
+
+      svg.onmousemove = (e) => {
+        if (points.length === 0) return;
+        const rect = svg.getBoundingClientRect();
+        const relX = ((e.clientX - rect.left) / rect.width) * W;
+
+        let closest = points[0];
+        let minDist = Math.abs(relX - closest.x);
+        for (let i = 1; i < points.length; i++) {
+          const dist = Math.abs(relX - points[i].x);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = points[i];
+          }
+        }
+
+        guideLine.setAttribute('x1', closest.x.toFixed(1));
+        guideLine.setAttribute('x2', closest.x.toFixed(1));
+        guideLine.setAttribute('opacity', '1');
+        activeHalo.setAttribute('cx', closest.x.toFixed(1));
+        activeHalo.setAttribute('cy', closest.y.toFixed(1));
+        activeRing.setAttribute('cx', closest.x.toFixed(1));
+        activeRing.setAttribute('cy', closest.y.toFixed(1));
+        activeMarker.setAttribute('opacity', '1');
+
+        const [y, m] = closest.ym.split('-');
+        tooltip.innerHTML = `
+          <div class="chart-tooltip-date">${y}년 ${Number(m)}월 환불 요약 (${closest.refundCount}건)</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #bfe3ff; margin-bottom: 3px;">당월 총 환불 합계 : ${formatNumber(closest.refundSum)}원</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: #e2e8f0;">당월 최고 일 환불 : ${formatNumber(closest.maxDayAmt)}원</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: #cbd5e1;">처리일 평균 환불 : ${formatNumber(closest.avgDayAmt)}원</div>
+        `;
+        tooltip.classList.add('show');
+
+        const pxX = (closest.x / W) * rect.width + container.scrollLeft;
+        const pxY = (closest.y / H) * rect.height;
+        const tipW = tooltip.offsetWidth || 235;
+        const tipH = tooltip.offsetHeight || 96;
+
+        let leftPos = pxX;
+        const minLeft = tipW / 2 + 12;
+        const maxLeft = container.clientWidth - tipW / 2 - 12;
+        if (leftPos < minLeft) leftPos = minLeft;
+        if (leftPos > maxLeft) leftPos = maxLeft;
+
+        if (pxY - tipH - 14 < 8) {
+          tooltip.style.transform = 'translate(-50%, 14px)';
+          tooltip.style.top = `${pxY}px`;
+        } else {
+          tooltip.style.transform = 'translate(-50%, -100%)';
+          tooltip.style.top = `${pxY - 12}px`;
+        }
+        tooltip.style.left = `${leftPos}px`;
+      };
+
+      svg.onmouseleave = () => {
+        guideLine.setAttribute('opacity', '0');
+        activeMarker.setAttribute('opacity', '0');
+        tooltip.classList.remove('show');
+      };
     }
 
     function renderSelectedDateDetail() {
@@ -7495,6 +7924,12 @@
 
       // 탭 2: 환불 정산 달력 이벤트
       els.btnPrevMonth.addEventListener('click', () => {
+        if (isCalendarAllMonths) {
+          currentCalYear -= 1;
+          selectedCalMonthYm = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+          renderCalendar();
+          return;
+        }
         currentCalMonth -= 1;
         if (currentCalMonth < 1) {
           currentCalMonth = 12;
@@ -7503,6 +7938,12 @@
         renderCalendar();
       });
       els.btnNextMonth.addEventListener('click', () => {
+        if (isCalendarAllMonths) {
+          currentCalYear += 1;
+          selectedCalMonthYm = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+          renderCalendar();
+          return;
+        }
         currentCalMonth += 1;
         if (currentCalMonth > 12) {
           currentCalMonth = 1;
@@ -7511,7 +7952,15 @@
         renderCalendar();
       });
       els.calendarMonthSelect.addEventListener('change', () => {
-        const [y, m] = els.calendarMonthSelect.value.split('-').map(Number);
+        const val = els.calendarMonthSelect.value;
+        if (val === 'ALL') {
+          isCalendarAllMonths = true;
+          selectedCalMonthYm = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+          renderCalendar();
+          return;
+        }
+        isCalendarAllMonths = false;
+        const [y, m] = val.split('-').map(Number);
         if (y && m) {
           currentCalYear = y;
           currentCalMonth = m;
@@ -7519,12 +7968,29 @@
         }
       });
       els.calendarGrid.addEventListener('click', (e) => {
+        const monthCell = e.target.closest('[data-cal-ym]');
+        if (monthCell) {
+          selectedCalMonthYm = monthCell.dataset.calYm;
+          const [y, m] = selectedCalMonthYm.split('-').map(Number);
+          if (y && m) {
+            currentCalYear = y;
+            currentCalMonth = m;
+          }
+          renderCalendar();
+          return;
+        }
         const cell = e.target.closest('[data-cal-date]');
         if (!cell) return;
         selectedCalDate = cell.dataset.calDate;
         renderCalendar();
       });
       els.btnExportSelectedDate.addEventListener('click', () => {
+        if (isCalendarAllMonths) {
+          const targetYm = selectedCalMonthYm || `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+          const monthRecords = refundRecords.filter(r => r.refundDate && r.refundDate.startsWith(targetYm));
+          exportToExcel(monthRecords, `무통장_환불_정산내역_${targetYm}.xlsx`);
+          return;
+        }
         if (!selectedCalDate) return;
         const dayRecords = refundRecords.filter(r => r.refundDate === selectedCalDate);
         exportToExcel(dayRecords, `무통장_환불_정산내역_${selectedCalDate}.xlsx`);
