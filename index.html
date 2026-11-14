@@ -596,7 +596,7 @@
       border-radius: 20px;
       padding: 20px 24px 16px;
       box-shadow: 0 16px 40px rgba(22, 27, 34, 0.14);
-      z-index: 200;
+      z-index: 1250;
       width: 620px;
       max-width: calc(100vw - 24px);
       display: none;
@@ -1556,6 +1556,81 @@
       gap: 8px;
     }
 
+    /* 수정 모드 배너 및 백업·공휴일 모달 전용 스타일 */
+    .edit-mode-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .edit-mode-banner.show {
+      display: flex;
+    }
+
+    .backup-section-box {
+      border: 1px solid var(--line);
+      background-color: var(--canvas);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .backup-section-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .backup-section-desc {
+      font-size: 12.5px;
+      color: var(--ink-2);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .holiday-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+
+    .holiday-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .holiday-chip-del {
+      border: none;
+      background: transparent;
+      color: var(--coral);
+      font-weight: 800;
+      cursor: pointer;
+      padding: 0 2px;
+      font-size: 13px;
+      line-height: 1;
+    }
+
     /* ==========================================================================
        8. 공지사항 아코디언 스타일
        ========================================================================== */
@@ -1941,6 +2016,10 @@
           <h1 class="page-title" style="margin-top: 4px;">무통장 환불 접수 및 정산 관리</h1>
         </div>
         <div class="header-actions">
+          <button type="button" class="btn btn-secondary" id="btnOpenBackupModal" title="전체 데이터를 JSON 또는 통합 엑셀로 백업하고 복원합니다">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+            백업 · 복원
+          </button>
           <button type="button" class="btn btn-secondary" id="btnResetDemo" title="예시 데이터를 초기 상태로 되돌립니다">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
             샘플 데이터 초기화
@@ -2197,18 +2276,28 @@
          ======================================================================== -->
     <main id="tab-entry" class="tab-panel">
       <!-- 카드 1: 간편 환불 접수 입력 -->
-      <section class="card">
+      <section class="card" id="refundEntryCard">
         <div class="card-header">
           <div>
-            <h2 class="card-title">신규 환불 접수 입력</h2>
-            <p class="card-subtitle">필수 항목만 입력하고 환불 유형을 선택하면 산출식과 엑셀용 문구가 자동으로 채워져요.</p>
+            <h2 class="card-title" id="refundFormCardTitle">신규 환불 접수 입력</h2>
+            <p class="card-subtitle">필수 항목으로 환불 유형을 선택하면 산출식과 문구가 자동으로 채워져요.</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" id="btnOpenHolidayModal">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              공휴일 예외 설정 (<span id="holidayActiveCountBadge">0</span>)
+            </button>
             <button type="button" class="btn btn-primary" id="btnCheckHistory">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               아이디 이력 자동 채우기
             </button>
           </div>
+        </div>
+
+        <!-- 수정 모드 알림 배너 -->
+        <div id="editModeBanner" class="edit-mode-banner" role="status">
+          <span id="editModeBannerText">기존 접수 내역을 수정하고 있어요. 내용을 변경한 뒤 '수정 내용 저장'을 눌러 주세요.</span>
+          <button type="button" class="btn btn-secondary" id="btnCancelEditMode" style="height: 32px; font-size: 12.5px; padding: 0 12px;">수정 취소</button>
         </div>
 
         <form id="refundForm" novalidate>
@@ -2217,6 +2306,7 @@
             <div class="field">
               <label class="field-label" for="refundDate">환불 예정일 (A열) <span class="req">필수</span></label>
               <input type="date" id="refundDate" class="input" required>
+              <span class="field-help" id="refundDateHolidayHint" style="display: none; color: var(--accent-text); font-weight: 700;"></span>
             </div>
 
             <div class="field">
@@ -2478,9 +2568,10 @@
           <div class="form-actions">
             <button type="button" class="btn btn-secondary" id="btnClearForm">입력창 비우기</button>
             <div class="form-actions-right">
+              <button type="button" class="btn btn-secondary" id="btnCancelEditBottom" style="display: none;">수정 취소</button>
               <button type="submit" class="btn btn-primary" id="btnSubmitRefund">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                환불 접수 저장
+                <span id="btnSubmitRefundLabel">환불 접수 저장</span>
               </button>
             </div>
           </div>
@@ -2880,6 +2971,68 @@
       <div class="dm-modal-actions">
         <button type="button" class="btn btn-secondary" id="btnConfirmCancel">취소</button>
         <button type="button" class="btn btn-primary" id="btnConfirmOk" style="background-color: var(--coral); border-color: var(--coral);">삭제하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- [기능 2] 전체 데이터 백업 및 복원 모달 -->
+  <div id="dmBackupModal" class="dm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="dmBackupTitle">
+    <div class="dm-modal-card" style="max-width: 480px;">
+      <h3 class="dm-modal-title" id="dmBackupTitle">전체 데이터 백업 및 복원</h3>
+      <p class="dm-modal-desc" style="margin-bottom: 14px;">PC 교체나 브라우저 캐시 초기화에 대비해 모든 정산 내역과 설정을 안전하게 백업하거나 복원할 수 있어요.</p>
+
+      <div class="backup-section-box">
+        <div class="backup-section-title">1. 통합 엑셀 전체 백업 (.xlsx)</div>
+        <div class="backup-section-desc">입금 내역, 환불 정산 내역, 공지사항 시트가 모두 포함된 엑셀 파일을 내려받아요.</div>
+        <button type="button" class="btn btn-primary" id="btnExportAllWorkbook" style="width: 100%; height: 38px; font-size: 13px;">
+          통합 엑셀(.xlsx) 다운로드
+        </button>
+      </div>
+
+      <div class="backup-section-box">
+        <div class="backup-section-title">2. 전체 스냅샷 JSON 백업 및 복원</div>
+        <div class="backup-section-desc">입금·환불·대기목록·공지사항·공휴일 설정을 동일한 상태로 백업하고 복원해요.</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary" id="btnExportJsonBackup" style="flex: 1; height: 38px; font-size: 13px;">
+            JSON 파일 백업
+          </button>
+          <input type="file" id="jsonRestoreInput" accept=".json" style="display: none;">
+          <button type="button" class="btn btn-secondary" id="btnImportJsonRestore" style="flex: 1; height: 38px; font-size: 13px;">
+            JSON 파일 복원
+          </button>
+        </div>
+      </div>
+
+      <div class="dm-modal-actions" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" id="btnCloseBackupModal">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- [기능 3] 공휴일(화·목 대체 정산일) 예외 설정 모달 -->
+  <div id="dmHolidayModal" class="dm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="dmHolidayTitle">
+    <div class="dm-modal-card" style="max-width: 480px;">
+      <h3 class="dm-modal-title" id="dmHolidayTitle">공휴일(화·목 정산일) 예외 설정</h3>
+      <p class="dm-modal-desc" style="margin-bottom: 14px;">등록된 공휴일이 화요일·목요일 정산일과 겹치면 환불 예정일이 자동으로 다음 화·목 정산일로 건너뛰어 계산돼요.</p>
+
+      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+        <input type="date" id="newHolidayDateInput" class="input" style="flex: 1; min-width: 150px;">
+        <input type="text" id="newHolidayNameInput" class="input" placeholder="공휴일명 (예: 임시공휴일)" style="flex: 1; min-width: 140px;">
+        <button type="button" class="btn btn-primary" id="btnAddHoliday" style="height: 42px;">추가</button>
+      </div>
+
+      <div style="background-color: var(--canvas); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 13px; font-weight: 800; color: var(--ink-2);">등록된 공휴일 목록</span>
+          <button type="button" class="btn btn-secondary" id="btnResetDefaultHolidays" style="height: 28px; padding: 0 10px; font-size: 12px;">2026년 기본 공휴일 복원</button>
+        </div>
+        <div class="holiday-chip-list" id="holidayChipList">
+          <!-- 자바스크립트로 공휴일 칩 렌더링 -->
+        </div>
+      </div>
+
+      <div class="dm-modal-actions">
+        <button type="button" class="btn btn-primary" id="btnCloseHolidayModal">확인</button>
       </div>
     </div>
   </div>
@@ -3377,6 +3530,72 @@
     };
 
     /* ==========================================================================
+       1-4. 공휴일 예외 설정 저장소 모듈 (HolidayStorage)
+       - 화·목 정기 정산일이 공휴일과 겹칠 경우 자동 대체 정산일로 건너뛰기 위한 저장소
+       ========================================================================== */
+    const HolidayStorage = {
+      STORAGE_KEY: 'doublemedia_refund_holidays_v1',
+
+      getDefaultHolidays() {
+        return [
+          { date: '2026-01-01', name: '신정' },
+          { date: '2026-02-16', name: '설날 연휴' },
+          { date: '2026-02-17', name: '설날' },
+          { date: '2026-02-18', name: '설날 연휴' },
+          { date: '2026-03-01', name: '삼일절' },
+          { date: '2026-03-02', name: '대체공휴일' },
+          { date: '2026-05-05', name: '어린이날' },
+          { date: '2026-05-24', name: '부처님오신날' },
+          { date: '2026-05-25', name: '대체공휴일' },
+          { date: '2026-06-03', name: '지방선거일' },
+          { date: '2026-06-06', name: '현충일' },
+          { date: '2026-08-15', name: '광복절' },
+          { date: '2026-08-17', name: '대체공휴일' },
+          { date: '2026-09-24', name: '추석 연휴' },
+          { date: '2026-09-25', name: '추석' },
+          { date: '2026-09-26', name: '추석 연휴' },
+          { date: '2026-10-03', name: '개천절' },
+          { date: '2026-10-05', name: '대체공휴일' },
+          { date: '2026-10-09', name: '한글날' },
+          { date: '2026-12-25', name: '성탄절' }
+        ];
+      },
+
+      loadAll() {
+        try {
+          const raw = localStorage.getItem(this.STORAGE_KEY);
+          if (!raw) {
+            const defaults = this.getDefaultHolidays();
+            this.saveAll(defaults);
+            return defaults;
+          }
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : this.getDefaultHolidays();
+        } catch (err) {
+          console.error('공휴일 설정 로드 실패:', err);
+          return this.getDefaultHolidays();
+        }
+      },
+
+      saveAll(list) {
+        try {
+          const sorted = [...list].sort((a, b) => a.date.localeCompare(b.date));
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(sorted));
+          return true;
+        } catch (err) {
+          console.error('공휴일 설정 저장 실패:', err);
+          return false;
+        }
+      },
+
+      reset() {
+        const defaults = this.getDefaultHolidays();
+        this.saveAll(defaults);
+        return defaults;
+      }
+    };
+
+    /* ==========================================================================
        2. 전역 상태 및 상수 설정
        ========================================================================== */
     const HEART_UNIT_PRICE = 110;
@@ -3403,6 +3622,8 @@
     let pendingRefundQueue = PendingRefundQueueStorage.loadAll();
     let depositLedger = DepositLedgerStorage.loadAll();
     let noticeList = NoticeStorage.loadAll();
+    let holidayList = HolidayStorage.loadAll();
+    let editingRefundId = null;
     let openNoticeIds = new Set();
     let editingNoticeId = null;
 
@@ -3459,12 +3680,7 @@
     }
 
     /**
-     * 환불 처리 요일(화요일·목요일) 및 오후 2시(14:00) 마감 기준에 따른 다음 환불 예정일 계산
-     * - 일(0): +2일(화) / 월(1): +1일(화)
-     * - 화(2): 14시 이전 당일(0), 14시 이후 +2일(목)
-     * - 수(3): +1일(목)
-     * - 목(4): 14시 이전 당일(0), 14시 이후 +5일(차주 화)
-     * - 금(5): +4일(차주 화) / 토(6): +3일(차주 화)
+     * 환불 처리 요일(화요일·목요일) 및 오후 2시(14:00) 마감 + 등록된 공휴일 예외 기준에 따른 다음 환불 예정일 계산
      */
     function getNextRefundDateString() {
       const now = new Date();
@@ -3482,10 +3698,43 @@
 
       const target = new Date(now);
       target.setDate(now.getDate() + addDays);
+
+      const holidayMap = new Map((holidayList || []).map(h => [h.date, h.name || '공휴일']));
+      const skippedHolidays = [];
+
+      // 화·목 정산일이 공휴일과 겹치면 다음 화/목 정산일로 자동 건너뜀
+      for (let guard = 0; guard < 15; guard++) {
+        const y = target.getFullYear();
+        const m = String(target.getMonth() + 1).padStart(2, '0');
+        const d = String(target.getDate()).padStart(2, '0');
+        const candidateStr = `${y}-${m}-${d}`;
+
+        if (holidayMap.has(candidateStr)) {
+          skippedHolidays.push(`${candidateStr}(${holidayMap.get(candidateStr)})`);
+          const curDow = target.getDay();
+          target.setDate(target.getDate() + (curDow === 2 ? 2 : 5));
+        } else {
+          break;
+        }
+      }
+
       const y = target.getFullYear();
       const m = String(target.getMonth() + 1).padStart(2, '0');
       const d = String(target.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
+      const resolvedStr = `${y}-${m}-${d}`;
+
+      const hintEl = document.getElementById('refundDateHolidayHint');
+      if (hintEl) {
+        if (skippedHolidays.length > 0) {
+          hintEl.textContent = `※ 공휴일[${skippedHolidays.join(', ')}] 제외로 다음 정산일(${resolvedStr})이 자동 설정됐어요.`;
+          hintEl.style.display = 'block';
+        } else {
+          hintEl.style.display = 'none';
+          hintEl.textContent = '';
+        }
+      }
+
+      return resolvedStr;
     }
 
     function getCurrentDateTime24() {
@@ -4209,25 +4458,20 @@
 
       if (type === '미충전') {
         const depositAmt = parseFormattedNumber(els.rawDepositAmount.value);
-        const subMemo = els.unchargedMemoType.value;
         finalAmount = depositAmt;
 
         if (method === '무통장') {
-          if (subMemo.includes('오입금')) {
-            autoSpecial = '오입금 금액 환불 요청 건';
-          } else if (subMemo.includes('중복')) {
-            autoSpecial = '중복 입금 금액 환불 요청 건';
-          } else {
-            autoSpecial = '미충전 입금 금액 환불 요청 건';
-          }
+          autoSpecial = '오입금 금액 환불 요청 건';
         }
 
         if (depositAmt > 0) {
           formulaText = `입금액 ${formatNumber(depositAmt)}원 전액 환불 (수수료 0원)`;
-          autoReason = '입금 후 미충전으로 인한 환불 요청';
-          autoRemark = `미충전 (${subMemo})`;
+          autoReason = '무통장 입금 후 미충전 금액 환불';
+          autoRemark = '미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)';
         } else {
           formulaText = '고객 실제 입금액을 입력하면 환불액과 사유가 자동 완성돼요.';
+          autoReason = '무통장 입금 후 미충전 금액 환불';
+          autoRemark = '미충전 (입금은 하였으나 결제 요청하지 않고 환불 요청)';
         }
       } else if (type === '미사용') {
         const paidAmt = parseFormattedNumber(els.unusedPaidAmount.value);
@@ -4408,9 +4652,11 @@
         els.cancelReason.value = autoReason;
         if (autoRemark) els.remarkNote.value = autoRemark;
       } else {
-        els.cancelReason.value = '';
+        els.cancelReason.value = type === '미충전' ? autoReason : '';
         if (type === '일부사용') {
           els.remarkNote.value = '일부 사용 하트 환불';
+        } else if (type === '미충전') {
+          els.remarkNote.value = autoRemark;
         }
       }
     }
@@ -4556,8 +4802,11 @@
               ${escapeHtml(item.cancelReason)}
               ${specialHtml}
             </td>
-            <td style="white-space: nowrap;">
-              <button type="button" class="btn-danger-ghost" data-delete-id="${escapeHtml(item.id)}">삭제</button>
+            <td style="white-space: nowrap; text-align: center;">
+              <div style="display: inline-flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 56px;">
+                <button type="button" class="btn-row-edit" style="height: 30px; padding: 0 12px;" data-edit-refund-id="${escapeHtml(item.id)}">수정</button>
+                <button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 12px;" data-remove-pending-id="${escapeHtml(item.id)}">삭제</button>
+              </div>
             </td>
           </tr>
         `;
@@ -4565,11 +4814,119 @@
     }
 
     function deleteRefundRecord(id) {
+      if (editingRefundId === id) {
+        exitRefundEditMode(false);
+      }
       refundRecords = refundRecords.filter(r => r.id !== id);
       StorageManager.saveAll(refundRecords);
       renderRefundTable();
       renderCalendar();
       showToast('선택한 환불 접수 내역을 삭제했어요.');
+    }
+
+    /* ==========================================================================
+       8-1. [기능 1] 환불 접수 내역 수정(편집) 모드 제어 함수
+       ========================================================================== */
+    function startEditRefundRecord(id) {
+      const target = refundRecords.find(r => r.id === id) || pendingRefundQueue.find(r => r.id === id);
+      if (!target) {
+        showToast('수정할 접수 내역을 찾지 못했어요.');
+        return;
+      }
+
+      editingRefundId = id;
+
+      // 상단 폼에 기존 데이터 채우기
+      els.refundDate.value = target.refundDate || getNextRefundDateString();
+      CustomDatePicker.syncLabel(els.refundDate);
+      els.userId.value = target.userId || '';
+      els.holderName.value = target.holderName || '';
+
+      els.paymentMethod.value = target.paymentMethod || '무통장';
+      CustomSelectManager.sync(els.paymentMethod);
+
+      const hasBankOption = Array.from(els.bankName.options).some(opt => opt.value === target.bankName && opt.value !== 'manual');
+      if (hasBankOption) {
+        els.bankName.value = target.bankName;
+        els.customBankName.style.display = 'none';
+        els.customBankName.value = '';
+      } else {
+        els.bankName.value = 'manual';
+        els.customBankName.style.display = 'block';
+        els.customBankName.value = target.bankName || '';
+      }
+      CustomSelectManager.sync(els.bankName);
+
+      els.accountNumber.value = target.accountNumber || '';
+      els.depositDateTime.value = target.depositDateTime || '';
+      els.refundAmount.value = formatNumber(target.refundAmount || 0);
+
+      // 유형 추론
+      const remarkStr = String(target.remarkNote || '');
+      if (remarkStr.includes('일부 사용')) {
+        els.refundType.value = '일부사용';
+      } else if (remarkStr.includes('스페셜하트')) {
+        els.refundType.value = '미사용스페셜하트';
+      } else if (remarkStr.includes('아이템')) {
+        els.refundType.value = '미사용아이템';
+      } else if (remarkStr.includes('미사용')) {
+        els.refundType.value = '미사용';
+      } else {
+        els.refundType.value = '미충전';
+      }
+      CustomSelectManager.sync(els.refundType);
+      updateCalculatorPanels();
+
+      // 계산기 재계산 이후 기존 문구 및 금액 덮어쓰기 보존
+      els.refundAmount.value = formatNumber(target.refundAmount || 0);
+      els.cancelReason.value = target.cancelReason || '';
+      els.specialNote.value = target.specialNote || '';
+      els.remarkNote.value = target.remarkNote || '';
+      if (els.refundType.value === '일부사용') {
+        els.remarkNote.readOnly = true;
+      }
+
+      els.totalPaidHistory.value = formatNumber(target.totalPaidHistory || 0);
+      els.firstPaidDate.value = target.firstPaidDate || '-';
+      els.refundCountHistory.value = String(target.refundCountHistory || 1);
+      els.refundAmountHistory.value = formatNumber(target.refundAmountHistory || 0);
+
+      // UI 수정 모드 표시 활성화
+      const titleEl = document.getElementById('refundFormCardTitle');
+      const bannerEl = document.getElementById('editModeBanner');
+      const bannerTextEl = document.getElementById('editModeBannerText');
+      const submitLabelEl = document.getElementById('btnSubmitRefundLabel');
+      const cancelBottomBtn = document.getElementById('btnCancelEditBottom');
+
+      if (titleEl) titleEl.textContent = `환불 접수 내역 수정 (${target.holderName} · ${target.userId})`;
+      if (bannerTextEl) bannerTextEl.textContent = `'${target.holderName}(${target.userId})' 님의 접수 건을 수정 중이에요. 변경 후 '수정 내용 저장'을 눌러 주세요.`;
+      if (bannerEl) bannerEl.classList.add('show');
+      if (submitLabelEl) submitLabelEl.textContent = '수정 내용 저장';
+      if (cancelBottomBtn) cancelBottomBtn.style.display = 'inline-flex';
+
+      const entryCard = document.getElementById('refundEntryCard');
+      if (entryCard) {
+        entryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      showToast(`${target.holderName}(${target.userId}) 님 접수 내용을 입력창으로 불러왔어요.`);
+    }
+
+    function exitRefundEditMode(showMsg = true) {
+      editingRefundId = null;
+      const titleEl = document.getElementById('refundFormCardTitle');
+      const bannerEl = document.getElementById('editModeBanner');
+      const submitLabelEl = document.getElementById('btnSubmitRefundLabel');
+      const cancelBottomBtn = document.getElementById('btnCancelEditBottom');
+
+      if (titleEl) titleEl.textContent = '신규 환불 접수 입력';
+      if (bannerEl) bannerEl.classList.remove('show');
+      if (submitLabelEl) submitLabelEl.textContent = '환불 접수 저장';
+      if (cancelBottomBtn) cancelBottomBtn.style.display = 'none';
+
+      clearInputForm(false);
+      if (showMsg) {
+        showToast('수정을 취소하고 신규 접수 입력 모드로 돌아왔어요.');
+      }
     }
 
     /* ==========================================================================
@@ -4598,6 +4955,80 @@
       const dateFilter = els.pendingDateFilter.value;
       if (dateFilter === 'ALL') return pendingRefundQueue;
       return pendingRefundQueue.filter(r => r.refundDate === dateFilter);
+    }
+
+    function removePendingQueueItem(id) {
+      pendingRefundQueue = pendingRefundQueue.filter(r => r.id !== id);
+      PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+      renderPendingQueueTable();
+      showToast('대기 목록에서 해당 항목을 제외했어요. (누적 접수 이력은 그대로 유지돼요)');
+    }
+
+    function clearPendingQueueItems() {
+      const dateFilter = els.pendingDateFilter.value;
+      const targetItems = getFilteredPendingQueue();
+      if (targetItems.length === 0) {
+        showToast('삭제할 대기 내역이 없어요.');
+        return;
+      }
+
+      const label = dateFilter === 'ALL' ? '전체' : `${dateFilter} 예정`;
+      openConfirmModal(
+        '대기 내역 일괄 삭제 확인',
+        `${label} 대기 목록 ${targetItems.length}건을 삭제할까요?\n(하단 누적 접수 이력과 정산 달력 데이터는 삭제되지 않고 안전하게 유지돼요.)`,
+        () => {
+          if (dateFilter === 'ALL') {
+            pendingRefundQueue = [];
+          } else {
+            pendingRefundQueue = pendingRefundQueue.filter(r => r.refundDate !== dateFilter);
+          }
+          PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+          renderPendingQueueTable();
+          showToast(`${label} 대기 목록 ${targetItems.length}건을 비웠어요.`);
+        },
+        '일괄 삭제'
+      );
+    }
+
+    function copyPendingRefundReply(id) {
+      const item = pendingRefundQueue.find(r => r.id === id) || refundRecords.find(r => r.id === id);
+      if (!item) return;
+
+      const firstLineRaw = String(item.cancelReason || '').split(/\r?\n/)[0].trim();
+      const isUncharged = String(item.remarkNote || '').includes('미충전') || firstLineRaw.includes('미충전');
+
+      let subjectPhrase = '';
+      if (isUncharged) {
+        subjectPhrase = `입금 후 미충전으로 인한 금액 ${formatNumber(item.refundAmount)}원`;
+      } else {
+        subjectPhrase = firstLineRaw.replace(/\s*환불\s*$/, '').trim();
+        if (!subjectPhrase) {
+          subjectPhrase = `${item.paymentMethod || '무통장'} 결제 금액 ${formatNumber(item.refundAmount)}원`;
+        }
+      }
+
+      const replyText = [
+        `요청하신 "${subjectPhrase}" 환불 접수 정상적으로 완료되었습니다.`,
+        ``,
+        `오입금 포함 무통장 결제 수단의 환불은 공휴일 제외 매주 화요일과 목요일 일괄로 처리되고 있음에 이용에 참고 부탁드립니다.`,
+        ``,
+        `(추가로 환불 접수 이후 하트를 사용하는 경우, 환불 접수는 자동으로 철회가 되오니 이용에 참고 부탁드립니다)`
+      ].join('\n');
+
+      const ta = document.createElement('textarea');
+      ta.value = replyText;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(`${item.holderName}(${item.userId}) 님 고객 응대 답변 양식을 클립보드에 복사했어요.`);
+      } catch (err) {
+        showToast('클립보드 복사에 실패했어요.');
+      }
+      document.body.removeChild(ta);
     }
 
     function renderPendingQueueTable() {
@@ -4642,1572 +5073,12 @@
               ${specialHtml}
             </td>
             <td style="white-space: nowrap; text-align: center;">
-              <div style="display: inline-flex; flex-direction: column; gap: 6px; align-items: stretch;">
-                <button type="button" class="btn-row-edit" style="height: 32px; padding: 0 12px;" data-copy-reply-id="${escapeHtml(item.id)}">답변</button>
-                <button type="button" class="btn-danger-ghost" data-remove-pending-id="${escapeHtml(item.id)}">삭제</button>
+              <div style="display: inline-flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 56px;">
+                <button type="button" class="btn-row-edit" style="height: 30px; padding: 0 12px;" data-copy-reply-id="${escapeHtml(item.id)}">답변</button>
+                <button type="button" class="btn-row-edit" style="height: 30px; padding: 0 12px;" data-edit-refund-id="${escapeHtml(item.id)}">수정</button>
+                <button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 12px;" data-remove-pending-id="${escapeHtml(item.id)}">삭제</button>
               </div>
             </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function buildRefundReplyText(item) {
-      const firstLine = String(item.cancelReason || '').split('\n')[0].trim();
-      const isUncharged = firstLine.includes('미충전') || String(item.remarkNote || '').startsWith('미충전');
-      const subjectPhrase = isUncharged
-        ? `입금 후 미충전으로 인한 금액 ${formatNumber(item.refundAmount)}원`
-        : (firstLine.replace(/\s*환불(\s*요청)?\s*$/, '').trim() || firstLine);
-
-      return [
-        `요청하신 "${subjectPhrase}" 환불 접수 정상적으로 완료되었습니다.`,
-        '',
-        '오입금 포함 무통장 결제 수단의 환불은 공휴일 제외 매주 화요일과 목요일 일괄로 처리되고 있음에 이용에 참고 부탁드립니다.',
-        '',
-        '(추가로 환불 접수 이후 하트를 사용하는 경우, 환불 접수는 자동으로 철회가 되오니 이용에 참고 부탁드립니다)'
-      ].join('\n');
-    }
-
-    function copyTextWithLineBreaks(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      ta.style.top = '0';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      let ok = false;
-      try {
-        ok = document.execCommand('copy');
-      } catch (err) {
-        ok = false;
-      }
-      document.body.removeChild(ta);
-      return ok;
-    }
-
-    function copyPendingRefundReply(id) {
-      const target = pendingRefundQueue.find(r => r.id === id);
-      if (!target) return;
-      const replyText = buildRefundReplyText(target);
-      const copied = copyTextWithLineBreaks(replyText);
-      if (copied) {
-        showToast(`${target.holderName}(${target.userId}) 님 환불 접수 안내 답변을 복사했어요.`);
-      } else {
-        showToast('답변 복사에 실패했어요. 다시 시도해 주세요.');
-      }
-    }
-
-    function removePendingQueueItem(id) {
-      pendingRefundQueue = pendingRefundQueue.filter(r => r.id !== id);
-      PendingRefundQueueStorage.saveAll(pendingRefundQueue);
-      renderPendingQueueTable();
-      showToast('대기 목록에서 해당 건을 제외했어요. (아래 누적 내역에는 유지됩니다)');
-    }
-
-    function clearPendingQueueItems() {
-      const dateFilter = els.pendingDateFilter.value;
-      const targetList = getFilteredPendingQueue();
-      if (targetList.length === 0) {
-        showToast('삭제할 대기 목록 내역이 없어요.');
-        return;
-      }
-
-      const targetLabel = dateFilter === 'ALL'
-        ? `전체 대기 내역 ${targetList.length}건`
-        : `${dateFilter} 예정 대기 내역 ${targetList.length}건`;
-
-      openConfirmModal(
-        '환불 예정일 대기 내역 일괄 삭제',
-        `${targetLabel}을(를) 대기 목록에서 삭제할까요?\n(삭제해도 하단의 '접수된 환불 내역'에는 그대로 남아 있어요.)`,
-        () => {
-          if (dateFilter === 'ALL') {
-            pendingRefundQueue = [];
-          } else {
-            pendingRefundQueue = pendingRefundQueue.filter(r => r.refundDate !== dateFilter);
-          }
-          PendingRefundQueueStorage.saveAll(pendingRefundQueue);
-          renderPendingQueueTable();
-          showToast(dateFilter === 'ALL'
-            ? '다운로드 대기 목록을 모두 비웠어요. (누적 내역은 그대로 유지됩니다)'
-            : `${dateFilter} 예정 대기 목록 ${targetList.length}건을 일괄 삭제했어요.`);
-        }
-      );
-    }
-
-    /* ==========================================================================
-       9. 기존 엑셀 양식('무통장 환불' 15열 2단 헤더 구조) 그대로 .xlsx 생성
-       ========================================================================== */
-    function exportToExcel(recordsToExport, customFilename = null) {
-      if (!recordsToExport || recordsToExport.length === 0) {
-        showToast('엑셀로 내보낼 환불 내역이 없어요.');
-        return;
-      }
-
-      if (typeof XLSX === 'undefined') {
-        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
-        return;
-      }
-
-      const sorted = [...recordsToExport].sort((a, b) => a.refundDate.localeCompare(b.refundDate));
-
-      const row1 = [
-        '날짜', '아이디', '결제수단', '은행', '계좌번호', '금액', '예금주',
-        '입금날짜/시간(24시)', '취소사유', '특이사항', '비고',
-        '결제이력', '', '환불이력', ''
-      ];
-      const row2 = [
-        '', '', '', '', '', '', '', '', '', '', '',
-        '누적결제', '첫결제', '누적횟수', '누적금액'
-      ];
-
-      const dataRows = sorted.map(r => [
-        r.refundDate,
-        r.userId,
-        r.paymentMethod,
-        r.bankName,
-        r.accountNumber,
-        Number(r.refundAmount) || 0,
-        r.holderName,
-        r.depositDateTime,
-        r.cancelReason || '',
-        r.specialNote || '',
-        r.remarkNote || '',
-        Number(r.totalPaidHistory) || 0,
-        r.firstPaidDate || '-',
-        Number(r.refundCountHistory) || 0,
-        Number(r.refundAmountHistory) || 0
-      ]);
-
-      const wsData = [row1, row2, ...dataRows];
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } },
-        { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } },
-        { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } },
-        { s: { r: 0, c: 3 }, e: { r: 1, c: 3 } },
-        { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } },
-        { s: { r: 0, c: 5 }, e: { r: 1, c: 5 } },
-        { s: { r: 0, c: 6 }, e: { r: 1, c: 6 } },
-        { s: { r: 0, c: 7 }, e: { r: 1, c: 7 } },
-        { s: { r: 0, c: 8 }, e: { r: 1, c: 8 } },
-        { s: { r: 0, c: 9 }, e: { r: 1, c: 9 } },
-        { s: { r: 0, c: 10 }, e: { r: 1, c: 10 } },
-        { s: { r: 0, c: 11 }, e: { r: 0, c: 12 } },
-        { s: { r: 0, c: 13 }, e: { r: 0, c: 14 } }
-      ];
-
-      ws['!cols'] = [
-        { wch: 13 },
-        { wch: 15 },
-        { wch: 13 },
-        { wch: 13 },
-        { wch: 18 },
-        { wch: 13 },
-        { wch: 11 },
-        { wch: 19 },
-        { wch: 46 },
-        { wch: 24 },
-        { wch: 28 },
-        { wch: 13 },
-        { wch: 13 },
-        { wch: 10 },
-        { wch: 13 }
-      ];
-
-      for (let rIdx = 2; rIdx < wsData.length; rIdx++) {
-        [5, 11, 14].forEach(cIdx => {
-          const cellRef = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
-          if (ws[cellRef] && typeof ws[cellRef].v === 'number') {
-            ws[cellRef].z = '#,##0';
-          }
-        });
-      }
-
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, '무통장 환불');
-
-      const fileName = customFilename || `무통장_환불_정산내역_${getTodayDateString()}.xlsx`;
-      XLSX.writeFile(wb, fileName);
-      showToast(`엑셀 파일(${fileName}) 다운로드를 시작했어요.`);
-    }
-
-    function normalizeImportedRefundDate(val) {
-      if (val instanceof Date && !isNaN(val.getTime())) {
-        const y = val.getFullYear();
-        const m = String(val.getMonth() + 1).padStart(2, '0');
-        const d = String(val.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-      }
-      if (typeof val === 'number' && val > 25000 && val < 90000) {
-        const utcDays = Math.floor(val - 25569);
-        const dateInfo = new Date(utcDays * 86400 * 1000);
-        const y = dateInfo.getUTCFullYear();
-        const m = String(dateInfo.getUTCMonth() + 1).padStart(2, '0');
-        const d = String(dateInfo.getUTCDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-      }
-      const str = String(val ?? '').trim();
-      const matched = str.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/);
-      if (matched) {
-        return `${matched[1]}-${matched[2].padStart(2, '0')}-${matched[3].padStart(2, '0')}`;
-      }
-      return '';
-    }
-
-    function handleImportRefundExcel(file) {
-      if (!file) return;
-      if (typeof XLSX === 'undefined') {
-        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-
-          const preferredSheet = workbook.SheetNames.find(name => name.includes('환불')) || workbook.SheetNames[0];
-          const ws = workbook.Sheets[preferredSheet];
-          if (!ws) {
-            showToast('엑셀 시트를 읽지 못했어요. 파일을 확인해 주세요.');
-            return;
-          }
-
-          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
-          let headerRowIdx = -1;
-          for (let i = 0; i < Math.min(rows.length, 15); i++) {
-            const row = rows[i];
-            if (!Array.isArray(row)) continue;
-            const joined = row.map(c => String(c ?? '').replace(/\s+/g, '')).join('|');
-            if (joined.includes('날짜') && joined.includes('아이디') && joined.includes('계좌번호')) {
-              headerRowIdx = i;
-              break;
-            }
-          }
-
-          let startRow = headerRowIdx >= 0 ? headerRowIdx + 1 : 0;
-          if (headerRowIdx >= 0 && Array.isArray(rows[headerRowIdx + 1])) {
-            const subJoined = rows[headerRowIdx + 1].map(c => String(c ?? '').replace(/\s+/g, '')).join('|');
-            if (subJoined.includes('누적결제') || subJoined.includes('첫결제') || subJoined.includes('누적횟수')) {
-              startRow = headerRowIdx + 2;
-            }
-          }
-
-          const imported = [];
-          const baseTs = Date.now();
-
-          for (let r = startRow; r < rows.length; r++) {
-            const row = rows[r];
-            if (!Array.isArray(row)) continue;
-
-            const refundDate = normalizeImportedRefundDate(row[0]);
-            const userId = String(row[1] ?? '').trim();
-            const refundAmount = parseFormattedNumber(row[5]);
-
-            if (!refundDate || !userId || refundAmount <= 0) continue;
-
-            const firstPaidRaw = row[12];
-            const firstPaidNormalized = normalizeImportedRefundDate(firstPaidRaw) || String(firstPaidRaw ?? '-').trim() || '-';
-
-            imported.push({
-              id: `imp-${baseTs}-${r}`,
-              refundDate,
-              userId,
-              paymentMethod: String(row[2] ?? '무통장').trim() || '무통장',
-              bankName: String(row[3] ?? '').trim(),
-              accountNumber: String(row[4] ?? '').trim(),
-              refundAmount,
-              holderName: String(row[6] ?? '').trim(),
-              depositDateTime: normalizeChargeCellDate(row[7]) || '-',
-              cancelReason: String(row[8] ?? '').trim() || '고객 요청에 따른 환불 처리',
-              specialNote: String(row[9] ?? '').trim(),
-              remarkNote: String(row[10] ?? '').trim(),
-              totalPaidHistory: parseFormattedNumber(row[11]),
-              firstPaidDate: firstPaidNormalized,
-              refundCountHistory: parseInt(String(row[13] ?? '').replace(/[^\d]/g, ''), 10) || 1,
-              refundAmountHistory: parseFormattedNumber(row[14]) || refundAmount
-            });
-          }
-
-          if (imported.length === 0) {
-            showToast('업로드한 파일에서 유효한 환불 접수 내역 행을 찾지 못했어요. 15열 양식을 확인해 주세요.');
-            return;
-          }
-
-          const mode = els.refundImportMode.value;
-          const applyImported = () => {
-            if (mode === 'replace') {
-              refundRecords = imported;
-            } else {
-              refundRecords = [...imported, ...refundRecords];
-            }
-            StorageManager.saveAll(refundRecords);
-
-            const latestDate = imported
-              .map(item => item.refundDate)
-              .sort((a, b) => b.localeCompare(a))[0];
-
-            if (latestDate) {
-              const latestYm = latestDate.slice(0, 7);
-              updateMonthFilterOptions();
-              els.filterMonth.value = latestYm;
-              CustomSelectManager.sync(els.filterMonth);
-
-              const [y, m] = latestDate.split('-').map(Number);
-              currentCalYear = y;
-              currentCalMonth = m;
-              selectedCalDate = latestDate;
-            }
-
-            renderRefundTable();
-            renderCalendar();
-            showToast(`${file.name}에서 ${formatNumber(imported.length)}건을 불러와 접수 내역과 달력에 반영했어요.`);
-          };
-
-          if (mode === 'replace') {
-            openConfirmModal(
-              '기존 접수 내역 교체 확인',
-              `기존에 저장된 접수 내역을 모두 지우고, 업로드한 파일(${imported.length}건)로 교체할까요?`,
-              applyImported,
-              '교체하기'
-            );
-          } else {
-            applyImported();
-          }
-        } catch (err) {
-          console.error('환불 엑셀 업로드 오류:', err);
-          showToast('엑셀 파일을 읽는 중 오류가 발생했어요. .xlsx 또는 .xls 파일인지 확인해 주세요.');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    /* ==========================================================================
-       9-2. 무통장 입금 내역 탭 렌더링 및 특이사항 누적 입력/삭제 로직
-       ========================================================================== */
-    function updateDepositNoteBoxes() {
-      const type = els.depNoteType.value;
-      els.depRejectedBox.style.display = type === 'rejected' ? 'block' : 'none';
-      els.depUnprocessedBox.style.display = type === 'unprocessed' ? 'block' : 'none';
-      els.depTestBox.style.display = type === 'test' ? 'block' : 'none';
-      updateDepositNotePreviews();
-    }
-
-    function updateDepositNotePreviews() {
-      const rejAmt = parseFormattedNumber(els.depRejAmount.value);
-      const rejName = els.depRejName.value.trim() || '판대리';
-      els.depRejPreview.textContent = `미리보기: 차액 ${formatNumber(rejAmt)}원 환불 거절 (입금자명 : ${rejName})`;
-
-      const rawUnprocDt = els.depUnprocDateTime.value.trim() || '2026-10-29 15:33';
-      const unprocDt = rawUnprocDt.replace(/^(\d{4})\.(\d{1,2})\.(\d{1,2})/, '$1-$2-$3');
-      const unprocName = els.depUnprocName.value.trim() || '박정하';
-      const unprocAmt = parseFormattedNumber(els.depUnprocAmount.value) || 1100000;
-      els.depUnprocPreview.textContent = `미리보기: ${unprocDt} / ${unprocName} / ${formatNumber(unprocAmt)}원`;
-
-      const testDt = els.depTestDateTime.value.trim() || '2026-10-08 12:11';
-      const testName = els.depTestName.value.trim() || '박선우';
-      els.depTestPreview.textContent = `미리보기: ${testDt} / ${testName} / 1원 / 테스트 입금 건`;
-    }
-
-    function updateDepositMonthSelectOptions() {
-      const currentVal = els.depMonthSelect.value || '2026-11';
-      const monthSet = new Set();
-      Object.keys(depositLedger).forEach(dateStr => {
-        if (dateStr && dateStr.length >= 7) {
-          monthSet.add(dateStr.slice(0, 7));
-        }
-      });
-      const sortedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
-
-      els.depMonthSelect.innerHTML = '<option value="ALL">2026년 전체 월</option>' +
-        sortedMonths.map(ym => {
-          const [y, m] = ym.split('-');
-          return `<option value="${ym}">${y}년 ${Number(m)}월</option>`;
-        }).join('');
-
-      if (currentVal === 'ALL' || sortedMonths.includes(currentVal)) {
-        els.depMonthSelect.value = currentVal;
-      } else {
-        els.depMonthSelect.value = sortedMonths[0] || 'ALL';
-      }
-      CustomSelectManager.sync(els.depMonthSelect);
-    }
-
-    function renderDepositLedger() {
-      const ym = els.depMonthSelect.value || '2026-11';
-      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
-      const yesterdayStr = getYesterdayDateString();
-
-      let totalAmount = 0;
-      let activeDays = 0;
-      let maxDayStr = '-';
-      let maxDayAmt = 0;
-      let rejectedCount = 0;
-      let unprocessedCount = 0;
-      let testCount = 0;
-
-      const rowsHtml = [];
-
-      if (ym === 'ALL') {
-        els.depStatMonthLabel.textContent = '2026년 누적 입금 합계';
-        els.depTableCardTitle.textContent = '2026년 전체 월 일자별 무통장 입금 내역';
-        els.depChartCardTitle.textContent = '2026년 월별 입금 추이 (월 총 입금 합계)';
-        if (els.depChartCardSubtitle) {
-          els.depChartCardSubtitle.textContent = '각 월의 총 입금 합계 추이를 확인하고, 마우스를 올리면 당월 합계·최고액·평균액을 모두 볼 수 있어요.';
-        }
-
-        // 전체 일자 목록 수집 (최신 날짜순 정렬)
-        const allDates = Object.keys(depositLedger).sort((a, b) => b.localeCompare(a));
-        const monthlyStats = {};
-
-        allDates.forEach(dateStr => {
-          const mKey = dateStr.slice(0, 7);
-          const isUnsettledDate = dateStr > yesterdayStr;
-          const entry = isUnsettledDate ? { amount: 0, notes: [] } : (depositLedger[dateStr] || { amount: 0, notes: [] });
-          const amount = Number(entry.amount) || 0;
-          const notes = Array.isArray(entry.notes) ? entry.notes : [];
-
-          if (!monthlyStats[mKey]) {
-            monthlyStats[mKey] = { ym: mKey, totalAmt: 0, activeDays: 0, maxDayAmt: 0 };
-          }
-
-          if (amount > 0) {
-            totalAmount += amount;
-            activeDays += 1;
-            monthlyStats[mKey].totalAmt += amount;
-            monthlyStats[mKey].activeDays += 1;
-            if (amount > monthlyStats[mKey].maxDayAmt) {
-              monthlyStats[mKey].maxDayAmt = amount;
-            }
-            if (amount > maxDayAmt) {
-              maxDayAmt = amount;
-              maxDayStr = `${dateStr} (${formatNumber(amount)}원)`;
-            }
-          }
-
-          notes.forEach(n => {
-            if (n.type === 'rejected') rejectedCount += 1;
-            else if (n.type === 'unprocessed') unprocessedCount += 1;
-            else if (n.type === 'test') testCount += 1;
-          });
-
-          const dowIdx = new Date(`${dateStr}T00:00:00`).getDay();
-          const dowLabel = dowNames[dowIdx];
-          const dowColor = dowIdx === 0 ? 'var(--coral)' : (dowIdx === 6 ? 'var(--accent-text)' : 'var(--ink-2)');
-
-          let notesCellHtml = '<span style="color: var(--muted); font-size: 13px;">특이사항 없음</span>';
-          if (notes.length > 0) {
-            notesCellHtml = `<div class="deposit-note-list">` + notes.map(note => {
-              const cls = note.type === 'rejected' ? 'is-rejected' : (note.type === 'unprocessed' ? 'is-unprocessed' : 'is-test');
-              return `
-                <div class="deposit-note-item ${cls}">
-                  <div class="deposit-note-text">
-                    <span class="deposit-note-highlight">${escapeHtml(note.text)}</span>
-                  </div>
-                </div>
-              `;
-            }).join('') + `</div>`;
-          }
-
-          const amountCellHtml = isUnsettledDate
-            ? `<td class="td-amount" style="color: var(--muted);">-</td>`
-            : `<td class="td-amount" style="color: ${amount > 0 ? 'var(--ink)' : 'var(--muted)'};">${formatNumber(amount)}원</td>`;
-
-          rowsHtml.push(`
-            <tr style="${isUnsettledDate ? 'opacity: 0.55;' : ''}">
-              <td style="white-space: nowrap; font-weight: 700;">
-                ${dateStr} <span style="color: ${dowColor}; font-size: 12px;">(${dowLabel})</span>
-              </td>
-              ${amountCellHtml}
-              <td>${notesCellHtml}</td>
-              <td style="text-align: right; white-space: nowrap;">
-                <div class="deposit-row-actions">
-                  <button type="button" class="btn-row-edit" data-select-dep-date="${dateStr}">변경</button>
-                  <button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 10px;" data-clear-dep-date="${dateStr}">삭제</button>
-                </div>
-              </td>
-            </tr>
-          `);
-        });
-
-        els.depositLedgerBody.innerHTML = rowsHtml.join('');
-
-        const avgAmt = activeDays > 0 ? Math.round(totalAmount / activeDays) : 0;
-        const totalNotes = rejectedCount + unprocessedCount + testCount;
-
-        els.depStatTotalAmount.textContent = `${formatNumber(totalAmount)}원`;
-        els.depStatActiveDays.textContent = `입금 발생일 ${activeDays}일 (전체 ${allDates.length}일)`;
-        els.depStatAvgAmount.textContent = `${formatNumber(avgAmt)}원`;
-        els.depStatMaxDay.textContent = `최고 입금일: ${maxDayStr}`;
-        els.depStatNoteCount.textContent = `${formatNumber(totalNotes)}건`;
-        els.depStatNoteBreakdown.textContent = `차액 거절 ${rejectedCount} · 미처리 ${unprocessedCount} · 테스트 ${testCount}`;
-
-        // 전체 월 전용 꺾은선 차트 데이터 가공 (과거순 정렬 - 월 총 입금 합계 기준)
-        const monthlyPoints = Object.keys(monthlyStats).sort().map(mKey => {
-          const stat = monthlyStats[mKey];
-          const avg = stat.activeDays > 0 ? Math.round(stat.totalAmt / stat.activeDays) : 0;
-          const [y, m] = mKey.split('-');
-          return {
-            ym: mKey,
-            label: `${y.slice(2)}년 ${Number(m)}월`,
-            totalAmount: stat.totalAmt,
-            maxAmount: stat.maxDayAmt,
-            avgAmount: avg
-          };
-        });
-
-        renderDepositMultiMonthChart(monthlyPoints);
-        return;
-      }
-
-      // 개별 월 선택 모드
-      const [yearStr, monthStr] = ym.split('-');
-      const year = Number(yearStr);
-      const month = Number(monthStr);
-      const daysInMonth = new Date(year, month, 0).getDate();
-
-      els.depStatMonthLabel.textContent = `${year}년 ${month}월 입금 합계`;
-      els.depTableCardTitle.textContent = `${year}년 ${month}월 일자별 무통장 입금 내역`;
-      els.depChartCardTitle.textContent = `${year}년 ${month}월 일자별 입금 추이`;
-      if (els.depChartCardSubtitle) {
-        els.depChartCardSubtitle.textContent = '그래프의 날짜 지점에 마우스를 올리면 해당 일자의 정확한 무통장 입금 금액을 확인할 수 있어요.';
-      }
-
-      const chartPoints = [];
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dd = String(d).padStart(2, '0');
-        const dateStr = `${ym}-${dd}`;
-        const isUnsettledDate = dateStr > yesterdayStr;
-        const dowIdx = new Date(`${dateStr}T00:00:00`).getDay();
-        const dowLabel = dowNames[dowIdx];
-        const dowColor = dowIdx === 0 ? 'var(--coral)' : (dowIdx === 6 ? 'var(--accent-text)' : 'var(--ink-2)');
-
-        const entry = isUnsettledDate
-          ? { amount: 0, notes: [] }
-          : (depositLedger[dateStr] || { amount: 0, notes: [] });
-        const amount = Number(entry.amount) || 0;
-        const notes = Array.isArray(entry.notes) ? entry.notes : [];
-
-        chartPoints.push({
-          day: d,
-          dateStr,
-          dowLabel,
-          amount,
-          hasData: !isUnsettledDate && amount > 0,
-          isFuture: isUnsettledDate
-        });
-
-        if (amount > 0) {
-          totalAmount += amount;
-          activeDays += 1;
-          if (amount > maxDayAmt) {
-            maxDayAmt = amount;
-            maxDayStr = `${month}월 ${d}일 (${formatNumber(amount)}원)`;
-          }
-        }
-
-        notes.forEach(n => {
-          if (n.type === 'rejected') rejectedCount += 1;
-          else if (n.type === 'unprocessed') unprocessedCount += 1;
-          else if (n.type === 'test') testCount += 1;
-        });
-
-        let notesCellHtml = '<span style="color: var(--muted); font-size: 13px;">특이사항 없음</span>';
-        if (notes.length > 0) {
-          notesCellHtml = `<div class="deposit-note-list">` + notes.map(note => {
-            const cls = note.type === 'rejected'
-              ? 'is-rejected'
-              : (note.type === 'unprocessed' ? 'is-unprocessed' : 'is-test');
-
-            return `
-              <div class="deposit-note-item ${cls}">
-                <div class="deposit-note-text">
-                  <span class="deposit-note-highlight">${escapeHtml(note.text)}</span>
-                </div>
-              </div>
-            `;
-          }).join('') + `</div>`;
-        }
-
-        const amountCellHtml = isUnsettledDate
-          ? `<td class="td-amount" style="color: var(--muted);">-</td>`
-          : `<td class="td-amount" style="color: ${amount > 0 ? 'var(--ink)' : 'var(--muted)'};">${formatNumber(amount)}원</td>`;
-
-        rowsHtml.push(`
-          <tr style="${isUnsettledDate ? 'opacity: 0.55;' : ''}">
-            <td style="white-space: nowrap; font-weight: 700;">
-              ${month}월 ${dd}일 <span style="color: ${dowColor}; font-size: 12px;">(${dowLabel})</span>
-            </td>
-            ${amountCellHtml}
-            <td>${notesCellHtml}</td>
-            <td style="text-align: right; white-space: nowrap;">
-              <div class="deposit-row-actions">
-                <button type="button" class="btn-row-edit" data-select-dep-date="${dateStr}">변경</button>
-                <button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 10px;" data-clear-dep-date="${dateStr}">삭제</button>
-              </div>
-            </td>
-          </tr>
-        `);
-      }
-
-      els.depositLedgerBody.innerHTML = rowsHtml.join('');
-
-      const avgAmt = activeDays > 0 ? Math.round(totalAmount / activeDays) : 0;
-      const totalNotes = rejectedCount + unprocessedCount + testCount;
-
-      els.depStatTotalAmount.textContent = `${formatNumber(totalAmount)}원`;
-      els.depStatActiveDays.textContent = `입금 발생일 ${activeDays}일 / 전체 ${daysInMonth}일`;
-      els.depStatAvgAmount.textContent = `${formatNumber(avgAmt)}원`;
-      els.depStatMaxDay.textContent = `최고 입금일: ${maxDayStr}`;
-      els.depStatNoteCount.textContent = `${formatNumber(totalNotes)}건`;
-      els.depStatNoteBreakdown.textContent = `차액 거절 ${rejectedCount} · 미처리 ${unprocessedCount} · 테스트 ${testCount}`;
-
-      renderDepositLineChart(chartPoints, month);
-    }
-
-    function renderDepositMultiMonthChart(monthlyPoints) {
-      const svg = els.depositLineChart;
-      const tooltip = els.depositChartTooltip;
-      const container = els.depositChartContainer;
-      if (!svg) return;
-
-      tooltip.classList.remove('show');
-
-      if (!monthlyPoints || monthlyPoints.length === 0) {
-        svg.innerHTML = `
-          <text x="440" y="135" text-anchor="middle" fill="#7a8492" font-size="14" font-weight="600">
-            표시할 월별 입금 데이터가 없습니다.
-          </text>
-        `;
-        return;
-      }
-
-      const width = 880;
-      const height = 270;
-      const padLeft = 76;
-      const padRight = 40;
-      const padTop = 38;
-      const padBottom = 42;
-      const plotW = width - padLeft - padRight;
-      const plotH = height - padTop - padBottom;
-
-      // 월 총 입금 합계 기준 최대 스케일 계산 (억/천만 단위 반올림)
-      const rawMax = Math.max(...monthlyPoints.map(p => p.totalAmount), 500000000);
-      const stepUnit = 100000000;
-      const maxVal = Math.ceil((rawMax * 1.15) / stepUnit) * stepUnit;
-      const tickCount = 4;
-
-      const n = monthlyPoints.length;
-      const xStep = n > 1 ? plotW / (n - 1) : plotW;
-
-      const coords = monthlyPoints.map((p, idx) => {
-        const x = n > 1 ? padLeft + idx * xStep : padLeft + plotW / 2;
-        const y = padTop + plotH - (maxVal > 0 ? (p.totalAmount / maxVal) * plotH : 0);
-        return { ...p, x, y };
-      });
-
-      // 가로 가이드선 및 Y축 라벨
-      let gridHtml = '';
-      for (let i = 0; i <= tickCount; i++) {
-        const val = (maxVal / tickCount) * i;
-        const y = padTop + plotH - (plotH / tickCount) * i;
-        const eokVal = (val / 100000000);
-        const yLabel = val === 0 ? '0원' : `${Number.isInteger(eokVal) ? eokVal : eokVal.toFixed(1)}억`;
-
-        gridHtml += `
-          <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}"
-                stroke="${i === 0 ? '#dcdce1' : '#e6e9ee'}" stroke-width="1" ${i > 0 ? 'stroke-dasharray="4 4"' : ''} />
-          <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#7a8492" font-size="12" font-weight="600">
-            ${yLabel}
-          </text>
-        `;
-      }
-
-      // 단일 파란색 곡선의 패스 생성
-      const linePath = coords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
-
-      // 파란색 라인 아래 은은한 그라데이션 영역
-      const baseY = (padTop + plotH).toFixed(1);
-      const firstX = coords[0].x.toFixed(1);
-      const lastX = coords[coords.length - 1].x.toFixed(1);
-      const areaPath = `${linePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
-
-      // 상단 범례(Legend)
-      const legendHtml = `
-        <g transform="translate(${width - padRight - 110}, 12)">
-          <line x1="0" y1="8" x2="18" y2="8" stroke="#0096ff" stroke-width="2.6" />
-          <circle cx="9" cy="8" r="3.5" fill="#ffffff" stroke="#0096ff" stroke-width="2" />
-          <text x="24" y="12" fill="#161b22" font-size="12" font-weight="700">당월 입금 합계</text>
-        </g>
-      `;
-
-      // X축 월별 텍스트 라벨 (1월 ~ 11월)
-      let xLabelsHtml = '';
-      coords.forEach((c) => {
-        xLabelsHtml += `
-          <text x="${c.x.toFixed(1)}" y="${height - 14}" text-anchor="middle" fill="#4c5563" font-size="12" font-weight="700">
-            ${c.label}
-          </text>
-        `;
-      });
-
-      // 포인트 원형 표기 (파란색 단일)
-      let pointsHtml = '';
-      coords.forEach((c) => {
-        pointsHtml += `
-          <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.4" />
-        `;
-      });
-
-      svg.innerHTML = `
-        <defs>
-          <linearGradient id="multiMonthTotalGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.22" />
-            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
-          </linearGradient>
-        </defs>
-        ${gridHtml}
-        ${legendHtml}
-        <path d="${areaPath}" fill="url(#multiMonthTotalGrad)" />
-        <path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
-        <line id="chartGuideLine" class="chart-guide-line" x1="0" y1="${padTop}" x2="0" y2="${baseY}"
-              stroke="#0096ff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0" pointer-events="none" />
-        <circle id="chartActiveRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
-                fill="#0096ff" stroke="#ffffff" stroke-width="2.5" opacity="0" pointer-events="none" />
-        ${xLabelsHtml}
-        ${pointsHtml}
-      `;
-
-      const guideLine = document.getElementById('chartGuideLine');
-      const activeRing = document.getElementById('chartActiveRing');
-      let currentHoverIdx = -1;
-
-      const showPointTooltip = (idx) => {
-        const pt = coords[idx];
-        if (!pt) return;
-        currentHoverIdx = idx;
-
-        guideLine.setAttribute('x1', pt.x.toFixed(1));
-        guideLine.setAttribute('x2', pt.x.toFixed(1));
-        guideLine.setAttribute('opacity', '1');
-
-        activeRing.setAttribute('cx', pt.x.toFixed(1));
-        activeRing.setAttribute('cy', pt.y.toFixed(1));
-        activeRing.setAttribute('opacity', '1');
-
-        const svgRect = svg.getBoundingClientRect();
-        const scaleX = svgRect.width / width;
-        const scaleY = svgRect.height / height;
-        const ptXInContainer = pt.x * scaleX;
-        const ptYInContainer = pt.y * scaleY;
-
-        tooltip.innerHTML = `
-          <div class="chart-tooltip-date">${pt.label} (${pt.ym})</div>
-          <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 6px;">
-            <div style="font-size: 14.5px; font-weight: 800; color: #bfe3ff; display: flex; justify-content: space-between; gap: 14px;">
-              <span>당월 총 입금 합계:</span>
-              <span style="color: #ffffff;">${formatNumber(pt.totalAmount)}원</span>
-            </div>
-            <div style="font-size: 12.5px; font-weight: 600; color: #aeb6c2; display: flex; justify-content: space-between; gap: 14px; margin-top: 2px;">
-              <span>당월 최고 일 입금:</span>
-              <span style="color: #e6e9ee; font-weight: 700;">${formatNumber(pt.maxAmount)}원</span>
-            </div>
-            <div style="font-size: 12.5px; font-weight: 600; color: #aeb6c2; display: flex; justify-content: space-between; gap: 14px;">
-              <span>당월 일 평균 입금:</span>
-              <span style="color: #e6e9ee; font-weight: 700;">${formatNumber(pt.avgAmount)}원</span>
-            </div>
-          </div>
-        `;
-
-        // 툴팁의 실제 렌더링 크기 측정
-        tooltip.style.left = '0px';
-        tooltip.style.top = '0px';
-        tooltip.classList.add('show');
-        const tipW = tooltip.offsetWidth || 240;
-        const tipH = tooltip.offsetHeight || 110;
-
-        // X축: 오른쪽/왼쪽 경계 잘림 방지 (스크롤 위치 포함)
-        let leftPx = ptXInContainer + container.scrollLeft;
-        const minLeft = (tipW / 2) + 12;
-        const maxLeft = container.scrollLeft + container.clientWidth - (tipW / 2) - 16;
-        leftPx = Math.max(minLeft, Math.min(maxLeft, leftPx));
-
-        // Y축: 상단 잘림 방지 (위쪽 공간 부족 시 포인트 아래쪽으로 자동 뒤집힘)
-        let topPx = ptYInContainer - 14;
-        if (ptYInContainer - tipH < 10) {
-          topPx = ptYInContainer + tipH + 16;
-          tooltip.style.transform = 'translate(-50%, -100%)';
-        } else {
-          tooltip.style.transform = 'translate(-50%, -100%)';
-        }
-
-        tooltip.style.left = `${leftPx}px`;
-        tooltip.style.top = `${Math.max(tipH + 6, topPx)}px`;
-      };
-
-      svg.onmousemove = (e) => {
-        const svgRect = svg.getBoundingClientRect();
-        if (svgRect.width <= 0) return;
-        const relX = ((e.clientX - svgRect.left) / svgRect.width) * width;
-        let nearestIdx = 0;
-        let minDist = Infinity;
-        for (let i = 0; i < coords.length; i++) {
-          const dist = Math.abs(coords[i].x - relX);
-          if (dist < minDist) {
-            minDist = dist;
-            nearestIdx = i;
-          }
-        }
-        if (nearestIdx !== currentHoverIdx) {
-          showPointTooltip(nearestIdx);
-        }
-      };
-
-      svg.onclick = () => {
-        if (currentHoverIdx >= 0 && coords[currentHoverIdx]) {
-          const pt = coords[currentHoverIdx];
-          els.depMonthSelect.value = pt.ym;
-          CustomSelectManager.sync(els.depMonthSelect);
-          renderDepositLedger();
-          showToast(`${pt.label} 상세 내역으로 이동했어요.`);
-        }
-      };
-
-      svg.onmouseleave = () => {
-        currentHoverIdx = -1;
-        guideLine.setAttribute('opacity', '0');
-        activeRing.setAttribute('opacity', '0');
-        tooltip.classList.remove('show');
-      };
-    }
-
-    function renderDepositLineChart(points, month) {
-      const svg = els.depositLineChart;
-      const tooltip = els.depositChartTooltip;
-      const container = els.depositChartContainer;
-      if (!svg) return;
-
-      tooltip.classList.remove('show');
-
-      if (!points || points.length === 0) {
-        svg.innerHTML = `
-          <text x="440" y="135" text-anchor="middle" fill="#7a8492" font-size="14" font-weight="600">
-            표시할 입금 내역 데이터가 없습니다.
-          </text>
-        `;
-        return;
-      }
-
-      const width = 880;
-      const height = 270;
-      const padLeft = 68;
-      const padRight = 24;
-      const padTop = 26;
-      const padBottom = 42;
-      const plotW = width - padLeft - padRight;
-      const plotH = height - padTop - padBottom;
-
-      const rawMax = Math.max(...points.map(p => p.amount), 100000000);
-      const stepUnit = 50000000;
-      const maxVal = Math.ceil((rawMax * 1.1) / stepUnit) * stepUnit;
-      const tickCount = 4;
-
-      const xStep = points.length > 1 ? plotW / (points.length - 1) : plotW / 2;
-      const coords = points.map((p, idx) => {
-        const x = padLeft + (points.length > 1 ? idx * xStep : plotW / 2);
-        const ratio = maxVal > 0 ? p.amount / maxVal : 0;
-        const y = padTop + plotH - ratio * plotH;
-        return { ...p, x, y };
-      });
-
-      let gridHtml = '';
-      for (let i = 0; i <= tickCount; i++) {
-        const val = (maxVal / tickCount) * i;
-        const y = padTop + plotH - (plotH / tickCount) * i;
-        const eokVal = (val / 100000000);
-        const yLabel = val === 0 ? '0원' : `${Number.isInteger(eokVal) ? eokVal : eokVal.toFixed(1)}억`;
-
-        gridHtml += `
-          <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}"
-                stroke="${i === 0 ? '#dcdce1' : '#e6e9ee'}" stroke-width="1" ${i > 0 ? 'stroke-dasharray="4 4"' : ''} />
-          <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#7a8492" font-size="12" font-weight="600">
-            ${yLabel}
-          </text>
-        `;
-      }
-
-      // 데이터가 있는 마지막 지점(오늘까지)까지만 선과 채움 면적을 그리고, 나머지 날짜는 0원 점선 기준선으로 연결
-      let lastActiveIdx = -1;
-      coords.forEach((c, idx) => {
-        if (!c.isFuture) lastActiveIdx = idx;
-      });
-      const activeCoords = lastActiveIdx >= 0 ? coords.slice(0, lastActiveIdx + 1) : [];
-
-      const baseY = (padTop + plotH).toFixed(1);
-      let linePath = '';
-      let areaPath = '';
-      if (activeCoords.length > 0) {
-        linePath = activeCoords.map((c, idx) => `${idx === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
-        const firstX = activeCoords[0].x.toFixed(1);
-        const lastX = activeCoords[activeCoords.length - 1].x.toFixed(1);
-        areaPath = `${linePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
-      }
-
-      let xLabelsHtml = '';
-      coords.forEach((c, idx) => {
-        const isLastDay = idx === coords.length - 1;
-        const skip30On31Month = coords.length === 31 && c.day === 30;
-        const showLabel = coords.length <= 16 || c.day === 1 || (c.day % 3 === 0 && !skip30On31Month) || isLastDay;
-        if (showLabel) {
-          xLabelsHtml += `
-            <text x="${c.x.toFixed(1)}" y="${height - 14}" text-anchor="middle" fill="#7a8492" font-size="11.5" font-weight="600">
-              ${month}/${c.day}
-            </text>
-          `;
-        }
-      });
-
-      let pointsHtml = '';
-      coords.forEach((c, idx) => {
-        const strokeColor = c.isFuture ? '#c5cbd3' : '#0096ff';
-        const radius = c.isFuture ? '3' : '4';
-        pointsHtml += `
-          <g class="chart-point-group" data-idx="${idx}">
-            <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${radius}" fill="#ffffff" stroke="${strokeColor}" stroke-width="2.2" />
-            <circle class="chart-point-hit" data-idx="${idx}" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="15" fill="transparent" />
-          </g>
-        `;
-      });
-
-      svg.innerHTML = `
-        <defs>
-          <linearGradient id="depositAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.22" />
-            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
-          </linearGradient>
-        </defs>
-        ${gridHtml}
-        ${areaPath ? `<path d="${areaPath}" fill="url(#depositAreaGrad)" />` : ''}
-        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />` : ''}
-        <line id="chartGuideLine" class="chart-guide-line" x1="0" y1="${padTop}" x2="0" y2="${baseY}"
-              stroke="#0096ff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0" pointer-events="none" />
-        <circle id="chartActiveRing" class="chart-active-ring" cx="0" cy="0" r="6.5"
-                fill="#0096ff" stroke="#ffffff" stroke-width="2.5" opacity="0" pointer-events="none" />
-        ${xLabelsHtml}
-        ${pointsHtml}
-      `;
-
-      const guideLine = document.getElementById('chartGuideLine');
-      const activeRing = document.getElementById('chartActiveRing');
-      let currentHoverIdx = -1;
-
-      const showPointTooltip = (idx) => {
-        const pt = coords[idx];
-        if (!pt) return;
-        currentHoverIdx = idx;
-
-        guideLine.setAttribute('x1', pt.x.toFixed(1));
-        guideLine.setAttribute('x2', pt.x.toFixed(1));
-        guideLine.setAttribute('opacity', '1');
-
-        activeRing.setAttribute('cx', pt.x.toFixed(1));
-        activeRing.setAttribute('cy', pt.y.toFixed(1));
-        activeRing.setAttribute('opacity', '1');
-
-        const svgRect = svg.getBoundingClientRect();
-        const scaleX = svgRect.width / width;
-        const scaleY = svgRect.height / height;
-        const ptXInContainer = pt.x * scaleX;
-        const ptYInContainer = pt.y * scaleY;
-
-        const amountLabel = pt.isFuture && pt.amount === 0
-          ? '데이터 없음 (예정일)'
-          : `${formatNumber(pt.amount)}원`;
-
-        tooltip.innerHTML = `
-          <div class="chart-tooltip-date">${month}월 ${pt.day}일 (${pt.dowLabel})</div>
-          <div class="chart-tooltip-amount">${amountLabel}</div>
-        `;
-
-        // 툴팁의 실제 렌더링 너비/높이 측정 및 스마트 경계 감지 적용
-        tooltip.style.left = '0px';
-        tooltip.style.top = '0px';
-        tooltip.classList.add('show');
-        const tipW = tooltip.offsetWidth || 160;
-        const tipH = tooltip.offsetHeight || 58;
-
-        // X축: 오른쪽 및 왼쪽 컨테이너 경계 잘림 방지 (스크롤 위치 포함)
-        let leftPx = ptXInContainer + container.scrollLeft;
-        const minLeft = (tipW / 2) + 12;
-        const maxLeft = container.scrollLeft + container.clientWidth - (tipW / 2) - 16;
-        leftPx = Math.max(minLeft, Math.min(maxLeft, leftPx));
-
-        // Y축: 상단 잘림 방지 (상단 공간이 부족하면 포인트 아래쪽으로 자동 뒤집힘)
-        let topPx = ptYInContainer - 12;
-        if (ptYInContainer - tipH < 8) {
-          topPx = ptYInContainer + tipH + 16;
-          tooltip.style.transform = 'translate(-50%, -100%)';
-        } else {
-          tooltip.style.transform = 'translate(-50%, -100%)';
-        }
-
-        tooltip.style.left = `${leftPx}px`;
-        tooltip.style.top = `${Math.max(tipH + 6, topPx)}px`;
-      };
-
-      svg.onmousemove = (e) => {
-        const svgRect = svg.getBoundingClientRect();
-        if (svgRect.width <= 0) return;
-        const relX = ((e.clientX - svgRect.left) / svgRect.width) * width;
-        let nearestIdx = 0;
-        let minDist = Infinity;
-        for (let i = 0; i < coords.length; i++) {
-          const dist = Math.abs(coords[i].x - relX);
-          if (dist < minDist) {
-            minDist = dist;
-            nearestIdx = i;
-          }
-        }
-        if (nearestIdx !== currentHoverIdx) {
-          showPointTooltip(nearestIdx);
-        }
-      };
-
-      svg.onclick = () => {
-        if (currentHoverIdx >= 0 && coords[currentHoverIdx]) {
-          const pt = coords[currentHoverIdx];
-          els.depTargetDate.value = pt.dateStr;
-          CustomDatePicker.syncLabel(els.depTargetDate);
-          const existing = depositLedger[pt.dateStr];
-          els.depDailyAmount.value = existing && existing.amount > 0 ? formatNumber(existing.amount) : '';
-        }
-      };
-
-      svg.onmouseleave = () => {
-        currentHoverIdx = -1;
-        guideLine.setAttribute('opacity', '0');
-        activeRing.setAttribute('opacity', '0');
-        tooltip.classList.remove('show');
-      };
-    }
-
-    function handleSaveDepositEntry(event) {
-      event.preventDefault();
-      const targetDate = els.depTargetDate.value;
-      if (!targetDate) {
-        showToast('대상 날짜를 먼저 선택해 주세요.');
-        return;
-      }
-
-      const rawAmtStr = els.depDailyAmount.value.trim();
-      const hasAmountInput = rawAmtStr !== '';
-      const newAmount = parseFormattedNumber(rawAmtStr);
-      const noteType = els.depNoteType.value;
-
-      let newNoteObj = null;
-
-      if (noteType === 'rejected') {
-        const rejAmt = parseFormattedNumber(els.depRejAmount.value);
-        const rejName = els.depRejName.value.trim();
-        if (!rejAmt || !rejName) {
-          showToast('차액 환불 거절 금액과 입금자명을 모두 입력해 주세요.');
-          return;
-        }
-        newNoteObj = {
-          id: `dn-${Date.now()}`,
-          type: 'rejected',
-          text: `차액 ${formatNumber(rejAmt)}원 환불 거절 (입금자명 : ${rejName})`
-        };
-      } else if (noteType === 'unprocessed') {
-        const rawDt = els.depUnprocDateTime.value.trim();
-        const dt = rawDt.replace(/^(\d{4})\.(\d{1,2})\.(\d{1,2})/, '$1-$2-$3');
-        const name = els.depUnprocName.value.trim();
-        const amt = parseFormattedNumber(els.depUnprocAmount.value);
-        if (!dt || !name || !amt) {
-          showToast('미처리 건의 날짜·시각, 입금자명, 입금 금액을 모두 입력해 주세요.');
-          return;
-        }
-        newNoteObj = {
-          id: `dn-${Date.now()}`,
-          type: 'unprocessed',
-          text: `${dt} / ${name} / ${formatNumber(amt)}원`
-        };
-      } else if (noteType === 'test') {
-        const dt = els.depTestDateTime.value.trim();
-        const name = els.depTestName.value.trim();
-        if (!dt || !name) {
-          showToast('테스트 입금 건의 날짜·시각과 입금자명을 모두 입력해 주세요.');
-          return;
-        }
-        newNoteObj = {
-          id: `dn-${Date.now()}`,
-          type: 'test',
-          text: `${dt} / ${name} / 1원 / 테스트 입금 건`
-        };
-      }
-
-      if (!hasAmountInput && !newNoteObj) {
-        showToast('입금 금액을 입력하거나 추가할 특이사항 유형을 선택해 주세요.');
-        return;
-      }
-
-      const currentEntry = depositLedger[targetDate] || { amount: 0, notes: [] };
-      const updatedAmount = hasAmountInput ? newAmount : currentEntry.amount;
-      const updatedNotes = newNoteObj ? [...currentEntry.notes, newNoteObj] : [...currentEntry.notes];
-
-      depositLedger[targetDate] = {
-        amount: updatedAmount,
-        notes: updatedNotes
-      };
-
-      DepositLedgerStorage.saveAll(depositLedger);
-
-      const ym = targetDate.slice(0, 7);
-      if (Array.from(els.depMonthSelect.options).some(opt => opt.value === ym)) {
-        els.depMonthSelect.value = ym;
-        CustomSelectManager.sync(els.depMonthSelect);
-      }
-
-      els.depDailyAmount.value = '';
-      els.depRejAmount.value = '';
-      els.depRejName.value = '';
-      els.depUnprocDateTime.value = '';
-      els.depUnprocName.value = '';
-      els.depUnprocAmount.value = '';
-      els.depTestDateTime.value = '';
-      els.depTestName.value = '';
-      updateDepositNotePreviews();
-
-      renderDepositLedger();
-      renderCalendar();
-      showToast(`${targetDate} 무통장 입금 · 특이사항 내역이 반영됐어요.`);
-    }
-
-    function deleteDepositNote(dateStr, noteId) {
-      const entry = depositLedger[dateStr];
-      if (!entry) return;
-      entry.notes = (entry.notes || []).filter(n => n.id !== noteId);
-      depositLedger[dateStr] = entry;
-      DepositLedgerStorage.saveAll(depositLedger);
-      renderDepositLedger();
-      showToast('선택한 특이사항 항목을 삭제했어요.');
-    }
-
-    function clearDepositDay(dateStr) {
-      depositLedger[dateStr] = { amount: 0, notes: [] };
-      DepositLedgerStorage.saveAll(depositLedger);
-      renderDepositLedger();
-      renderCalendar();
-      showToast(`${dateStr} 입금 내역과 특이사항을 삭제했어요.`);
-    }
-
-    /* ==========================================================================
-       9-3. 무통장 입금 내역 엑셀 다운로드 및 일괄 업로드 파싱 로직
-       ========================================================================== */
-    function exportDepositLedgerToExcel() {
-      if (typeof XLSX === 'undefined') {
-        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
-        return;
-      }
-
-      const ym = els.depMonthSelect.value || '2026-11';
-      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
-      const headerRow = ['일자', '입금 금액', '특이사항 (차액 환불 거절 · 미처리 · 테스트 입금)'];
-      const dataRows = [];
-      let sheetTitle = '';
-      let fileName = '';
-
-      if (ym === 'ALL') {
-        sheetTitle = '전체 무통장 입금내역';
-        fileName = `무통장_입금내역_전체_${getTodayDateString()}.xlsx`;
-
-        // 전체 일자 목록을 과거 -> 최신순으로 정렬하여 다운로드
-        const allDates = Object.keys(depositLedger).sort();
-        allDates.forEach(dateStr => {
-          const dowLabel = dowNames[new Date(`${dateStr}T00:00:00`).getDay()];
-          const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
-          const amount = Number(entry.amount) || 0;
-          const notes = Array.isArray(entry.notes) ? entry.notes : [];
-          const notesText = notes.map(n => n.text).join('\n');
-
-          dataRows.push([
-            `${dateStr} (${dowLabel})`,
-            amount,
-            notesText
-          ]);
-        });
-      } else {
-        const [yearStr, monthStr] = ym.split('-');
-        const year = Number(yearStr);
-        const month = Number(monthStr);
-        const daysInMonth = new Date(year, month, 0).getDate();
-
-        sheetTitle = `${year}년 ${month}월 입금내역`;
-        fileName = `무통장_입금내역_${ym}.xlsx`;
-
-        for (let d = 1; d <= daysInMonth; d++) {
-          const dd = String(d).padStart(2, '0');
-          const dateStr = `${ym}-${dd}`;
-          const dowLabel = dowNames[new Date(`${dateStr}T00:00:00`).getDay()];
-          const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
-          const amount = Number(entry.amount) || 0;
-          const notes = Array.isArray(entry.notes) ? entry.notes : [];
-          const notesText = notes.map(n => n.text).join('\n');
-
-          dataRows.push([
-            `${dateStr} (${dowLabel})`,
-            amount,
-            notesText
-          ]);
-        }
-      }
-
-      const wsData = [headerRow, ...dataRows];
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      ws['!cols'] = [
-        { wch: 18 }, // 일자
-        { wch: 18 }, // 입금 금액
-        { wch: 60 }  // 특이사항
-      ];
-
-      // 금액 서식 적용 (#,#0)
-      for (let rIdx = 1; rIdx < wsData.length; rIdx++) {
-        const cellRef = XLSX.utils.encode_cell({ r: rIdx, c: 1 });
-        if (ws[cellRef] && typeof ws[cellRef].v === 'number') {
-          ws[cellRef].z = '#,##0';
-        }
-      }
-
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, sheetTitle);
-
-      XLSX.writeFile(wb, fileName);
-      showToast(`${fileName} 파일 다운로드를 시작했어요.`);
-    }
-
-    function detectDepositNoteType(text) {
-      const str = String(text || '');
-      if (str.includes('거절') || str.includes('차액')) return 'rejected';
-      if (str.includes('테스트')) return 'test';
-      return 'unprocessed';
-    }
-
-    function handleImportDepositExcel(file) {
-      if (!file) return;
-      if (typeof XLSX === 'undefined') {
-        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-
-          const sheetName = workbook.SheetNames.find(n => n.includes('입금')) || workbook.SheetNames[0];
-          const ws = workbook.Sheets[sheetName];
-          if (!ws) {
-            showToast('엑셀 시트를 읽지 못했어요. 파일을 확인해 주세요.');
-            return;
-          }
-
-          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
-          if (!rows || rows.length === 0) {
-            showToast('엑셀 파일에 데이터가 없습니다.');
-            return;
-          }
-
-          // 헤더 행 자동 감지
-          let headerRowIdx = -1;
-          for (let i = 0; i < Math.min(rows.length, 10); i++) {
-            const row = rows[i];
-            if (!Array.isArray(row)) continue;
-            const joined = row.map(c => String(c ?? '').replace(/\s+/g, '')).join('|');
-            if (joined.includes('일자') || joined.includes('날짜') || joined.includes('입금금액')) {
-              headerRowIdx = i;
-              break;
-            }
-          }
-
-          const startRow = headerRowIdx >= 0 ? headerRowIdx + 1 : 0;
-          const parsedLedger = {};
-          let importedDatesCount = 0;
-          let latestYm = '';
-
-          for (let r = startRow; r < rows.length; r++) {
-            const row = rows[r];
-            if (!Array.isArray(row)) continue;
-
-            const dateStr = normalizeImportedRefundDate(row[0]);
-            if (!dateStr) continue;
-
-            const amount = parseFormattedNumber(row[1]);
-            const rawNotes = String(row[2] ?? '').trim();
-
-            const notesList = [];
-            if (rawNotes) {
-              const lines = rawNotes.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-              lines.forEach((line, lIdx) => {
-                notesList.push({
-                  id: `dn-imp-${dateStr}-${r}-${lIdx}`,
-                  type: detectDepositNoteType(line),
-                  text: line
-                });
-              });
-            }
-
-            parsedLedger[dateStr] = {
-              amount,
-              notes: notesList
-            };
-
-            importedDatesCount += 1;
-            if (!latestYm || dateStr > latestYm) {
-              latestYm = dateStr.slice(0, 7);
-            }
-          }
-
-          if (importedDatesCount === 0) {
-            showToast('업로드한 파일에서 유효한 일자 및 입금 금액 행을 찾지 못했어요.');
-            return;
-          }
-
-          const mode = els.depositImportMode.value;
-          const applyImport = () => {
-            if (mode === 'replace') {
-              depositLedger = { ...parsedLedger };
-            } else {
-              // 추가/합산 모드
-              Object.entries(parsedLedger).forEach(([dStr, item]) => {
-                const existing = depositLedger[dStr] || { amount: 0, notes: [] };
-                depositLedger[dStr] = {
-                  amount: item.amount > 0 ? item.amount : existing.amount,
-                  notes: [...(existing.notes || []), ...item.notes]
-                };
-              });
-            }
-
-            DepositLedgerStorage.saveAll(depositLedger);
-
-            // 조회 월 드롭다운 옵션 보정 및 이동
-            if (latestYm) {
-              if (!Array.from(els.depMonthSelect.options).some(opt => opt.value === latestYm)) {
-                const [y, m] = latestYm.split('-');
-                const opt = document.createElement('option');
-                opt.value = latestYm;
-                opt.textContent = `${y}년 ${Number(m)}월`;
-                els.depMonthSelect.insertBefore(opt, els.depMonthSelect.firstChild);
-              }
-              els.depMonthSelect.value = latestYm;
-              CustomSelectManager.sync(els.depMonthSelect);
-            }
-
-            renderDepositLedger();
-            renderCalendar();
-            showToast(`${file.name}에서 ${formatNumber(importedDatesCount)}개 일자의 입금 내역을 불러와 반영했어요.`);
-          };
-
-          if (mode === 'replace') {
-            openConfirmModal(
-              '입금 내역 덮어쓰기 확인',
-              `기존에 저장된 모든 입금 내역과 특이사항을 지우고, 업로드한 파일(${importedDatesCount}개 일자)로 교체할까요?`,
-              applyImport,
-              '교체하기'
-            );
-          } else {
-            applyImport();
-          }
-        } catch (err) {
-          console.error('입금 내역 엑셀 업로드 오류:', err);
-          showToast('엑셀 파일을 읽는 중 오류가 발생했어요. .xlsx 또는 .xls 파일인지 확인해 주세요.');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    /* ==========================================================================
-       10. 결제 대행사(PG) 스타일 월간 환불 정산 달력 렌더링
-       ========================================================================== */
-    function renderCalendar() {
-      const ymPrefix = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
-      const todayStr = getTodayDateString();
-
-      // 달력 년월 타이틀 동기화
-      if (els.calendarMonthTitle) {
-        els.calendarMonthTitle.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
-      }
-
-      // 달력 월 드롭다운 선택값 동기화
-      if (els.calendarMonthSelect) {
-        if (!Array.from(els.calendarMonthSelect.options).some(opt => opt.value === ymPrefix)) {
-          const newOpt = document.createElement('option');
-          newOpt.value = ymPrefix;
-          newOpt.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
-          els.calendarMonthSelect.appendChild(newOpt);
-        }
-        els.calendarMonthSelect.value = ymPrefix;
-        CustomSelectManager.sync(els.calendarMonthSelect);
-      }
-
-      els.calStatMonthLabel.textContent = `${currentCalYear}년 ${currentCalMonth}월 총 환불 건수`;
-
-      const monthRecords = refundRecords.filter(r => r.refundDate.startsWith(ymPrefix) && r.refundDate <= todayStr);
-      const totalCount = monthRecords.length;
-      const totalAmount = monthRecords.reduce((sum, r) => sum + (Number(r.refundAmount) || 0), 0);
-      const bankCount = monthRecords.filter(r => r.paymentMethod === '무통장').length;
-      const pgCount = totalCount - bankCount;
-
-      const byDateMap = {};
-      monthRecords.forEach(r => {
-        if (!byDateMap[r.refundDate]) {
-          byDateMap[r.refundDate] = { count: 0, amount: 0, records: [] };
-        }
-        byDateMap[r.refundDate].count += 1;
-        byDateMap[r.refundDate].amount += Number(r.refundAmount) || 0;
-        byDateMap[r.refundDate].records.push(r);
-      });
-
-      const activeDays = Object.keys(byDateMap).length;
-      const avgAmount = totalCount > 0 ? Math.round(totalAmount / totalCount) : 0;
-      const bankPct = totalCount > 0 ? Math.round((bankCount / totalCount) * 100) : 0;
-      const pgPct = totalCount > 0 ? 100 - bankPct : 0;
-
-      els.calStatCount.textContent = `${formatNumber(totalCount)}건`;
-      els.calStatActiveDays.textContent = `환불 처리일 ${activeDays}일`;
-      els.calStatAmount.textContent = `${formatNumber(totalAmount)}원`;
-      els.calStatAvgAmount.textContent = `건당 평균 ${formatNumber(avgAmount)}원`;
-      els.calStatBankRatio.textContent = `${bankPct}% / ${pgPct}%`;
-      els.calStatBreakdown.textContent = `무통장 ${bankCount}건 · PG/간편결제 ${pgCount}건`;
-
-      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-      let html = weekdays.map((day, idx) => {
-        const cls = idx === 0 ? 'sun' : (idx === 6 ? 'sat' : '');
-        return `<div class="cal-weekday ${cls}">${day}</div>`;
-      }).join('');
-
-      const firstDayOfWeek = new Date(currentCalYear, currentCalMonth - 1, 1).getDay();
-      const daysInMonth = new Date(currentCalYear, currentCalMonth, 0).getDate();
-
-      for (let i = 0; i < firstDayOfWeek; i++) {
-        html += `<div class="cal-cell other-month"></div>`;
-      }
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${ymPrefix}-${String(d).padStart(2, '0')}`;
-        const isFutureDate = dateStr > todayStr;
-        const isUnsettledDepositDate = dateStr > getYesterdayDateString();
-        const dayOfWeek = (firstDayOfWeek + d - 1) % 7;
-        const dayClass = dayOfWeek === 0 ? 'sun' : (dayOfWeek === 6 ? 'sat' : '');
-        const dayData = isFutureDate ? null : byDateMap[dateStr];
-        const depData = isUnsettledDepositDate ? null : depositLedger[dateStr];
-        const depositAmt = depData ? (Number(depData.amount) || 0) : 0;
-        const hasData = !isFutureDate && (Boolean(dayData) || depositAmt > 0);
-        const isSelected = selectedCalDate === dateStr;
-        const isToday = dateStr === todayStr;
-
-        const infoLines = [];
-        if (depositAmt > 0) {
-          infoLines.push(`<span class="cal-deposit">${formatNumber(depositAmt)}원</span>`);
-        }
-        if (dayData) {
-          infoLines.push(`<span class="cal-sum">${formatNumber(dayData.amount)}원</span>`);
-        }
-        const infoHtml = infoLines.length > 0 ? `<div class="cal-info">${infoLines.join('')}</div>` : '';
-        const countBadgeHtml = dayData ? `<span class="cal-count">${dayData.count}건</span>` : '';
-        const dayNumHtml = isToday
-          ? `<span class="cal-day-num is-today-circle">${d}</span>`
-          : `<span class="cal-day-num">${d}</span>`;
-
-        html += `
-          <div class="cal-cell ${dayClass} ${hasData ? 'has-data' : ''} ${isSelected ? 'selected' : ''}" data-cal-date="${dateStr}">
-            <div class="cal-cell-header">
-              ${dayNumHtml}
-              ${countBadgeHtml}
-            </div>
-            ${infoHtml}
-          </div>
-        `;
-      }
-
-      const totalCells = firstDayOfWeek + daysInMonth;
-      const trailingCells = (7 - (totalCells % 7)) % 7;
-      for (let i = 0; i < trailingCells; i++) {
-        html += `<div class="cal-cell other-month"></div>`;
-      }
-
-      els.calendarGrid.innerHTML = html;
-      renderSelectedDateDetail(selectedCalDate);
-    }
-
-    function renderSelectedDateDetail(dateStr) {
-      if (!dateStr) {
-        els.selectedDateTitle.textContent = '날짜를 선택해 주세요';
-        els.selectedDateSubtitle.textContent = '달력에서 날짜를 누르면 해당 일자의 무통장 입금 금액과 환불 내역을 바로 확인할 수 있어요.';
-        els.btnExportSelectedDate.style.display = 'none';
-        els.selectedDateTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="empty-state">달력에서 날짜를 클릭하면 상세 정산 내역이 나타나요.</td>
-          </tr>
-        `;
-        return;
-      }
-
-      const todayStr = getTodayDateString();
-      if (dateStr > todayStr) {
-        els.selectedDateTitle.textContent = `${dateStr} 정산 상세 내역`;
-        els.selectedDateSubtitle.textContent = '아직 도래하지 않은 날짜예요. 날짜가 지나면 정산 내역이 채워져요.';
-        els.btnExportSelectedDate.style.display = 'none';
-        els.selectedDateTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="empty-state">${dateStr}은(는) 예정일 이후 날짜로 아직 집계된 내역이 없어요.</td>
-          </tr>
-        `;
-        return;
-      }
-
-      const dayRecords = refundRecords.filter(r => r.refundDate === dateStr);
-      const daySum = dayRecords.reduce((acc, r) => acc + (Number(r.refundAmount) || 0), 0);
-      const isUnsettledDepositDate = dateStr > getYesterdayDateString();
-      const depData = isUnsettledDepositDate ? null : depositLedger[dateStr];
-      const depositAmt = depData ? (Number(depData.amount) || 0) : 0;
-
-      els.selectedDateTitle.textContent = `${dateStr} 정산 상세 내역`;
-      const depStatusText = isUnsettledDepositDate
-        ? '무통장 입금 집계 대기 (자정 이후 반영)'
-        : `무통장 입금 ${formatNumber(depositAmt)}원`;
-      els.selectedDateSubtitle.textContent = `${depStatusText} · 환불 처리 ${dayRecords.length}건 · 총 환불 정산액 ${formatNumber(daySum)}원`;
-
-      if (dayRecords.length === 0) {
-        els.btnExportSelectedDate.style.display = 'none';
-        els.selectedDateTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="empty-state">${dateStr}에는 접수된 환불 내역이 없어요. (${depStatusText})</td>
-          </tr>
-        `;
-        return;
-      }
-
-      els.btnExportSelectedDate.style.display = 'inline-flex';
-      els.selectedDateTableBody.innerHTML = dayRecords.map(r => {
-        const hlClass = getPaymentMethodHighlightClass(r.paymentMethod);
-        return `
-          <tr>
-            <td style="white-space: nowrap;">${escapeHtml(r.depositDateTime)}</td>
-            <td>
-              <strong>${escapeHtml(r.userId)}</strong>
-              <span style="color: var(--ink-2);">(${escapeHtml(r.holderName)})</span>
-            </td>
-            <td style="text-align: center;"><span class="hl-badge ${hlClass}">${escapeHtml(r.paymentMethod)}</span></td>
-            <td>${escapeHtml(r.bankName)} ${escapeHtml(r.accountNumber)}</td>
-            <td class="td-amount">${formatNumber(r.refundAmount)}원</td>
-            <td class="td-reason">${escapeHtml(r.remarkNote || r.cancelReason)}</td>
           </tr>
         `;
       }).join('');
@@ -6732,8 +5603,8 @@
                 <span class="notice-title-text">${escapeHtml(item.title)}</span>
               </div>
               <div class="notice-right-meta">
-                ${hasContent ? '<span class="hl-badge hl-badge-blue">내용 등록됨</span>' : '<span class="hl-badge hl-badge-gray">내용 대기</span>'}
-                <svg class="notice-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <span class="hl-badge ${hasContent ? 'hl-badge-blue' : 'hl-badge-gray'}">${hasContent ? '내용 등록됨' : '내용 대기'}</span>
+                <svg class="notice-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
             </button>
             <div class="notice-body">
@@ -6770,6 +5641,1159 @@
     }
 
     /* ==========================================================================
+       10-4. 무통장 입금 내역 & 특이사항 입력 · 조회 · 엑셀 입출력 · 꺾은선 그래프
+       ========================================================================== */
+    function updateDepositNoteBoxes() {
+      const type = els.depNoteType.value;
+      els.depUnprocessedBox.style.display = type === 'unprocessed' ? 'block' : 'none';
+      els.depTestBox.style.display = type === 'test' ? 'block' : 'none';
+      els.depRejectedBox.style.display = type === 'rejected' ? 'block' : 'none';
+      updateDepositNotePreviews();
+    }
+
+    function updateDepositNotePreviews() {
+      const targetDate = els.depTargetDate.value || getYesterdayDateString();
+
+      const uTime = (els.depUnprocDateTime.value || '').trim().replace(/\./g, '-') || `${targetDate} 15:33`;
+      const uName = (els.depUnprocName.value || '').trim() || '박정하';
+      const uAmt = parseFormattedNumber(els.depUnprocAmount.value) || 1100000;
+      els.depUnprocPreview.textContent = `미리보기: ${uTime} / ${uName} / ${formatNumber(uAmt)}원`;
+
+      const tTime = (els.depTestDateTime.value || '').trim().replace(/\./g, '-') || `${targetDate} 12:11`;
+      const tName = (els.depTestName.value || '').trim() || '박선우';
+      els.depTestPreview.textContent = `미리보기: ${tTime} / ${tName} / 1원 / 테스트 입금 건`;
+
+      const rAmt = parseFormattedNumber(els.depRejAmount.value);
+      const rName = (els.depRejName.value || '').trim() || '판대리';
+      els.depRejPreview.textContent = `미리보기: 차액 ${formatNumber(rAmt)}원 환불 거절 (입금자명 : ${rName})`;
+    }
+
+    let hasInitializedDepMonth = false;
+
+    function updateDepositMonthSelectOptions() {
+      const todayYm = getTodayDateString().slice(0, 7);
+      const currentVal = els.depMonthSelect.value;
+      const monthSet = new Set([todayYm, '2026-11', '2026-10', '2026-09', '2026-08', '2026-07', '2026-06', '2026-05', '2026-04', '2026-03', '2026-02', '2026-01']);
+      Object.keys(depositLedger).forEach(dStr => {
+        if (dStr && dStr.length >= 7) monthSet.add(dStr.slice(0, 7));
+      });
+      const sortedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
+
+      els.depMonthSelect.innerHTML = '<option value="ALL">2026년 전체 월</option>' +
+        sortedMonths.map(ym => {
+          const [y, m] = ym.split('-');
+          return `<option value="${ym}">${y}년 ${Number(m)}월</option>`;
+        }).join('');
+
+      if (!hasInitializedDepMonth) {
+        els.depMonthSelect.value = todayYm;
+        hasInitializedDepMonth = true;
+      } else if (currentVal === 'ALL' || sortedMonths.includes(currentVal)) {
+        els.depMonthSelect.value = currentVal;
+      } else {
+        els.depMonthSelect.value = todayYm;
+      }
+      CustomSelectManager.sync(els.depMonthSelect);
+    }
+
+    function handleSaveDepositEntry(event) {
+      event.preventDefault();
+      const targetDate = els.depTargetDate.value;
+      if (!targetDate) {
+        showToast('대상 날짜를 선택해 주세요.');
+        return;
+      }
+
+      if (!depositLedger[targetDate]) {
+        depositLedger[targetDate] = { amount: 0, notes: [] };
+      }
+
+      const rawAmountStr = els.depDailyAmount.value.trim();
+      let updatedAmount = false;
+      if (rawAmountStr !== '') {
+        depositLedger[targetDate].amount = parseFormattedNumber(rawAmountStr);
+        updatedAmount = true;
+      }
+
+      const noteType = els.depNoteType.value;
+      let addedNote = false;
+
+      if (noteType === 'unprocessed') {
+        const dt = els.depUnprocDateTime.value.trim().replace(/\./g, '-');
+        const name = els.depUnprocName.value.trim();
+        const amt = parseFormattedNumber(els.depUnprocAmount.value);
+        if (!dt || !name || amt <= 0) {
+          showToast('미처리 건의 입금 날짜·시각, 입금자명, 입금 금액을 모두 입력해 주세요.');
+          return;
+        }
+        depositLedger[targetDate].notes.push({
+          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          type: 'unprocessed',
+          text: `${dt} / ${name} / ${formatNumber(amt)}원`
+        });
+        els.depUnprocDateTime.value = '';
+        els.depUnprocName.value = '';
+        els.depUnprocAmount.value = '';
+        addedNote = true;
+      } else if (noteType === 'test') {
+        const dt = els.depTestDateTime.value.trim().replace(/\./g, '-');
+        const name = els.depTestName.value.trim();
+        if (!dt || !name) {
+          showToast('테스트 입금 건의 입금 날짜·시각과 입금자명을 입력해 주세요.');
+          return;
+        }
+        depositLedger[targetDate].notes.push({
+          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          type: 'test',
+          text: `${dt} / ${name} / 1원 / 테스트 입금 건`
+        });
+        els.depTestDateTime.value = '';
+        els.depTestName.value = '';
+        addedNote = true;
+      } else if (noteType === 'rejected') {
+        const amt = parseFormattedNumber(els.depRejAmount.value);
+        const name = els.depRejName.value.trim();
+        if (amt <= 0 || !name) {
+          showToast('차액 환불 거절 건의 차액 금액과 입금자명을 입력해 주세요.');
+          return;
+        }
+        depositLedger[targetDate].notes.push({
+          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          type: 'rejected',
+          text: `차액 ${formatNumber(amt)}원 환불 거절 (입금자명 : ${name})`
+        });
+        els.depRejAmount.value = '';
+        els.depRejName.value = '';
+        addedNote = true;
+      }
+
+      if (!updatedAmount && !addedNote) {
+        showToast('입금 금액을 입력하거나 특이사항 유형을 선택해 주세요.');
+        return;
+      }
+
+      DepositLedgerStorage.saveAll(depositLedger);
+      els.depDailyAmount.value = '';
+      updateDepositNotePreviews();
+
+      const ym = targetDate.slice(0, 7);
+      updateDepositMonthSelectOptions();
+      if (els.depMonthSelect.value !== 'ALL') {
+        els.depMonthSelect.value = ym;
+        CustomSelectManager.sync(els.depMonthSelect);
+      }
+      renderDepositLedger();
+      renderCalendar();
+      showToast(`${targetDate} 입금 및 특이사항 내역이 기록됐어요.`);
+    }
+
+    function clearDepositDay(dateStr) {
+      openConfirmModal(
+        '일자 입금 내역 초기화 확인',
+        `${dateStr} 날짜에 기록된 입금 금액과 특이사항을 모두 비울까요?`,
+        () => {
+          delete depositLedger[dateStr];
+          DepositLedgerStorage.saveAll(depositLedger);
+          renderDepositLedger();
+          renderCalendar();
+          showToast(`${dateStr} 내역을 비웠어요.`);
+        },
+        '초기화'
+      );
+    }
+
+    function renderDepositLedger() {
+      const selectedYm = els.depMonthSelect.value || '2026-11';
+      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
+      const yesterdayStr = getYesterdayDateString();
+
+      let rows = [];
+      if (selectedYm === 'ALL') {
+        const allDates = Object.keys(depositLedger).sort((a, b) => b.localeCompare(a));
+        rows = allDates.map(dateStr => {
+          const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
+          const dow = dowNames[new Date(`${dateStr}T00:00:00`).getDay()] || '';
+          return {
+            dateStr,
+            dow,
+            amount: Number(entry.amount) || 0,
+            notes: Array.isArray(entry.notes) ? entry.notes : []
+          };
+        });
+      } else {
+        const [y, m] = selectedYm.split('-').map(Number);
+        const daysInMonth = new Date(y, m, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dd = String(d).padStart(2, '0');
+          const dateStr = `${selectedYm}-${dd}`;
+          const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
+          const dow = dowNames[new Date(`${dateStr}T00:00:00`).getDay()] || '';
+          rows.push({
+            dateStr,
+            dow,
+            amount: Number(entry.amount) || 0,
+            notes: Array.isArray(entry.notes) ? entry.notes : []
+          });
+        }
+      }
+
+      const activeRows = rows.filter(r => r.amount > 0);
+      const totalAmount = activeRows.reduce((s, r) => s + r.amount, 0);
+      const avgAmount = activeRows.length > 0 ? Math.round(totalAmount / activeRows.length) : 0;
+      const maxRow = activeRows.reduce((best, r) => (!best || r.amount > best.amount ? r : best), null);
+
+      let totalNotes = 0;
+      let rejCount = 0;
+      let unprocCount = 0;
+      let testCount = 0;
+
+      rows.forEach(r => {
+        r.notes.forEach(n => {
+          totalNotes += 1;
+          if (n.type === 'rejected') rejCount += 1;
+          else if (n.type === 'unprocessed') unprocCount += 1;
+          else if (n.type === 'test') testCount += 1;
+        });
+      });
+
+      if (selectedYm === 'ALL') {
+        els.depStatMonthLabel.textContent = '2026년 누적 입금 합계';
+        els.depTableCardTitle.textContent = '2026년 전체 월 일자별 무통장 입금 내역';
+        els.depChartCardTitle.textContent = '2026년 월별 입금 추이';
+        els.depChartCardSubtitle.textContent = '그래프의 월 지점에 마우스를 올리면 당월 입금 합계, 최고 일 입금액, 일 평균 입금액을 확인할 수 있어요.';
+      } else {
+        const [y, m] = selectedYm.split('-').map(Number);
+        els.depStatMonthLabel.textContent = `${y}년 ${m}월 입금 합계`;
+        els.depTableCardTitle.textContent = `${y}년 ${m}월 일자별 무통장 입금 내역`;
+        els.depChartCardTitle.textContent = `${y}년 ${m}월 일자별 입금 추이`;
+        els.depChartCardSubtitle.textContent = '그래프의 날짜 지점에 마우스를 올리면 해당 일자의 정확한 무통장 입금 금액을 확인할 수 있어요.';
+      }
+
+      els.depStatTotalAmount.textContent = `${formatNumber(totalAmount)}원`;
+      els.depStatActiveDays.textContent = `입금 발생일 ${formatNumber(activeRows.length)}일`;
+      els.depStatAvgAmount.textContent = `${formatNumber(avgAmount)}원`;
+      els.depStatMaxDay.textContent = maxRow ? `최고 입금일 ${maxRow.dateStr} (${formatNumber(maxRow.amount)}원)` : '최고 입금일 -';
+      els.depStatNoteCount.textContent = `${formatNumber(totalNotes)}건`;
+      els.depStatNoteBreakdown.textContent = `차액 거절 ${rejCount} · 미처리 ${unprocCount} · 테스트 ${testCount}`;
+
+      if (rows.length === 0) {
+        els.depositLedgerBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty-state">표시할 일자별 무통장 입금 내역이 없어요.</td>
+          </tr>
+        `;
+      } else {
+        els.depositLedgerBody.innerHTML = rows.map(r => {
+          const dowColor = r.dow === '일' ? 'var(--coral)' : (r.dow === '토' ? 'var(--accent-text)' : 'var(--ink)');
+          const isPendingCutoff = r.dateStr > yesterdayStr && r.amount === 0;
+          const amountHtml = r.amount > 0
+            ? `<span style="font-weight: 800; color: var(--ink);">${formatNumber(r.amount)}원</span>`
+            : `<span style="color: var(--muted); font-size: 13px;">${isPendingCutoff ? '- (자정 마감 대기)' : '-'}</span>`;
+
+          const notesHtml = r.notes.length > 0
+            ? `<div class="deposit-note-list">
+                ${r.notes.map(n => {
+                  const cls = n.type === 'rejected' ? 'is-rejected' : (n.type === 'test' ? 'is-test' : 'is-unprocessed');
+                  return `
+                    <div class="deposit-note-item ${cls}">
+                      <span class="deposit-note-text"><span class="deposit-note-highlight">${escapeHtml(n.text)}</span></span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>`
+            : `<span style="color: var(--muted); font-size: 13px;">특이사항 없음</span>`;
+
+          return `
+            <tr>
+              <td style="text-align: center; font-weight: 700; color: ${dowColor}; white-space: nowrap;">
+                ${escapeHtml(r.dateStr)} (${r.dow})
+              </td>
+              <td style="text-align: right; white-space: nowrap;">${amountHtml}</td>
+              <td>${notesHtml}</td>
+              <td style="text-align: center; white-space: nowrap;">
+                <div class="deposit-row-actions">
+                  <button type="button" class="btn-row-edit" data-select-dep-date="${escapeHtml(r.dateStr)}">수정</button>
+                  ${(r.amount > 0 || r.notes.length > 0)
+                    ? `<button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 8px;" data-clear-dep-date="${escapeHtml(r.dateStr)}">삭제</button>`
+                    : ''}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      if (selectedYm === 'ALL') {
+        renderDepositMultiMonthChart();
+      } else {
+        renderDepositLineChart(rows);
+      }
+    }
+
+    function renderDepositLineChart(rows) {
+      const svg = els.depositLineChart;
+      const tooltip = els.depositChartTooltip;
+      const container = els.depositChartContainer;
+      if (!svg || !tooltip || !container) return;
+
+      tooltip.classList.remove('show');
+      svg.onmousemove = null;
+      svg.onmouseleave = null;
+
+      const W = 880;
+      const H = 270;
+      const padL = 74;
+      const padR = 26;
+      const padT = 26;
+      const padB = 38;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      const rawMax = Math.max(100000000, ...rows.map(r => r.amount));
+      const maxBil = Math.max(1, Math.ceil(rawMax / 100000000));
+      const maxVal = maxBil * 100000000;
+      const stepCount = maxBil;
+      const yGridHtml = [];
+      for (let i = 0; i <= stepCount; i++) {
+        const ratio = i / stepCount;
+        const y = padT + plotH - ratio * plotH;
+        const label = i === 0 ? '0' : `${i}억`;
+        yGridHtml.push(`
+          <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
+          <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
+        `);
+      }
+
+      const n = Math.max(1, rows.length);
+      const points = rows.map((r, idx) => {
+        const x = n === 1 ? padL + plotW / 2 : padL + (idx / (n - 1)) * plotW;
+        const y = padT + plotH - (r.amount / maxVal) * plotH;
+        return { ...r, x, y };
+      });
+
+      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const areaPath = points.length > 0
+        ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(padT + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`
+        : '';
+
+      const xLabelsHtml = points.map((p, idx) => {
+        const dayNum = Number(p.dateStr.slice(8, 10));
+        if (dayNum === 1 || dayNum % 5 === 0 || idx === points.length - 1) {
+          return `<text x="${p.x.toFixed(1)}" y="${H - 12}" text-anchor="middle" font-size="11" fill="#7a8492" font-weight="600">${dayNum}일</text>`;
+        }
+        return '';
+      }).join('');
+
+      const dotsHtml = points.map(p => `
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.amount > 0 ? '4' : '2.5'}" fill="#ffffff" stroke="${p.amount > 0 ? '#0096ff' : '#cbd5e1'}" stroke-width="2" />
+      `).join('');
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="depAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.24" />
+            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
+          </linearGradient>
+        </defs>
+        ${yGridHtml.join('')}
+        ${areaPath ? `<path d="${areaPath}" fill="url(#depAreaGrad)" />` : ''}
+        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />` : ''}
+        ${xLabelsHtml}
+        <line id="depGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.4" stroke-dasharray="3 3" opacity="0" />
+        ${dotsHtml}
+        <g id="depActiveMarker" opacity="0">
+          <circle id="depActiveHalo" cx="0" cy="0" r="10" fill="#0096ff" fill-opacity="0.18" />
+          <circle id="depActiveRing" cx="0" cy="0" r="5.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" />
+        </g>
+      `;
+
+      const guideLine = svg.querySelector('#depGuideLine');
+      const activeMarker = svg.querySelector('#depActiveMarker');
+      const activeHalo = svg.querySelector('#depActiveHalo');
+      const activeRing = svg.querySelector('#depActiveRing');
+
+      svg.onmousemove = (e) => {
+        if (points.length === 0) return;
+        const rect = svg.getBoundingClientRect();
+        const relX = ((e.clientX - rect.left) / rect.width) * W;
+
+        let closest = points[0];
+        let minDist = Math.abs(relX - closest.x);
+        for (let i = 1; i < points.length; i++) {
+          const dist = Math.abs(relX - points[i].x);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = points[i];
+          }
+        }
+
+        guideLine.setAttribute('x1', closest.x.toFixed(1));
+        guideLine.setAttribute('x2', closest.x.toFixed(1));
+        guideLine.setAttribute('opacity', '1');
+        activeHalo.setAttribute('cx', closest.x.toFixed(1));
+        activeHalo.setAttribute('cy', closest.y.toFixed(1));
+        activeRing.setAttribute('cx', closest.x.toFixed(1));
+        activeRing.setAttribute('cy', closest.y.toFixed(1));
+        activeMarker.setAttribute('opacity', '1');
+
+        tooltip.innerHTML = `
+          <div class="chart-tooltip-date">${closest.dateStr} (${closest.dow})</div>
+          <div class="chart-tooltip-amount">${formatNumber(closest.amount)}원</div>
+        `;
+        tooltip.classList.add('show');
+
+        const pxX = (closest.x / W) * rect.width + container.scrollLeft;
+        const pxY = (closest.y / H) * rect.height;
+        const tipW = tooltip.offsetWidth || 150;
+        const tipH = tooltip.offsetHeight || 54;
+
+        let leftPos = pxX;
+        const minLeft = tipW / 2 + 12;
+        const maxLeft = container.clientWidth - tipW / 2 - 12;
+        if (leftPos < minLeft) leftPos = minLeft;
+        if (leftPos > maxLeft) leftPos = maxLeft;
+
+        if (pxY - tipH - 14 < 8) {
+          tooltip.style.transform = 'translate(-50%, 14px)';
+          tooltip.style.top = `${pxY}px`;
+        } else {
+          tooltip.style.transform = 'translate(-50%, -100%)';
+          tooltip.style.top = `${pxY - 12}px`;
+        }
+        tooltip.style.left = `${leftPos}px`;
+      };
+
+      svg.onmouseleave = () => {
+        guideLine.setAttribute('opacity', '0');
+        activeMarker.setAttribute('opacity', '0');
+        tooltip.classList.remove('show');
+      };
+    }
+
+    function renderDepositMultiMonthChart() {
+      const svg = els.depositLineChart;
+      const tooltip = els.depositChartTooltip;
+      const container = els.depositChartContainer;
+      if (!svg || !tooltip || !container) return;
+
+      tooltip.classList.remove('show');
+      svg.onmousemove = null;
+      svg.onmouseleave = null;
+
+      const monthMap = new Map();
+      Object.entries(depositLedger).forEach(([dateStr, entry]) => {
+        const amt = Number(entry && entry.amount) || 0;
+        if (amt <= 0) return;
+        const ym = dateStr.slice(0, 7);
+        if (!monthMap.has(ym)) {
+          monthMap.set(ym, { ym, sum: 0, max: 0, count: 0 });
+        }
+        const stat = monthMap.get(ym);
+        stat.sum += amt;
+        stat.count += 1;
+        if (amt > stat.max) stat.max = amt;
+      });
+
+      const monthlyStats = Array.from(monthMap.values())
+        .sort((a, b) => a.ym.localeCompare(b.ym))
+        .map(s => ({
+          ...s,
+          avg: s.count > 0 ? Math.round(s.sum / s.count) : 0,
+          label: `${Number(s.ym.split('-')[1])}월`
+        }));
+
+      const W = 880;
+      const H = 270;
+      const padL = 74;
+      const padR = 28;
+      const padT = 26;
+      const padB = 38;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      const rawMax = Math.max(100000000, ...monthlyStats.map(s => s.sum));
+      const stepBil = Math.max(1, Math.ceil(rawMax / 400000000));
+      const stepCount = Math.max(1, Math.ceil(rawMax / (stepBil * 100000000)));
+      const maxVal = stepCount * stepBil * 100000000;
+      const yGridHtml = [];
+      for (let i = 0; i <= stepCount; i++) {
+        const ratio = i / stepCount;
+        const y = padT + plotH - ratio * plotH;
+        const label = i === 0 ? '0' : `${i * stepBil}억`;
+        yGridHtml.push(`
+          <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
+          <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
+        `);
+      }
+
+      const n = Math.max(1, monthlyStats.length);
+      const points = monthlyStats.map((s, idx) => {
+        const x = n === 1 ? padL + plotW / 2 : padL + (idx / (n - 1)) * plotW;
+        const y = padT + plotH - (s.sum / maxVal) * plotH;
+        return { ...s, x, y };
+      });
+
+      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const areaPath = points.length > 0
+        ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(padT + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`
+        : '';
+
+      const xLabelsHtml = points.map(p => `
+        <text x="${p.x.toFixed(1)}" y="${H - 12}" text-anchor="middle" font-size="11.5" fill="#4c5563" font-weight="700">${p.label}</text>
+      `).join('');
+
+      const dotsHtml = points.map(p => `
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.2" />
+      `).join('');
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="depMonthAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.24" />
+            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
+          </linearGradient>
+        </defs>
+        ${yGridHtml.join('')}
+        ${areaPath ? `<path d="${areaPath}" fill="url(#depMonthAreaGrad)" />` : ''}
+        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />` : ''}
+        ${xLabelsHtml}
+        <line id="depMonthGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.4" stroke-dasharray="3 3" opacity="0" />
+        ${dotsHtml}
+        <g id="depMonthActiveMarker" opacity="0">
+          <circle id="depMonthActiveHalo" cx="0" cy="0" r="10" fill="#0096ff" fill-opacity="0.18" />
+          <circle id="depMonthActiveRing" cx="0" cy="0" r="5.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" />
+        </g>
+      `;
+
+      const guideLine = svg.querySelector('#depMonthGuideLine');
+      const activeMarker = svg.querySelector('#depMonthActiveMarker');
+      const activeHalo = svg.querySelector('#depMonthActiveHalo');
+      const activeRing = svg.querySelector('#depMonthActiveRing');
+
+      svg.onmousemove = (e) => {
+        if (points.length === 0) return;
+        const rect = svg.getBoundingClientRect();
+        const relX = ((e.clientX - rect.left) / rect.width) * W;
+
+        let closest = points[0];
+        let minDist = Math.abs(relX - closest.x);
+        for (let i = 1; i < points.length; i++) {
+          const dist = Math.abs(relX - points[i].x);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = points[i];
+          }
+        }
+
+        guideLine.setAttribute('x1', closest.x.toFixed(1));
+        guideLine.setAttribute('x2', closest.x.toFixed(1));
+        guideLine.setAttribute('opacity', '1');
+        activeHalo.setAttribute('cx', closest.x.toFixed(1));
+        activeHalo.setAttribute('cy', closest.y.toFixed(1));
+        activeRing.setAttribute('cx', closest.x.toFixed(1));
+        activeRing.setAttribute('cy', closest.y.toFixed(1));
+        activeMarker.setAttribute('opacity', '1');
+
+        const [y, m] = closest.ym.split('-');
+        tooltip.innerHTML = `
+          <div class="chart-tooltip-date">${y}년 ${Number(m)}월 입금 요약</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #bfe3ff; margin-bottom: 3px;">당월 총 입금 합계 : ${formatNumber(closest.sum)}원</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: #e2e8f0;">당월 최고 일 입금 : ${formatNumber(closest.max)}원</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: #cbd5e1;">당월 일 평균 입금 : ${formatNumber(closest.avg)}원</div>
+        `;
+        tooltip.classList.add('show');
+
+        const pxX = (closest.x / W) * rect.width + container.scrollLeft;
+        const pxY = (closest.y / H) * rect.height;
+        const tipW = tooltip.offsetWidth || 235;
+        const tipH = tooltip.offsetHeight || 96;
+
+        let leftPos = pxX;
+        const minLeft = tipW / 2 + 12;
+        const maxLeft = container.clientWidth - tipW / 2 - 12;
+        if (leftPos < minLeft) leftPos = minLeft;
+        if (leftPos > maxLeft) leftPos = maxLeft;
+
+        if (pxY - tipH - 14 < 8) {
+          tooltip.style.transform = 'translate(-50%, 14px)';
+          tooltip.style.top = `${pxY}px`;
+        } else {
+          tooltip.style.transform = 'translate(-50%, -100%)';
+          tooltip.style.top = `${pxY - 12}px`;
+        }
+        tooltip.style.left = `${leftPos}px`;
+      };
+
+      svg.onmouseleave = () => {
+        guideLine.setAttribute('opacity', '0');
+        activeMarker.setAttribute('opacity', '0');
+        tooltip.classList.remove('show');
+      };
+    }
+
+    function renderDepositMultiMonthChart() {
+      const svg = els.depositLineChart;
+      const tooltip = els.depositChartTooltip;
+      const container = els.depositChartContainer;
+      if (!svg || !tooltip || !container) return;
+
+      tooltip.classList.remove('show');
+      svg.onmousemove = null;
+      svg.onmouseleave = null;
+
+      const monthMap = new Map();
+      Object.entries(depositLedger).forEach(([dateStr, entry]) => {
+        const amt = Number(entry && entry.amount) || 0;
+        if (amt <= 0) return;
+        const ym = dateStr.slice(0, 7);
+        if (!monthMap.has(ym)) {
+          monthMap.set(ym, { ym, sum: 0, max: 0, count: 0 });
+        }
+        const stat = monthMap.get(ym);
+        stat.sum += amt;
+        stat.count += 1;
+        if (amt > stat.max) stat.max = amt;
+      });
+
+      const monthlyStats = Array.from(monthMap.values())
+        .sort((a, b) => a.ym.localeCompare(b.ym))
+        .map(s => ({
+          ...s,
+          avg: s.count > 0 ? Math.round(s.sum / s.count) : 0,
+          label: `${Number(s.ym.split('-')[1])}월`
+        }));
+
+      const W = 880;
+      const H = 270;
+      const padL = 72;
+      const padR = 28;
+      const padT = 28;
+      const padB = 38;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      const maxVal = Math.max(100000000, ...monthlyStats.map(s => s.sum));
+      const stepCount = 4;
+      const yGridHtml = [];
+      for (let i = 0; i <= stepCount; i++) {
+        const ratio = i / stepCount;
+        const y = padT + plotH - ratio * plotH;
+        const val = Math.round(maxVal * ratio);
+        let label = '0';
+        if (val >= 100000000) {
+          label = `${(val / 100000000).toFixed(1).replace(/\.0$/, '')}억`;
+        } else if (val > 0) {
+          label = `${Math.round(val / 10000).toLocaleString('ko-KR')}만`;
+        }
+        yGridHtml.push(`
+          <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
+          <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
+        `);
+      }
+
+      const n = Math.max(1, monthlyStats.length);
+      const points = monthlyStats.map((s, idx) => {
+        const x = n === 1 ? padL + plotW / 2 : padL + (idx / (n - 1)) * plotW;
+        const y = padT + plotH - (s.sum / maxVal) * plotH;
+        return { ...s, x, y };
+      });
+
+      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const areaPath = points.length > 0
+        ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(padT + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`
+        : '';
+
+      const xLabelsHtml = points.map(p => `
+        <text x="${p.x.toFixed(1)}" y="${H - 12}" text-anchor="middle" font-size="11.5" fill="#4c5563" font-weight="700">${p.label}</text>
+      `).join('');
+
+      const dotsHtml = points.map(p => `
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#0096ff" stroke="#ffffff" stroke-width="2" />
+      `).join('');
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="depMonthAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.22" />
+            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
+          </linearGradient>
+        </defs>
+        ${yGridHtml.join('')}
+        ${areaPath ? `<path d="${areaPath}" fill="url(#depMonthAreaGrad)" />` : ''}
+        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />` : ''}
+        ${xLabelsHtml}
+        <line id="depMonthGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0" />
+        ${dotsHtml}
+        <circle id="depMonthActiveRing" cx="0" cy="0" r="6.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" opacity="0" />
+      `;
+
+      const guideLine = svg.querySelector('#depMonthGuideLine');
+      const activeRing = svg.querySelector('#depMonthActiveRing');
+
+      svg.onmousemove = (e) => {
+        if (points.length === 0) return;
+        const rect = svg.getBoundingClientRect();
+        const relX = ((e.clientX - rect.left) / rect.width) * W;
+
+        let closest = points[0];
+        let minDist = Math.abs(relX - closest.x);
+        for (let i = 1; i < points.length; i++) {
+          const dist = Math.abs(relX - points[i].x);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = points[i];
+          }
+        }
+
+        guideLine.setAttribute('x1', closest.x.toFixed(1));
+        guideLine.setAttribute('x2', closest.x.toFixed(1));
+        guideLine.setAttribute('opacity', '1');
+        activeRing.setAttribute('cx', closest.x.toFixed(1));
+        activeRing.setAttribute('cy', closest.y.toFixed(1));
+        activeRing.setAttribute('opacity', '1');
+
+        const [y, m] = closest.ym.split('-');
+        tooltip.innerHTML = `
+          <div class="chart-tooltip-date">${y}년 ${Number(m)}월 입금 요약</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #bfe3ff; margin-bottom: 3px;">당월 총 입금 합계 : ${formatNumber(closest.sum)}원</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: #e2e8f0;">당월 최고 일 입금 : ${formatNumber(closest.max)}원</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: #cbd5e1;">당월 일 평균 입금 : ${formatNumber(closest.avg)}원</div>
+        `;
+        tooltip.classList.add('show');
+
+        const pxX = (closest.x / W) * rect.width + container.scrollLeft;
+        const pxY = (closest.y / H) * rect.height;
+        const tipW = tooltip.offsetWidth || 235;
+        const tipH = tooltip.offsetHeight || 96;
+
+        let leftPos = pxX;
+        const minLeft = tipW / 2 + 12;
+        const maxLeft = container.clientWidth - tipW / 2 - 12;
+        if (leftPos < minLeft) leftPos = minLeft;
+        if (leftPos > maxLeft) leftPos = maxLeft;
+
+        if (pxY - tipH - 14 < 8) {
+          tooltip.style.transform = 'translate(-50%, 14px)';
+          tooltip.style.top = `${pxY}px`;
+        } else {
+          tooltip.style.transform = 'translate(-50%, -100%)';
+          tooltip.style.top = `${pxY - 12}px`;
+        }
+        tooltip.style.left = `${leftPos}px`;
+      };
+
+      svg.onmouseleave = () => {
+        guideLine.setAttribute('opacity', '0');
+        activeRing.setAttribute('opacity', '0');
+        tooltip.classList.remove('show');
+      };
+    }
+
+    function exportDepositLedgerToExcel() {
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const selectedYm = els.depMonthSelect.value || '2026-11';
+      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
+      const targetDates = [];
+
+      if (selectedYm === 'ALL') {
+        Object.keys(depositLedger).sort().forEach(d => targetDates.push(d));
+      } else {
+        const [y, m] = selectedYm.split('-').map(Number);
+        const daysInMonth = new Date(y, m, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          targetDates.push(`${selectedYm}-${String(d).padStart(2, '0')}`);
+        }
+      }
+
+      const header = ['일자', '입금 금액', '특이사항 (차액 환불 거절 · 미처리 · 테스트 입금)'];
+      const dataRows = targetDates.map(dateStr => {
+        const dow = dowNames[new Date(`${dateStr}T00:00:00`).getDay()] || '';
+        const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
+        const notesText = (entry.notes || []).map(n => n.text).join('\n');
+        return [
+          `${dateStr} (${dow})`,
+          Number(entry.amount) || 0,
+          notesText
+        ];
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
+      ws['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 64 }];
+      for (let r = 1; r <= dataRows.length; r++) {
+        const cellRef = XLSX.utils.encode_cell({ r, c: 1 });
+        if (ws[cellRef] && typeof ws[cellRef].v === 'number') {
+          ws[cellRef].z = '#,##0';
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '무통장 입금 내역');
+      const suffix = selectedYm === 'ALL' ? '전체' : selectedYm;
+      const fileName = `무통장_입금내역_${suffix}_${getTodayDateString()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast(`입금 내역 엑셀 파일(${fileName}) 다운로드를 시작했어요.`);
+    }
+
+    function handleImportDepositExcel(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array', cellDates: true });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+          const mode = els.depositImportMode.value;
+          const nextLedger = mode === 'replace' ? {} : { ...depositLedger };
+          let importedCount = 0;
+
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!Array.isArray(row) || row.length === 0) continue;
+            const rawDate = normalizeChargeCellDate(row[0]);
+            const dateMatch = rawDate.match(/(\d{4}-\d{2}-\d{2})/);
+            if (!dateMatch) continue;
+
+            const dateStr = dateMatch[1];
+            const amt = parseFormattedNumber(row[1]);
+            const rawNoteBlock = String(row[2] || '').trim();
+
+            if (!nextLedger[dateStr]) {
+              nextLedger[dateStr] = { amount: 0, notes: [] };
+            }
+
+            if (mode === 'replace') {
+              nextLedger[dateStr].amount = amt;
+              nextLedger[dateStr].notes = [];
+            } else if (amt > 0) {
+              nextLedger[dateStr].amount = amt;
+            }
+
+            if (rawNoteBlock) {
+              rawNoteBlock.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach((line, idx) => {
+                let type = 'unprocessed';
+                if (line.includes('거절')) type = 'rejected';
+                else if (line.includes('테스트')) type = 'test';
+
+                if (!nextLedger[dateStr].notes.some(n => n.text === line)) {
+                  nextLedger[dateStr].notes.push({
+                    id: `dn-imp-${Date.now()}-${i}-${idx}`,
+                    type,
+                    text: line
+                  });
+                }
+              });
+            }
+            importedCount += 1;
+          }
+
+          if (importedCount === 0) {
+            showToast('엑셀 파일에서 유효한 일자별 입금 행을 찾지 못했어요.');
+            return;
+          }
+
+          depositLedger = nextLedger;
+          DepositLedgerStorage.saveAll(depositLedger);
+          updateDepositMonthSelectOptions();
+          renderDepositLedger();
+          renderCalendar();
+          showToast(`총 ${formatNumber(importedCount)}일자의 무통장 입금 내역을 반영했어요.`);
+        } catch (err) {
+          console.error('입금 엑셀 업로드 오류:', err);
+          showToast('엑셀 파일을 읽는 중 오류가 발생했어요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /* ==========================================================================
+       10-5. 환불 정산 달력 렌더링 및 엑셀 내보내기 / 가져오기
+       ========================================================================== */
+    function renderCalendar() {
+      const ymStr = `${currentCalYear}-${String(currentCalMonth).padStart(2, '0')}`;
+      els.calendarMonthTitle.textContent = `${currentCalYear}년 ${currentCalMonth}월`;
+      if (els.calendarMonthSelect) {
+        els.calendarMonthSelect.value = ymStr;
+        CustomSelectManager.sync(els.calendarMonthSelect);
+      }
+
+      const monthRecords = refundRecords.filter(r => r.refundDate && r.refundDate.startsWith(ymStr));
+      const totalAmount = monthRecords.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
+      const avgAmount = monthRecords.length > 0 ? Math.round(totalAmount / monthRecords.length) : 0;
+      const activeDaySet = new Set(monthRecords.map(r => r.refundDate));
+      const bankCount = monthRecords.filter(r => r.paymentMethod === '무통장').length;
+      const pgCount = monthRecords.length - bankCount;
+      const bankRatio = monthRecords.length > 0 ? Math.round((bankCount / monthRecords.length) * 100) : 0;
+      const pgRatio = monthRecords.length > 0 ? 100 - bankRatio : 0;
+
+      els.calStatAmount.textContent = `${formatNumber(totalAmount)}원`;
+      els.calStatAvgAmount.textContent = `건당 평균 ${formatNumber(avgAmount)}원`;
+      els.calStatMonthLabel.textContent = `${currentCalMonth}월 총 환불 건수`;
+      els.calStatCount.textContent = `${formatNumber(monthRecords.length)}건`;
+      els.calStatActiveDays.textContent = `환불 처리일 ${activeDaySet.size}일`;
+      els.calStatBankRatio.textContent = `${bankRatio}% / ${pgRatio}%`;
+      els.calStatBreakdown.textContent = `무통장 ${bankCount}건 · 기타 ${pgCount}건`;
+
+      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      const headerHtml = weekdays.map((w, idx) => {
+        const cls = idx === 0 ? 'sun' : (idx === 6 ? 'sat' : '');
+        return `<div class="cal-weekday ${cls}">${w}</div>`;
+      }).join('');
+
+      const firstDay = new Date(currentCalYear, currentCalMonth - 1, 1).getDay();
+      const daysInMonth = new Date(currentCalYear, currentCalMonth, 0).getDate();
+      const todayStr = getTodayDateString();
+      const yesterdayStr = getYesterdayDateString();
+
+      let cellsHtml = '';
+      for (let i = 0; i < firstDay; i++) {
+        cellsHtml += '<div class="cal-cell other-month"></div>';
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dd = String(d).padStart(2, '0');
+        const dateStr = `${ymStr}-${dd}`;
+        const dow = (firstDay + d - 1) % 7;
+        const dowCls = dow === 0 ? 'sun' : (dow === 6 ? 'sat' : '');
+
+        const dayRefunds = monthRecords.filter(r => r.refundDate === dateStr);
+        const dayRefundSum = dayRefunds.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
+
+        const depEntry = depositLedger[dateStr];
+        const dayDepositAmt = (dateStr <= yesterdayStr && depEntry) ? (Number(depEntry.amount) || 0) : 0;
+
+        const hasData = dayRefunds.length > 0 || dayDepositAmt > 0;
+        const isSelected = selectedCalDate === dateStr;
+        const isToday = dateStr === todayStr;
+
+        const topCountHtml = dayRefunds.length > 0
+          ? `<span class="cal-count">${dayRefunds.length}건</span>`
+          : '';
+
+        const infoParts = [];
+        if (dayDepositAmt > 0) {
+          infoParts.push(`<span class="cal-deposit">${formatNumber(dayDepositAmt)}원</span>`);
+        }
+        if (dayRefunds.length > 0) {
+          infoParts.push(`<span class="cal-sum">${formatNumber(dayRefundSum)}원</span>`);
+        }
+
+        cellsHtml += `
+          <div class="cal-cell ${dowCls} ${hasData ? 'has-data' : ''} ${isSelected ? 'selected' : ''}" data-cal-date="${dateStr}">
+            <div class="cal-cell-header">
+              <span class="cal-day-num ${isToday ? 'is-today-circle' : ''}">${d}</span>
+              ${topCountHtml}
+            </div>
+            <div class="cal-info">${infoParts.join('')}</div>
+          </div>
+        `;
+      }
+
+      els.calendarGrid.innerHTML = headerHtml + cellsHtml;
+      renderSelectedDateDetail();
+    }
+
+    function renderSelectedDateDetail() {
+      if (!selectedCalDate) {
+        els.selectedDateTitle.textContent = '날짜를 선택해 주세요';
+        els.selectedDateSubtitle.textContent = '달력에서 날짜를 누르면 해당 일자의 환불 정산 내역을 바로 확인할 수 있어요.';
+        els.btnExportSelectedDate.style.display = 'none';
+        els.selectedDateTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">달력에서 날짜를 선택해 상세 내역을 조회해 주세요.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      const dayRecords = refundRecords.filter(r => r.refundDate === selectedCalDate);
+      const daySum = dayRecords.reduce((s, r) => s + (Number(r.refundAmount) || 0), 0);
+      const depEntry = depositLedger[selectedCalDate];
+      const depAmt = (selectedCalDate <= getYesterdayDateString() && depEntry) ? (Number(depEntry.amount) || 0) : 0;
+
+      els.selectedDateTitle.textContent = `${selectedCalDate} 정산 상세 (${dayRecords.length}건)`;
+      els.selectedDateSubtitle.textContent = `환불 정산 합계 ${formatNumber(daySum)}원 · 전일 기준 무통장 입금 ${formatNumber(depAmt)}원`;
+
+      if (dayRecords.length === 0) {
+        els.btnExportSelectedDate.style.display = 'none';
+        els.selectedDateTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">${selectedCalDate} 날짜에 접수된 환불 정산 내역이 없어요.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      els.btnExportSelectedDate.style.display = 'inline-flex';
+      els.selectedDateTableBody.innerHTML = dayRecords.map(r => {
+        const hlClass = getPaymentMethodHighlightClass(r.paymentMethod);
+        return `
+          <tr>
+            <td style="white-space: nowrap; font-size: 13px; color: var(--ink-2);">${escapeHtml(r.depositDateTime)}</td>
+            <td>
+              <div style="font-weight: 700;">${escapeHtml(r.userId)}</div>
+              <div style="font-size: 12px; color: var(--ink-2);">${escapeHtml(r.holderName)}</div>
+            </td>
+            <td style="text-align: center;"><span class="hl-badge ${hlClass}">${escapeHtml(r.paymentMethod)}</span></td>
+            <td>
+              <div style="font-weight: 700;">${escapeHtml(r.bankName)}</div>
+              <div style="font-size: 12px; color: var(--ink-2);">${escapeHtml(r.accountNumber)}</div>
+            </td>
+            <td class="td-amount">${formatNumber(r.refundAmount)}원</td>
+            <td class="td-reason">${escapeHtml(r.remarkNote || r.cancelReason)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportToExcel(records, customFileName) {
+      if (!records || records.length === 0) {
+        showToast('다운로드할 환불 내역이 없어요.');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const groupRow = [
+        '환불 정산 기본 정보', '', '', '', '', '', '', '', '', '', '',
+        '결제 및 환불 누적 이력', '', '', ''
+      ];
+      const headerRow = [
+        '날짜', '아이디', '결제수단', '은행', '계좌번호', '금액', '예금주',
+        '입금날짜/시간(24시)', '취소사유', '특이사항', '비고',
+        '누적결제', '첫결제', '환불누적횟수', '환불누적금액'
+      ];
+
+      const bodyRows = records.map(r => [
+        r.refundDate,
+        r.userId,
+        r.paymentMethod,
+        r.bankName,
+        r.accountNumber,
+        Number(r.refundAmount) || 0,
+        r.holderName,
+        r.depositDateTime,
+        r.cancelReason || '',
+        r.specialNote || '',
+        r.remarkNote || '',
+        Number(r.totalPaidHistory) || 0,
+        r.firstPaidDate || '-',
+        Number(r.refundCountHistory) || 0,
+        Number(r.refundAmountHistory) || 0
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet([groupRow, headerRow, ...bodyRows]);
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } },
+        { s: { r: 0, c: 11 }, e: { r: 0, c: 14 } }
+      ];
+      ws['!cols'] = [
+        { wch: 13 }, { wch: 15 }, { wch: 13 }, { wch: 13 }, { wch: 18 },
+        { wch: 13 }, { wch: 11 }, { wch: 19 }, { wch: 44 }, { wch: 24 },
+        { wch: 28 }, { wch: 13 }, { wch: 13 }, { wch: 12 }, { wch: 13 }
+      ];
+
+      for (let r = 2; r < bodyRows.length + 2; r++) {
+        [5, 11, 14].forEach(c => {
+          const ref = XLSX.utils.encode_cell({ r, c });
+          if (ws[ref] && typeof ws[ref].v === 'number') {
+            ws[ref].z = '#,##0';
+          }
+        });
+      }
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '무통장 환불');
+      const fileName = customFileName || `무통장_환불_내역_${getTodayDateString()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast(`엑셀 파일(${fileName}) 다운로드를 시작했어요.`);
+    }
+
+    function handleImportRefundExcel(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array', cellDates: true });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+          let headerIdx = 0;
+          for (let i = 0; i < Math.min(rows.length, 5); i++) {
+            const joined = (rows[i] || []).map(c => String(c || '').trim()).join('|');
+            if (joined.includes('아이디') && joined.includes('계좌번호')) {
+              headerIdx = i;
+              break;
+            }
+          }
+
+          const imported = [];
+          for (let i = headerIdx + 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!Array.isArray(row) || row.length < 7) continue;
+            const rawDate = normalizeChargeCellDate(row[0]);
+            const dateMatch = rawDate.match(/(\d{4}-\d{2}-\d{2})/);
+            const userId = String(row[1] || '').trim();
+            if (!dateMatch || !userId) continue;
+
+            imported.push({
+              id: `imp-ref-${Date.now()}-${i}`,
+              refundDate: dateMatch[1],
+              userId,
+              paymentMethod: String(row[2] || '무통장').trim() || '무통장',
+              bankName: String(row[3] || '').trim(),
+              accountNumber: String(row[4] || '').trim(),
+              refundAmount: parseFormattedNumber(row[5]),
+              holderName: String(row[6] || '').trim(),
+              depositDateTime: normalizeChargeCellDate(row[7]) || `${dateMatch[1]} 12:00`,
+              cancelReason: String(row[8] || '').trim(),
+              specialNote: String(row[9] || '').trim(),
+              remarkNote: String(row[10] || '').trim(),
+              totalPaidHistory: parseFormattedNumber(row[11]),
+              firstPaidDate: normalizeChargeCellDate(row[12]) || '-',
+              refundCountHistory: parseInt(row[13], 10) || 1,
+              refundAmountHistory: parseFormattedNumber(row[14])
+            });
+          }
+
+          if (imported.length === 0) {
+            showToast('엑셀 파일에서 유효한 환불 내역 행을 찾지 못했어요.');
+            return;
+          }
+
+          const mode = els.refundImportMode.value;
+          refundRecords = mode === 'replace' ? imported : [...imported, ...refundRecords];
+          StorageManager.saveAll(refundRecords);
+          renderRefundTable();
+          renderCalendar();
+          showToast(`총 ${formatNumber(imported.length)}건의 환불 내역을 반영했어요.`);
+        } catch (err) {
+          console.error('환불 엑셀 업로드 오류:', err);
+          showToast('엑셀 파일을 읽는 중 오류가 발생했어요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /* ==========================================================================
        11. 폼 제출 및 초기화 이벤트 핸들러
        ========================================================================== */
     function handleFormSubmit(event) {
@@ -6794,7 +6818,7 @@
       }
 
       const newRecord = {
-        id: `rec-${Date.now()}`,
+        id: editingRefundId || `rec-${Date.now()}`,
         refundDate,
         userId,
         paymentMethod,
@@ -6812,11 +6836,28 @@
         refundAmountHistory: parseFormattedNumber(els.refundAmountHistory.value)
       };
 
-      refundRecords.unshift(newRecord);
-      StorageManager.saveAll(refundRecords);
+      const isEdit = Boolean(editingRefundId);
+      if (isEdit) {
+        const recIdx = refundRecords.findIndex(r => r.id === editingRefundId);
+        if (recIdx !== -1) {
+          refundRecords[recIdx] = newRecord;
+        } else {
+          refundRecords.unshift(newRecord);
+        }
+        StorageManager.saveAll(refundRecords);
 
-      pendingRefundQueue.unshift({ ...newRecord });
-      PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+        const qIdx = pendingRefundQueue.findIndex(r => r.id === editingRefundId);
+        if (qIdx !== -1) {
+          pendingRefundQueue[qIdx] = { ...newRecord };
+          PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+        }
+      } else {
+        refundRecords.unshift(newRecord);
+        StorageManager.saveAll(refundRecords);
+
+        pendingRefundQueue.unshift({ ...newRecord });
+        PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+      }
 
       const [y, m] = refundDate.split('-').map(Number);
       currentCalYear = y;
@@ -6826,8 +6867,14 @@
       renderPendingQueueTable();
       renderRefundTable();
       renderCalendar();
-      clearInputForm(false);
-      showToast(`${holderName}(${userId}) 님의 환불 접수(${formatNumber(refundAmount)}원)가 대기 목록과 누적 내역에 모두 저장됐어요.`);
+
+      if (isEdit) {
+        exitRefundEditMode(false);
+        showToast(`${holderName}(${userId}) 님의 환불 접수 내용이 수정 저장됐어요.`);
+      } else {
+        clearInputForm(false);
+        showToast(`${holderName}(${userId}) 님의 환불 접수(${formatNumber(refundAmount)}원)가 대기 목록과 누적 내역에 모두 저장됐어요.`);
+      }
     }
 
     function clearInputForm(showMsg = true) {
@@ -6867,6 +6914,182 @@
       }
     }
 
+    /* ==========================================================================
+       11-2. [기능 2] 전체 백업(통합 엑셀 / JSON) 및 복원 모듈
+       ========================================================================== */
+    function exportFullWorkbookBackup() {
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      // 시트 1: 무통장 입금 내역
+      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
+      const depHeader = ['일자', '입금 금액', '특이사항'];
+      const depRows = Object.keys(depositLedger).sort().map(dStr => {
+        const dow = dowNames[new Date(`${dStr}T00:00:00`).getDay()] || '';
+        const entry = depositLedger[dStr] || { amount: 0, notes: [] };
+        return [
+          `${dStr} (${dow})`,
+          Number(entry.amount) || 0,
+          (entry.notes || []).map(n => n.text).join('\n')
+        ];
+      });
+      const wsDep = XLSX.utils.aoa_to_sheet([depHeader, ...depRows]);
+      wsDep['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 60 }];
+      XLSX.utils.book_append_sheet(wb, wsDep, '무통장 입금 내역');
+
+      // 시트 2: 무통장 환불 정산 내역
+      const sortedRef = [...refundRecords].sort((a, b) => a.refundDate.localeCompare(b.refundDate));
+      const refHeader = [
+        '날짜', '아이디', '결제수단', '은행', '계좌번호', '금액', '예금주',
+        '입금날짜/시간(24시)', '취소사유', '특이사항', '비고',
+        '누적결제', '첫결제', '환불누적횟수', '환불누적금액'
+      ];
+      const refRows = sortedRef.map(r => [
+        r.refundDate, r.userId, r.paymentMethod, r.bankName, r.accountNumber,
+        Number(r.refundAmount) || 0, r.holderName, r.depositDateTime,
+        r.cancelReason || '', r.specialNote || '', r.remarkNote || '',
+        Number(r.totalPaidHistory) || 0, r.firstPaidDate || '-',
+        Number(r.refundCountHistory) || 0, Number(r.refundAmountHistory) || 0
+      ]);
+      const wsRef = XLSX.utils.aoa_to_sheet([refHeader, ...refRows]);
+      wsRef['!cols'] = [
+        { wch: 13 }, { wch: 15 }, { wch: 13 }, { wch: 13 }, { wch: 18 },
+        { wch: 13 }, { wch: 11 }, { wch: 19 }, { wch: 44 }, { wch: 24 },
+        { wch: 28 }, { wch: 13 }, { wch: 13 }, { wch: 12 }, { wch: 13 }
+      ];
+      XLSX.utils.book_append_sheet(wb, wsRef, '무통장 환불 내역');
+
+      // 시트 3: 공지사항
+      const noticeHeader = ['번호', '공지 제목', '상세 안내 내용'];
+      const noticeRows = noticeList.map((n, idx) => [idx + 1, n.title, n.content || '']);
+      const wsNotice = XLSX.utils.aoa_to_sheet([noticeHeader, ...noticeRows]);
+      wsNotice['!cols'] = [{ wch: 8 }, { wch: 28 }, { wch: 64 }];
+      XLSX.utils.book_append_sheet(wb, wsNotice, '업무 공지사항');
+
+      const fileName = `DoubleMedia_전체정산백업_${getTodayDateString()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast(`통합 엑셀 백업 파일(${fileName}) 다운로드를 시작했어요.`);
+    }
+
+    function exportJsonSnapshotBackup() {
+      const snapshot = {
+        app: 'DoubleMedia_BankRefundManager',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        data: {
+          depositLedger,
+          refundRecords,
+          pendingRefundQueue,
+          noticeList,
+          holidayList
+        }
+      };
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const fileName = `DoubleMedia_전체백업_${getTodayDateString()}.json`;
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`전체 스냅샷 파일(${fileName})을 저장했어요.`);
+    }
+
+    function handleImportJsonRestore(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const payload = parsed && parsed.data ? parsed.data : parsed;
+          if (!payload || (!payload.depositLedger && !payload.refundRecords)) {
+            showToast('올바른 DoubleMedia 전체 백업 JSON 파일이 아니에요.');
+            return;
+          }
+
+          openConfirmModal(
+            '전체 백업 데이터 복원 확인',
+            `백업 파일(${file.name})의 데이터로 현재 화면의 입금·환불·공지·공휴일 설정을 모두 복원할까요?`,
+            () => {
+              if (payload.depositLedger && typeof payload.depositLedger === 'object') {
+                depositLedger = payload.depositLedger;
+                DepositLedgerStorage.saveAll(depositLedger);
+              }
+              if (Array.isArray(payload.refundRecords)) {
+                refundRecords = payload.refundRecords;
+                StorageManager.saveAll(refundRecords);
+              }
+              if (Array.isArray(payload.pendingRefundQueue)) {
+                pendingRefundQueue = payload.pendingRefundQueue;
+                PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+              }
+              if (Array.isArray(payload.noticeList)) {
+                noticeList = payload.noticeList;
+                NoticeStorage.saveAll(noticeList);
+              }
+              if (Array.isArray(payload.holidayList)) {
+                holidayList = payload.holidayList;
+                HolidayStorage.saveAll(holidayList);
+              }
+
+              updateDepositMonthSelectOptions();
+              renderDepositLedger();
+              renderPendingQueueTable();
+              renderRefundTable();
+              renderCalendar();
+              renderNotices();
+              renderHolidayChips();
+              els.refundDate.value = getNextRefundDateString();
+              CustomDatePicker.syncLabel(els.refundDate);
+
+              document.getElementById('dmBackupModal').classList.remove('open');
+              showToast('백업 파일에서 모든 데이터를 성공적으로 복원했어요.');
+            },
+            '복원하기'
+          );
+        } catch (err) {
+          console.error('JSON 복원 오류:', err);
+          showToast('JSON 백업 파일을 읽는 중 오류가 발생했어요.');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    /* ==========================================================================
+       11-3. [기능 3] 공휴일 예외 설정 렌더링 및 추가/삭제 로직
+       ========================================================================== */
+    function renderHolidayChips() {
+      const countBadge = document.getElementById('holidayActiveCountBadge');
+      const chipContainer = document.getElementById('holidayChipList');
+      if (countBadge) countBadge.textContent = String(holidayList.length);
+      if (!chipContainer) return;
+
+      if (holidayList.length === 0) {
+        chipContainer.innerHTML = '<span class="field-help">등록된 공휴일이 없어요.</span>';
+        return;
+      }
+
+      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
+      chipContainer.innerHTML = holidayList.map(h => {
+        const dowIdx = new Date(`${h.date}T00:00:00`).getDay();
+        const dowLabel = dowNames[dowIdx] || '';
+        const isTueThu = (dowIdx === 2 || dowIdx === 4);
+        const badgeStyle = isTueThu ? 'border-color: var(--accent-line); background-color: var(--accent-soft); color: var(--accent-text);' : '';
+        return `
+          <span class="holiday-chip" style="${badgeStyle}">
+            <span>${escapeHtml(h.date)} (${dowLabel}) · ${escapeHtml(h.name || '공휴일')}</span>
+            <button type="button" class="holiday-chip-del" data-del-holiday="${escapeHtml(h.date)}" title="삭제">×</button>
+          </span>
+        `;
+      }).join('');
+    }
+
     const AUTH_CONFIG = {
       ID: 'help@pandalive.co.kr',
       PW: 'PANDA8428601445',
@@ -6881,180 +7104,116 @@
 
       if (!animate) {
         indicator.style.transition = 'none';
+      } else {
+        indicator.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), width 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
       }
+
       indicator.style.width = `${activeBtn.offsetWidth}px`;
       indicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
 
       if (!animate) {
-        indicator.offsetHeight;
-        indicator.style.transition = '';
+        void indicator.offsetWidth;
+        indicator.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), width 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
       }
     }
 
-    function applyAuthViewState(isAuthenticated) {
-      const loginGate = document.getElementById('loginGate');
-      const mainContainer = document.getElementById('appMainContainer');
-      const loginError = document.getElementById('loginErrorMsg');
-
-      if (isAuthenticated) {
-        loginGate.style.display = 'none';
-        mainContainer.style.display = 'block';
-        if (loginError) loginError.classList.remove('show');
-        requestAnimationFrame(() => updateTabIndicator(false));
-      } else {
-        mainContainer.style.display = 'none';
-        loginGate.style.display = 'flex';
-        const idInput = document.getElementById('loginIdInput');
-        if (idInput) idInput.focus();
+    function switchTab(targetTabId) {
+      els.tabBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === targetTabId);
+      });
+      els.tabPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === targetTabId);
+      });
+      updateTabIndicator(true);
+      if (targetTabId === 'tab-calendar') {
+        renderCalendar();
+      } else if (targetTabId === 'tab-deposit') {
+        renderDepositLedger();
       }
     }
 
     function initAuthGate() {
+      const gate = document.getElementById('loginGate');
+      const mainApp = document.getElementById('appMainContainer');
       const loginForm = document.getElementById('loginForm');
       const idInput = document.getElementById('loginIdInput');
       const pwInput = document.getElementById('loginPwInput');
-      const loginError = document.getElementById('loginErrorMsg');
-      const btnLogout = document.getElementById('btnLogout');
+      const errMsg = document.getElementById('loginErrorMsg');
 
-      let isLoggedIn = false;
+      const showMainApp = () => {
+        gate.style.display = 'none';
+        mainApp.style.display = 'block';
+        requestAnimationFrame(() => updateTabIndicator(false));
+      };
+
       try {
-        isLoggedIn = sessionStorage.getItem(AUTH_CONFIG.SESSION_KEY) === 'true';
-      } catch (err) {
-        isLoggedIn = false;
-      }
-
-      applyAuthViewState(isLoggedIn);
-
-      [idInput, pwInput].forEach(inp => {
-        if (inp) {
-          inp.addEventListener('input', () => {
-            loginError.classList.remove('show');
-          });
+        if (sessionStorage.getItem(AUTH_CONFIG.SESSION_KEY) === 'authenticated') {
+          showMainApp();
         }
-      });
+      } catch (e) {
+        // sessionStorage 접근 제한 환경 무시
+      }
 
       loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const enteredId = idInput.value.trim();
-        const enteredPw = pwInput.value;
+        const enteredId = (idInput.value || '').trim().toLowerCase();
+        const enteredPw = (pwInput.value || '').trim();
 
-        if (enteredId === AUTH_CONFIG.ID && enteredPw === AUTH_CONFIG.PW) {
+        if (enteredId === AUTH_CONFIG.ID.toLowerCase() && enteredPw === AUTH_CONFIG.PW) {
+          errMsg.classList.remove('show');
           try {
-            sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'true');
+            sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'authenticated');
           } catch (err) {
-            // sessionStorage 제한 환경에서도 현재 화면 전환은 정상 진행
+            // sessionStorage 저장 제한 환경 무시
           }
-          pwInput.value = '';
-          applyAuthViewState(true);
-          renderDepositLedger();
+          showMainApp();
+          try {
+            renderDepositLedger();
+          } catch (renderErr) {
+            console.error('초기 렌더링 보조 경고:', renderErr);
+          }
           showToast('관리자 계정으로 로그인되었습니다.');
         } else {
-          loginError.classList.add('show');
+          errMsg.classList.add('show');
           pwInput.value = '';
           pwInput.focus();
         }
       });
 
-      btnLogout.addEventListener('click', () => {
+      document.getElementById('btnLogout').addEventListener('click', () => {
         try {
           sessionStorage.removeItem(AUTH_CONFIG.SESSION_KEY);
         } catch (err) {
           // 무시
         }
+        mainApp.style.display = 'none';
+        gate.style.display = 'flex';
         idInput.value = '';
         pwInput.value = '';
-        applyAuthViewState(false);
+        errMsg.classList.remove('show');
         showToast('로그아웃되었습니다.');
       });
     }
 
     function initApp() {
-      initAuthGate();
+      // 커스텀 드롭다운 및 듀얼 날짜 선택기 먼저 초기화
       CustomSelectManager.initAll();
       CustomDatePicker.initAll();
 
-      // 확인 모달 버튼 이벤트
-      const confirmModal = document.getElementById('dmConfirmModal');
-      document.getElementById('btnConfirmCancel').addEventListener('click', closeConfirmModal);
-      document.getElementById('btnConfirmOk').addEventListener('click', () => {
-        const fn = confirmModalAction;
-        closeConfirmModal();
-        if (typeof fn === 'function') fn();
-      });
-      confirmModal.addEventListener('click', (e) => {
-        if (e.target === confirmModal) closeConfirmModal();
-      });
+      // 초기 날짜 및 기본값 세팅
+      const yesterdayStr = getYesterdayDateString();
+      els.depTargetDate.value = yesterdayStr;
+      CustomDatePicker.syncLabel(els.depTargetDate);
 
-      // 탭 전환
-      const switchMainTabByIndex = (nextIdx) => {
-        const btns = Array.from(els.tabBtns);
-        if (btns.length === 0) return;
-        const normalizedIdx = (nextIdx + btns.length) % btns.length;
-        const targetBtn = btns[normalizedIdx];
-        const targetId = targetBtn.dataset.tab;
-
-        btns.forEach(b => b.classList.toggle('active', b === targetBtn));
-        els.tabPanels.forEach(p => p.classList.toggle('active', p.id === targetId));
-        updateTabIndicator(true);
-
-        if (targetId === 'tab-calendar') {
-          renderCalendar();
-        } else if (targetId === 'tab-deposit') {
-          renderDepositLedger();
-        } else if (targetId === 'tab-charge-clean') {
-          renderChargeCleanTable();
-        } else if (targetId === 'tab-notice') {
-          renderNotices();
-        }
-      };
-
-      els.tabBtns.forEach((btn, idx) => {
-        btn.addEventListener('click', () => {
-          switchMainTabByIndex(idx);
-        });
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-
-        const mainContainer = document.getElementById('appMainContainer');
-        if (!mainContainer || mainContainer.style.display === 'none') return;
-
-        const activeEl = document.activeElement;
-        if (activeEl && (
-          activeEl.tagName === 'INPUT' ||
-          activeEl.tagName === 'TEXTAREA' ||
-          activeEl.tagName === 'SELECT' ||
-          activeEl.isContentEditable
-        )) {
-          return;
-        }
-
-        const confirmModalEl = document.getElementById('dmConfirmModal');
-        const datePopoverEl = document.getElementById('dmDatePopover');
-        if ((confirmModalEl && confirmModalEl.classList.contains('open')) ||
-            (datePopoverEl && datePopoverEl.classList.contains('open'))) {
-          return;
-        }
-
-        const btns = Array.from(els.tabBtns);
-        const currentIdx = btns.findIndex(b => b.classList.contains('active'));
-        if (currentIdx === -1) return;
-
-        e.preventDefault();
-        const delta = e.key === 'ArrowRight' ? 1 : -1;
-        switchMainTabByIndex(currentIdx + delta);
-      });
-
-      window.addEventListener('resize', () => updateTabIndicator(false));
-      updateTabIndicator(false);
+      els.refundDate.value = getNextRefundDateString();
+      CustomDatePicker.syncLabel(els.refundDate);
+      els.depositDateTime.value = getCurrentDateTime24();
 
       // 숫자 콤마 자동 포맷 바인딩
       [
         els.depDailyAmount,
-        els.depRejAmount,
         els.depUnprocAmount,
+        els.depRejAmount,
         els.refundAmount,
         els.rawDepositAmount,
         els.unusedPaidAmount,
@@ -7066,78 +7225,167 @@
         els.refundAmountHistory
       ].forEach(bindCommaFormatting);
 
-      // 탭 0: 무통장 입금 내역 이벤트 바인딩
-      els.depTargetDate.value = getYesterdayDateString();
-      CustomDatePicker.syncLabel(els.depTargetDate);
-      updateDepositMonthSelectOptions();
-      els.depMonthSelect.value = '2026-11';
-      CustomSelectManager.sync(els.depMonthSelect);
+      // 탭 전환 이벤트
+      els.tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+      window.addEventListener('resize', () => updateTabIndicator(false));
 
-      els.depNoteType.addEventListener('change', updateDepositNoteBoxes);
-      [
-        els.depRejAmount,
-        els.depRejName,
-        els.depUnprocDateTime,
-        els.depUnprocName,
-        els.depUnprocAmount,
-        els.depTestDateTime,
-        els.depTestName
-      ].forEach(el => {
-        if (el) el.addEventListener('input', updateDepositNotePreviews);
+      // 키보드 좌우 화살표 탭 이동 (입력칸 포커스 시 제외)
+      document.addEventListener('keydown', (e) => {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        const tabIds = Array.from(els.tabBtns).map(b => b.dataset.tab);
+        const curIdx = tabIds.findIndex(id => document.getElementById(id)?.classList.contains('active'));
+        if (curIdx === -1) return;
+        if (e.key === 'ArrowRight') {
+          switchTab(tabIds[(curIdx + 1) % tabIds.length]);
+        } else if (e.key === 'ArrowLeft') {
+          switchTab(tabIds[(curIdx - 1 + tabIds.length) % tabIds.length]);
+        }
       });
 
-      els.depMonthSelect.addEventListener('change', renderDepositLedger);
-      els.depositEntryForm.addEventListener('submit', handleSaveDepositEntry);
-
-      // 입금 내역 엑셀 다운로드 및 업로드 바인딩
-      els.btnExportDepositExcel.addEventListener('click', exportDepositLedgerToExcel);
-      els.btnUploadDepositExcel.addEventListener('click', () => {
-        els.depositExcelInput.click();
-      });
-      els.depositExcelInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file) handleImportDepositExcel(file);
-        e.target.value = '';
+      // 확인 모달 버튼 이벤트
+      document.getElementById('btnConfirmCancel').addEventListener('click', closeConfirmModal);
+      document.getElementById('btnConfirmOk').addEventListener('click', () => {
+        if (typeof confirmModalAction === 'function') {
+          confirmModalAction();
+        }
+        closeConfirmModal();
       });
 
-      els.depositLedgerBody.addEventListener('click', (e) => {
-        const clearDayBtn = e.target.closest('[data-clear-dep-date]');
-        if (clearDayBtn) {
-          clearDepositDay(clearDayBtn.dataset.clearDepDate);
+      // 백업 · 복원 모달 이벤트
+      const backupModal = document.getElementById('dmBackupModal');
+      document.getElementById('btnOpenBackupModal').addEventListener('click', () => backupModal.classList.add('open'));
+      document.getElementById('btnCloseBackupModal').addEventListener('click', () => backupModal.classList.remove('open'));
+      document.getElementById('btnExportAllWorkbook').addEventListener('click', exportFullWorkbookBackup);
+      document.getElementById('btnExportJsonBackup').addEventListener('click', exportJsonSnapshotBackup);
+      const jsonInput = document.getElementById('jsonRestoreInput');
+      document.getElementById('btnImportJsonRestore').addEventListener('click', () => jsonInput.click());
+      jsonInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleImportJsonRestore(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+
+      // 공휴일 예외 설정 모달 이벤트
+      const holidayModal = document.getElementById('dmHolidayModal');
+      renderHolidayChips();
+      document.getElementById('btnOpenHolidayModal').addEventListener('click', () => {
+        renderHolidayChips();
+        holidayModal.classList.add('open');
+      });
+      document.getElementById('btnCloseHolidayModal').addEventListener('click', () => holidayModal.classList.remove('open'));
+      document.getElementById('btnAddHoliday').addEventListener('click', () => {
+        const dVal = document.getElementById('newHolidayDateInput').value;
+        const nVal = document.getElementById('newHolidayNameInput').value.trim() || '공휴일';
+        if (!dVal) {
+          showToast('추가할 공휴일 날짜를 선택해 주세요.');
           return;
         }
-        const editBtn = e.target.closest('[data-select-dep-date]');
-        if (editBtn) {
-          const dStr = editBtn.dataset.selectDepDate;
-          els.depTargetDate.value = dStr;
-          CustomDatePicker.syncLabel(els.depTargetDate);
-          const existing = depositLedger[dStr];
-          els.depDailyAmount.value = existing && existing.amount > 0 ? formatNumber(existing.amount) : '';
-          els.depositEntryForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          showToast(`${dStr} 날짜가 선택됐어요. 입금 금액이나 특이사항을 입력해 주세요.`);
+        if (holidayList.some(h => h.date === dVal)) {
+          showToast('이미 등록된 날짜예요.');
+          return;
         }
+        holidayList.push({ date: dVal, name: nVal });
+        HolidayStorage.saveAll(holidayList);
+        renderHolidayChips();
+        els.refundDate.value = getNextRefundDateString();
+        CustomDatePicker.syncLabel(els.refundDate);
+        document.getElementById('newHolidayNameInput').value = '';
+        showToast(`${dVal} (${nVal}) 공휴일이 추가됐어요.`);
+      });
+      document.getElementById('holidayChipList').addEventListener('click', (e) => {
+        const delBtn = e.target.closest('[data-del-holiday]');
+        if (!delBtn) return;
+        const targetDate = delBtn.dataset.delHoliday;
+        holidayList = holidayList.filter(h => h.date !== targetDate);
+        HolidayStorage.saveAll(holidayList);
+        renderHolidayChips();
+        els.refundDate.value = getNextRefundDateString();
+        CustomDatePicker.syncLabel(els.refundDate);
+        showToast(`${targetDate} 공휴일 예외를 삭제했어요.`);
+      });
+      document.getElementById('btnResetDefaultHolidays').addEventListener('click', () => {
+        holidayList = HolidayStorage.reset();
+        renderHolidayChips();
+        els.refundDate.value = getNextRefundDateString();
+        CustomDatePicker.syncLabel(els.refundDate);
+        showToast('2026년 기본 법정 공휴일로 복원했어요.');
       });
 
-      els.btnResetDepositDemo.addEventListener('click', () => {
+      // 샘플 데이터 전체 초기화
+      els.btnResetDemo.addEventListener('click', () => {
         openConfirmModal(
-          '입금 샘플 초기화 확인',
-          '기존에 기록하거나 수정한 일자별 무통장 입금 금액과 특이사항이 초기 샘플 상태로 되돌아갑니다.\n입금 샘플 데이터를 초기화할까요?',
+          '샘플 데이터 초기화 확인',
+          '입금 내역과 환불 정산 내역을 2026년 기본 샘플 상태로 초기화할까요?',
           () => {
             depositLedger = DepositLedgerStorage.resetToDemo();
+            refundRecords = StorageManager.resetToDemo();
+            pendingRefundQueue = [];
+            PendingRefundQueueStorage.saveAll(pendingRefundQueue);
+            updateDepositMonthSelectOptions();
             renderDepositLedger();
+            renderPendingQueueTable();
+            renderRefundTable();
             renderCalendar();
-            showToast('무통장 입금 및 특이사항 샘플 데이터를 초기 상태로 복원했어요.');
+            showToast('샘플 데이터를 초기 상태로 복원했어요.');
           },
-          '초기화하기'
+          '초기화'
         );
       });
 
-      // 환불 예정일(화·목 14:00 마감 기준 자동 산출) 및 입금날짜·시간 초기값 설정
-      els.refundDate.value = getNextRefundDateString();
-      CustomDatePicker.syncLabel(els.refundDate);
-      els.depositDateTime.value = getCurrentDateTime24();
+      // 탭 0: 무통장 입금 내역 이벤트
+      els.depNoteType.addEventListener('change', updateDepositNoteBoxes);
+      [els.depTargetDate, els.depUnprocDateTime, els.depUnprocName, els.depUnprocAmount, els.depTestDateTime, els.depTestName, els.depRejAmount, els.depRejName].forEach(inp => {
+        if (inp) inp.addEventListener('input', updateDepositNotePreviews);
+        if (inp) inp.addEventListener('change', updateDepositNotePreviews);
+      });
+      els.depositEntryForm.addEventListener('submit', handleSaveDepositEntry);
+      els.depMonthSelect.addEventListener('change', renderDepositLedger);
+      els.btnResetDepositDemo.addEventListener('click', () => {
+        openConfirmModal(
+          '입금 내역 샘플 초기화',
+          '무통장 입금 내역을 2026년 기본 샘플 데이터로 초기화할까요?',
+          () => {
+            depositLedger = DepositLedgerStorage.resetToDemo();
+            updateDepositMonthSelectOptions();
+            renderDepositLedger();
+            renderCalendar();
+            showToast('무통장 입금 내역을 초기화했어요.');
+          },
+          '초기화'
+        );
+      });
+      els.btnExportDepositExcel.addEventListener('click', exportDepositLedgerToExcel);
+      els.btnUploadDepositExcel.addEventListener('click', () => els.depositExcelInput.click());
+      els.depositExcelInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleImportDepositExcel(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+      els.depositLedgerBody.addEventListener('click', (e) => {
+        const selBtn = e.target.closest('[data-select-dep-date]');
+        if (selBtn) {
+          const dStr = selBtn.dataset.selectDepDate;
+          els.depTargetDate.value = dStr;
+          CustomDatePicker.syncLabel(els.depTargetDate);
+          const entry = depositLedger[dStr];
+          els.depDailyAmount.value = entry && entry.amount > 0 ? formatNumber(entry.amount) : '';
+          updateDepositNotePreviews();
+          els.depositEntryForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          showToast(`${dStr} 날짜를 입력창에 선택했어요.`);
+          return;
+        }
+        const clearBtn = e.target.closest('[data-clear-dep-date]');
+        if (clearBtn) {
+          clearDepositDay(clearBtn.dataset.clearDepDate);
+        }
+      });
 
-      // 환불 은행 '수기 입력' 선택 시 직접 입력칸 표시 토글
+      // 탭 1: 무통장 환불 접수 이벤트
       els.bankName.addEventListener('change', () => {
         if (els.bankName.value === 'manual') {
           els.customBankName.style.display = 'block';
@@ -7147,92 +7395,42 @@
           els.customBankName.value = '';
         }
       });
-
-      // 환불 계좌번호 입력 시 공백을 하이픈('-')으로 자동 변환 (예: 3333 03 4596211 -> 3333-03-4596211)
-      els.accountNumber.addEventListener('input', (e) => {
-        const raw = e.target.value;
-        const formatted = raw.replace(/\s+/g, '-').replace(/-+/g, '-');
-        if (formatted !== raw) {
-          e.target.value = formatted;
-        }
+      els.depositDateTime.addEventListener('blur', () => {
+        els.depositDateTime.value = formatDepositDateTimeInput(els.depositDateTime.value);
       });
-
-      // 입금날짜·시간 숫자 12자리 입력 시 YYYY-MM-DD HH:MM 자동 포맷
-      els.depositDateTime.addEventListener('input', (e) => {
-        const raw = e.target.value;
-        const formatted = formatDepositDateTimeInput(raw);
-        if (formatted !== raw) {
-          e.target.value = formatted;
-        }
-      });
-
-      // 환불 유형 및 자동 계산기 이벤트
       els.refundType.addEventListener('change', updateCalculatorPanels);
       els.paymentMethod.addEventListener('change', recalculateRefund);
-      els.unchargedMemoType.addEventListener('change', recalculateRefund);
       els.bonusDeductRate.addEventListener('change', updateCalculatorPanels);
       els.manualDeductType.addEventListener('change', updateCalculatorPanels);
-
       [
         els.rawDepositAmount,
+        els.unchargedMemoType,
         els.unusedPaidAmount,
         els.unusedHeartCount,
+        els.unusedSpecialHeartType,
         els.unusedSpecialHeartCount,
+        els.unusedItemType,
         els.unusedItemCount,
         els.remainHearts,
         els.bonusNoteDetail,
         els.manualDeductValue,
         els.manualDeductReason
-      ].forEach(input => {
-        if (input) input.addEventListener('input', recalculateRefund);
+      ].forEach(el => {
+        if (!el) return;
+        el.addEventListener('input', recalculateRefund);
+        el.addEventListener('change', recalculateRefund);
       });
 
-      els.unusedSpecialHeartType.addEventListener('change', recalculateRefund);
-      els.unusedItemType.addEventListener('change', recalculateRefund);
-
-      // 환불 누적횟수: 기본값 1, 마우스 클릭/포커스 시 바로 새 숫자를 입력할 수 있도록 비우고 미입력 이탈 시 1로 복원
-      els.refundCountHistory.addEventListener('focus', () => {
-        els.refundCountHistory.value = '';
-      });
-
-      els.refundCountHistory.addEventListener('blur', () => {
-        const val = parseInt(els.refundCountHistory.value, 10);
-        if (!val || val < 1) {
-          els.refundCountHistory.value = '1';
-          const calcAmt = parseFormattedNumber(els.refundAmount.value);
-          els.refundAmountHistory.value = formatNumber(calcAmt);
-        }
-      });
-
-      // 환불 누적횟수가 1이면 이번 환불 계산기 금액을 환불 누적금액에 자동 동기화
-      els.refundCountHistory.addEventListener('input', () => {
-        if ((parseInt(els.refundCountHistory.value, 10) || 0) === 1) {
-          const calcAmt = parseFormattedNumber(els.refundAmount.value);
-          els.refundAmountHistory.value = formatNumber(calcAmt);
-        }
-      });
-
-      // 아이디 포커스 아웃 또는 버튼 클릭 시 과거 이력 조회
-      els.userId.addEventListener('blur', () => fillHistoryByUserId(true));
       els.btnCheckHistory.addEventListener('click', () => fillHistoryByUserId(false));
-
-      // 폼 제출 및 초기화
-      els.form.addEventListener('submit', handleFormSubmit);
+      els.userId.addEventListener('blur', () => fillHistoryByUserId(true));
       els.btnClearForm.addEventListener('click', () => clearInputForm(true));
+      document.getElementById('btnCancelEditMode').addEventListener('click', () => exitRefundEditMode(true));
+      document.getElementById('btnCancelEditBottom').addEventListener('click', () => exitRefundEditMode(true));
+      els.form.addEventListener('submit', handleFormSubmit);
 
-      // 검색 및 필터
+      // 대기 목록 필터·엑셀·일괄삭제·행 액션
       els.pendingDateFilter.addEventListener('change', renderPendingQueueTable);
-      els.pendingQueueTableBody.addEventListener('click', (e) => {
-        const remBtn = e.target.closest('[data-remove-pending-id]');
-        if (remBtn) {
-          removePendingQueueItem(remBtn.dataset.removePendingId);
-          return;
-        }
-        const replyBtn = e.target.closest('[data-copy-reply-id]');
-        if (replyBtn) {
-          copyPendingRefundReply(replyBtn.dataset.copyReplyId);
-        }
-      });
+      els.btnClearPendingQueue.addEventListener('click', clearPendingQueueItems);
       els.btnExportPendingExcel.addEventListener('click', () => {
         const filtered = getFilteredPendingQueue();
         const dateFilter = els.pendingDateFilter.value;
@@ -7241,169 +7439,132 @@
           : `무통장_환불_대기목록_${getTodayDateString()}.xlsx`;
         exportToExcel(filtered, customName);
       });
-      els.btnClearPendingQueue.addEventListener('click', clearPendingQueueItems);
-
-      els.filterMonth.addEventListener('change', renderRefundTable);
-      els.searchInput.addEventListener('input', renderRefundTable);
-      els.filterMethod.addEventListener('change', renderRefundTable);
-
-      // 테이블 내 삭제 버튼 (이벤트 위임)
-      els.refundTableBody.addEventListener('click', (e) => {
-        const delBtn = e.target.closest('[data-delete-id]');
+      els.pendingQueueTableBody.addEventListener('click', (e) => {
+        const copyBtn = e.target.closest('[data-copy-reply-id]');
+        if (copyBtn) {
+          copyPendingRefundReply(copyBtn.dataset.copyReplyId);
+          return;
+        }
+        const editBtn = e.target.closest('[data-edit-refund-id]');
+        if (editBtn) {
+          startEditRefundRecord(editBtn.dataset.editRefundId);
+          return;
+        }
+        const delBtn = e.target.closest('[data-remove-pending-id]');
         if (delBtn) {
-          deleteRefundRecord(delBtn.dataset.deleteId);
+          removePendingQueueItem(delBtn.dataset.removePendingId);
         }
       });
 
-      // 전체 엑셀 다운로드
+      // 누적 접수 내역 필터·엑셀·행 액션
+      els.filterMonth.addEventListener('change', renderRefundTable);
+      els.searchInput.addEventListener('input', renderRefundTable);
+      els.filterMethod.addEventListener('change', renderRefundTable);
       els.btnExportExcel.addEventListener('click', () => {
         const filtered = getFilteredRecords();
-        exportToExcel(filtered);
+        const monthVal = els.filterMonth.value;
+        const suffix = monthVal === 'ALL' ? '전체' : monthVal;
+        exportToExcel(filtered, `무통장_환불_누적내역_${suffix}_${getTodayDateString()}.xlsx`);
       });
-
-      // 실제 환불 내역 엑셀 업로드
-      els.btnUploadRefundExcel.addEventListener('click', () => {
-        els.refundExcelInput.click();
-      });
-
+      els.btnUploadRefundExcel.addEventListener('click', () => els.refundExcelInput.click());
       els.refundExcelInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file) handleImportRefundExcel(file);
-        e.target.value = '';
+        if (e.target.files && e.target.files[0]) {
+          handleImportRefundExcel(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+      els.refundTableBody.addEventListener('click', (e) => {
+        const copyBtn = e.target.closest('[data-copy-reply-id]');
+        if (copyBtn) {
+          copyPendingRefundReply(copyBtn.dataset.copyReplyId);
+          return;
+        }
+        const editBtn = e.target.closest('[data-edit-refund-id]');
+        if (editBtn) {
+          startEditRefundRecord(editBtn.dataset.editRefundId);
+          return;
+        }
+        const delBtn = e.target.closest('[data-remove-pending-id]');
+        if (delBtn) {
+          deleteRefundRecord(delBtn.dataset.removePendingId);
+        }
       });
 
-      // 샘플 데이터 초기화
-      els.btnResetDemo.addEventListener('click', () => {
-        openConfirmModal(
-          '샘플 데이터 초기화 확인',
-          '기존에 직접 입력하거나 수정한 환불·입금 데이터가 모두 초기 샘플 상태로 되돌아갑니다.\n샘플 데이터를 초기화할까요?',
-          () => {
-            const todayStr = getTodayDateString();
-            refundRecords = StorageManager.resetToDemo();
-            depositLedger = DepositLedgerStorage.resetToDemo();
-            currentCalYear = Number(todayStr.slice(0, 4)) || 2026;
-            currentCalMonth = Number(todayStr.slice(5, 7)) || 11;
-            selectedCalDate = todayStr;
-            renderDepositLedger();
-            renderRefundTable();
-            renderCalendar();
-            showToast(`오늘(${todayStr}) 기준 샘플 데이터를 초기 상태로 복원했어요.`);
-          },
-          '초기화하기'
-        );
-      });
-
-      // 달력 월 이동 및 날짜 클릭
+      // 탭 2: 환불 정산 달력 이벤트
       els.btnPrevMonth.addEventListener('click', () => {
         currentCalMonth -= 1;
         if (currentCalMonth < 1) {
           currentCalMonth = 12;
           currentCalYear -= 1;
         }
-        selectedCalDate = null;
         renderCalendar();
       });
-
       els.btnNextMonth.addEventListener('click', () => {
         currentCalMonth += 1;
         if (currentCalMonth > 12) {
           currentCalMonth = 1;
           currentCalYear += 1;
         }
-        selectedCalDate = null;
         renderCalendar();
       });
-
-      if (els.calendarMonthSelect) {
-        els.calendarMonthSelect.addEventListener('change', () => {
-          const val = els.calendarMonthSelect.value;
-          if (val) {
-            const [y, m] = val.split('-').map(Number);
-            currentCalYear = y;
-            currentCalMonth = m;
-            selectedCalDate = null;
-            renderCalendar();
-            showToast(`${y}년 ${m}월 정산 달력으로 이동했어요.`);
-          }
-        });
-      }
-
-      els.calendarGrid.addEventListener('click', (e) => {
-        const cell = e.target.closest('[data-cal-date]');
-        if (cell) {
-          selectedCalDate = cell.dataset.calDate;
+      els.calendarMonthSelect.addEventListener('change', () => {
+        const [y, m] = els.calendarMonthSelect.value.split('-').map(Number);
+        if (y && m) {
+          currentCalYear = y;
+          currentCalMonth = m;
           renderCalendar();
         }
       });
-
+      els.calendarGrid.addEventListener('click', (e) => {
+        const cell = e.target.closest('[data-cal-date]');
+        if (!cell) return;
+        selectedCalDate = cell.dataset.calDate;
+        renderCalendar();
+      });
       els.btnExportSelectedDate.addEventListener('click', () => {
         if (!selectedCalDate) return;
         const dayRecords = refundRecords.filter(r => r.refundDate === selectedCalDate);
-        exportToExcel(dayRecords, `무통장_환불_${selectedCalDate}.xlsx`);
+        exportToExcel(dayRecords, `무통장_환불_정산내역_${selectedCalDate}.xlsx`);
       });
 
-      // 탭 2-2: 무통장 충전 정리 이벤트 바인딩
-      els.chargeDropzone.addEventListener('click', () => {
-        els.chargeExcelInput.click();
-      });
-
+      // 탭 2-2: 무통장 충전 정리 이벤트
+      els.chargeDropzone.addEventListener('click', () => els.chargeExcelInput.click());
       els.chargeDropzone.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           els.chargeExcelInput.click();
         }
       });
-
       els.chargeDropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
         els.chargeDropzone.classList.add('dragover');
       });
-
       els.chargeDropzone.addEventListener('dragleave', () => {
         els.chargeDropzone.classList.remove('dragover');
       });
-
       els.chargeDropzone.addEventListener('drop', (e) => {
         e.preventDefault();
         els.chargeDropzone.classList.remove('dragover');
-        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (file) handleChargeExcelFile(file);
-      });
-
-      els.chargeExcelInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file) handleChargeExcelFile(file);
-        e.target.value = '';
-      });
-
-      els.btnLoadSampleChargeExcel.addEventListener('click', loadSampleChargeCleanData);
-
-      els.btnClearChargeClean.addEventListener('click', () => {
-        if (chargeCleanRows.length === 0 && !chargeCleanFileName) {
-          showToast('초기화할 업로드 내역이 없어요.');
-          return;
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleChargeExcelFile(e.dataTransfer.files[0]);
         }
-        openConfirmModal(
-          '무통장 충전 정리 초기화 확인',
-          '업로드된 원본 파일과 정리 완료 내역 미리보기가 모두 초기화됩니다.\n초기화할까요?',
-          () => {
-            chargeCleanRows = [];
-            chargeCleanHeaders = ['번호', '메모(관리자)', '이름(인증이름)', '입금자명', '금액', '승인자'];
-            chargeCleanAmountColIndex = -1;
-            chargeCleanFileName = '';
-            chargeCleanExcludedCount = 0;
-            chargeCleanPage = 1;
-            els.ccSearchInput.value = '';
-            els.ccFilterType.value = 'ALL';
-            CustomSelectManager.sync(els.ccFilterType);
-            els.chargeDropzoneTitle.textContent = "여기를 클릭하거나 '원본.xlsx' 파일을 끌어다 놓으세요";
-            renderChargeCleanTable();
-            showToast('무통장 충전 정리 내역을 초기화했어요.');
-          },
-          '초기화하기'
-        );
       });
-
+      els.chargeExcelInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleChargeExcelFile(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+      els.btnLoadSampleChargeExcel.addEventListener('click', loadSampleChargeCleanData);
+      els.btnClearChargeClean.addEventListener('click', () => {
+        chargeCleanRows = [];
+        chargeCleanFileName = '';
+        chargeCleanPage = 1;
+        els.chargeDropzoneTitle.textContent = "여기를 클릭하거나 '원본.xlsx' 파일을 끌어다 놓으세요";
+        renderChargeCleanTable();
+        showToast('무통장 충전 정리 목록을 초기화했어요.');
+      });
+      els.btnDownloadCleanedExcel.addEventListener('click', downloadCleanedChargeExcel);
       els.ccSearchInput.addEventListener('input', () => {
         chargeCleanPage = 1;
         renderChargeCleanTable();
@@ -7418,27 +7579,23 @@
         chargeCleanPage = Number(pageBtn.dataset.ccPage) || 1;
         renderChargeCleanTable();
       });
-      els.btnDownloadCleanedExcel.addEventListener('click', downloadCleanedChargeExcel);
 
-      // 탭 3: 공지사항 아코디언 이벤트 바인딩
+      // 탭 3: 공지사항 이벤트
       els.noticeSearchInput.addEventListener('input', renderNotices);
-
       els.btnResetNotices.addEventListener('click', () => {
         openConfirmModal(
-          '공지사항 목록 초기화 확인',
-          '기존에 작성하거나 수정한 공지사항 상세 내용이 모두 기본 상태로 초기화됩니다.\n공지사항 목록을 초기화할까요?',
+          '공지사항 초기화 확인',
+          '작성한 공지사항 내용을 모두 초기 상태로 되돌릴까요?',
           () => {
             noticeList = NoticeStorage.reset();
             openNoticeIds.clear();
             editingNoticeId = null;
-            els.noticeSearchInput.value = '';
             renderNotices();
-            showToast('공지사항 목록을 초기 상태로 되돌렸어요.');
+            showToast('공지사항 목록을 초기화했어요.');
           },
-          '초기화하기'
+          '초기화'
         );
       });
-
       els.noticeListContainer.addEventListener('click', (e) => {
         const toggleBtn = e.target.closest('[data-toggle-notice-id]');
         if (toggleBtn) {
@@ -7447,12 +7604,9 @@
         }
         const editBtn = e.target.closest('[data-edit-notice-id]');
         if (editBtn) {
-          const id = editBtn.dataset.editNoticeId;
-          editingNoticeId = id;
-          openNoticeIds.add(id);
+          editingNoticeId = editBtn.dataset.editNoticeId;
+          openNoticeIds.add(editingNoticeId);
           renderNotices();
-          const ta = document.getElementById(`noticeTextarea-${id}`);
-          if (ta) ta.focus();
           return;
         }
         const cancelBtn = e.target.closest('[data-cancel-notice-id]');
@@ -7467,37 +7621,20 @@
         }
       });
 
-      // 초기 렌더링
-      initSampleChargeCleanData();
-      updateDepositNoteBoxes();
+      // 초기 화면 데이터 렌더링
       updateDepositMonthSelectOptions();
+      updateDepositNoteBoxes();
       renderDepositLedger();
       updateCalculatorPanels();
       renderPendingQueueTable();
       renderRefundTable();
       renderCalendar();
+      initSampleChargeCleanData();
       renderChargeCleanTable();
       renderNotices();
 
-      // 자정(00:00) 경과 시 전날 입금 샘플 및 당일 환불 샘플 자동 갱신
-      let lastObservedDate = getTodayDateString();
-      setInterval(() => {
-        const nowDateStr = getTodayDateString();
-        if (nowDateStr !== lastObservedDate) {
-          lastObservedDate = nowDateStr;
-          refundRecords = StorageManager.resetToDemo();
-          depositLedger = DepositLedgerStorage.resetToDemo();
-          els.depTargetDate.value = getYesterdayDateString();
-          CustomDatePicker.syncLabel(els.depTargetDate);
-          els.refundDate.value = getNextRefundDateString();
-          CustomDatePicker.syncLabel(els.refundDate);
-          updateDepositMonthSelectOptions();
-          renderDepositLedger();
-          renderRefundTable();
-          renderCalendar();
-          showToast('자정이 지나 전날 입금 내역과 당일 환불 내역 샘플이 자동으로 갱신됐어요.');
-        }
-      }, 30000);
+      // 로그인 게이트 초기화
+      initAuthGate();
     }
 
     window.addEventListener('DOMContentLoaded', initApp);
