@@ -553,6 +553,21 @@
       opacity: 1;
     }
 
+    .dm-select-group-header {
+      padding: 8px 12px 4px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      user-select: none;
+    }
+
+    .dm-select-group-header:not(:first-child) {
+      margin-top: 6px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
     /* 커스텀 날짜 선택기 트리거 & 듀얼 캘린더 팝오버 */
     .dm-date-wrap {
       position: relative;
@@ -3117,15 +3132,27 @@
   <script>
     /* ==========================================================================
        1. 저장소 모듈 (StorageManager)
-       - 2026년 1월 1일부터 오늘(2026-11)까지 11개월간의 샘플 데이터를 생성합니다.
+       - 2025년 1월 1일부터 2026년 오늘(2026-11)까지 23개월간의 샘플 데이터를 생성합니다.
        ========================================================================== */
     const StorageManager = {
-      STORAGE_KEY: 'doublemedia_bank_refund_records_v8',
+      STORAGE_KEY: 'doublemedia_bank_refund_records_v9',
 
       getDemoSeedData() {
         const todayStr = getTodayDateString();
-        // 2026년 1월 ~ 11월 화·목 정산 스케줄
+        // 2025년 1월 ~ 2026년 11월 화·목 정산 스케줄
         const monthlySchedules = {
+          '2025-01': ['2025-01-02', '2025-01-07', '2025-01-09', '2025-01-14', '2025-01-16', '2025-01-21', '2025-01-23', '2025-01-28', '2025-01-30'],
+          '2025-02': ['2025-02-04', '2025-02-06', '2025-02-11', '2025-02-13', '2025-02-18', '2025-02-20', '2025-02-25', '2025-02-27'],
+          '2025-03': ['2025-03-04', '2025-03-06', '2025-03-11', '2025-03-13', '2025-03-18', '2025-03-20', '2025-03-25', '2025-03-27'],
+          '2025-04': ['2025-04-01', '2025-04-03', '2025-04-08', '2025-04-10', '2025-04-15', '2025-04-17', '2025-04-22', '2025-04-24', '2025-04-29'],
+          '2025-05': ['2025-05-01', '2025-05-08', '2025-05-13', '2025-05-15', '2025-05-20', '2025-05-22', '2025-05-27', '2025-05-29'],
+          '2025-06': ['2025-06-03', '2025-06-05', '2025-06-10', '2025-06-12', '2025-06-17', '2025-06-19', '2025-06-24', '2025-06-26'],
+          '2025-07': ['2025-07-01', '2025-07-03', '2025-07-08', '2025-07-10', '2025-07-15', '2025-07-17', '2025-07-22', '2025-07-24', '2025-07-29', '2025-07-31'],
+          '2025-08': ['2025-08-05', '2025-08-07', '2025-08-12', '2025-08-14', '2025-08-19', '2025-08-21', '2025-08-26', '2025-08-28'],
+          '2025-09': ['2025-09-02', '2025-09-04', '2025-09-09', '2025-09-11', '2025-09-16', '2025-09-18', '2025-09-23', '2025-09-25', '2025-09-30'],
+          '2025-10': ['2025-10-02', '2025-10-14', '2025-10-16', '2025-10-21', '2025-10-23', '2025-10-28', '2025-10-30'],
+          '2025-11': ['2025-11-04', '2025-11-06', '2025-11-11', '2025-11-13', '2025-11-18', '2025-11-20', '2025-11-25', '2025-11-27'],
+          '2025-12': ['2025-12-02', '2025-12-04', '2025-12-09', '2025-12-11', '2025-12-16', '2025-12-18', '2025-12-23', '2025-12-30'],
           '2026-01': ['2026-01-06', '2026-01-08', '2026-01-13', '2026-01-15', '2026-01-20', '2026-01-22', '2026-01-27', '2026-01-29'],
           '2026-02': ['2026-02-03', '2026-02-05', '2026-02-10', '2026-02-12', '2026-02-19', '2026-02-24', '2026-02-26'],
           '2026-03': ['2026-03-03', '2026-03-05', '2026-03-10', '2026-03-12', '2026-03-17', '2026-03-19', '2026-03-24', '2026-03-26', '2026-03-31'],
@@ -3265,6 +3292,7 @@
           const validDates = dates.filter(d => d <= todayStr);
           if (validDates.length === 0) return;
 
+          const yearShort = ym.slice(2, 4);
           const monthNum = ym.split('-')[1];
 
           validDates.forEach((refundDate, dIdx) => {
@@ -3282,7 +3310,7 @@
               generated.push({
                 id: `seed-${ym}-${seq}`,
                 refundDate,
-                userId: `dm_user_${monthNum}_${userNum}`,
+                userId: `dm_user_${yearShort}${monthNum}_${userNum}`,
                 paymentMethod: tpl.method,
                 bankName: bank,
                 accountNumber: `${3333 + (seq % 6000)}-${String(10 + (seq % 89))}-${String(100000 + ((seq * 7919) % 899999))}`,
@@ -3372,16 +3400,28 @@
 
     /* ==========================================================================
        1-2. 무통장 입금 내역 저장소 모듈 (DepositLedgerStorage)
-       - 자정(00:00) 경과 기준 전날(어제)까지 샘플 데이터 자동 구축
+       - 2025년 1월 ~ 12월 전체 및 2026년 자정(00:00) 경과 기준 전날(어제)까지 샘플 데이터 구축
        ========================================================================== */
     const DepositLedgerStorage = {
-      STORAGE_KEY: 'doublemedia_deposit_ledger_v12',
+      STORAGE_KEY: 'doublemedia_deposit_ledger_v13',
 
       getDemoSeedData() {
         const yesterdayStr = getYesterdayDateString();
         const data = {};
-        // 2026년 1월 ~ 11월 (일자 수 및 월별 기준 매출 규모)
+        // 2025년 1월 ~ 12월 전체 + 2026년 1월 ~ 11월 (일자 수 및 월별 기준 매출 규모)
         const months = [
+          { ym: '2025-01', days: 31, base: 112000000 },
+          { ym: '2025-02', days: 28, base: 108000000 },
+          { ym: '2025-03', days: 31, base: 118000000 },
+          { ym: '2025-04', days: 30, base: 121000000 },
+          { ym: '2025-05', days: 31, base: 126000000 },
+          { ym: '2025-06', days: 30, base: 129000000 },
+          { ym: '2025-07', days: 31, base: 134000000 },
+          { ym: '2025-08', days: 31, base: 138000000 },
+          { ym: '2025-09', days: 30, base: 132000000 },
+          { ym: '2025-10', days: 31, base: 139000000 },
+          { ym: '2025-11', days: 30, base: 145000000 },
+          { ym: '2025-12', days: 31, base: 158000000 },
           { ym: '2026-01', days: 31, base: 142000000 },
           { ym: '2026-02', days: 28, base: 135000000 },
           { ym: '2026-03', days: 31, base: 156000000 },
@@ -4013,7 +4053,10 @@
         labelSpan.textContent = selectedOpt ? selectedOpt.textContent : '';
 
         menu.innerHTML = '';
-        Array.from(selectEl.options).forEach((opt, idx) => {
+        const allOptions = Array.from(selectEl.options);
+
+        const appendOptionButton = (opt) => {
+          const idx = allOptions.indexOf(opt);
           const itemBtn = document.createElement('button');
           itemBtn.type = 'button';
           itemBtn.className = 'dm-select-option' + (idx === selectEl.selectedIndex ? ' selected' : '');
@@ -4051,6 +4094,20 @@
           });
 
           menu.appendChild(itemBtn);
+        };
+
+        Array.from(selectEl.children).forEach((child) => {
+          if (child.tagName === 'OPTGROUP') {
+            const groupHeader = document.createElement('div');
+            groupHeader.className = 'dm-select-group-header';
+            groupHeader.textContent = child.label || '';
+            menu.appendChild(groupHeader);
+            Array.from(child.children).forEach((opt) => {
+              if (opt.tagName === 'OPTION') appendOptionButton(opt);
+            });
+          } else if (child.tagName === 'OPTION') {
+            appendOptionButton(child);
+          }
         });
       }
     };
@@ -4796,8 +4853,34 @@
        ========================================================================== */
     let hasInitializedMonthFilter = false;
 
+    function buildYearGroupedMonthOptionsHtml(monthSet, fallbackYear) {
+      const yearMap = new Map();
+      monthSet.forEach(ym => {
+        if (!ym || ym.length < 7) return;
+        const [y, m] = ym.split('-');
+        if (!yearMap.has(y)) yearMap.set(y, new Set());
+        yearMap.get(y).add(m);
+      });
+      if (yearMap.size === 0) {
+        yearMap.set(String(fallbackYear), new Set());
+      }
+
+      const sortedYears = Array.from(yearMap.keys()).sort((a, b) => b.localeCompare(a));
+      return sortedYears.map(y => {
+        const months = Array.from(yearMap.get(y)).sort((a, b) => b.localeCompare(a));
+        const monthOpts = months.map(m => `<option value="${y}-${m}">${y}년 ${Number(m)}월</option>`).join('');
+        return `
+          <optgroup label="${y}년">
+            <option value="ALL:${y}">${y}년 전체 월</option>
+            ${monthOpts}
+          </optgroup>
+        `;
+      }).join('');
+    }
+
     function updateMonthFilterOptions() {
       const todayYm = getTodayDateString().slice(0, 7);
+      const currentYear = todayYm.slice(0, 4);
       const currentVal = els.filterMonth.value;
       const monthSet = new Set([todayYm]);
       refundRecords.forEach(r => {
@@ -4805,18 +4888,14 @@
           monthSet.add(r.refundDate.slice(0, 7));
         }
       });
-      const sortedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
 
-      els.filterMonth.innerHTML = '<option value="ALL">2026년 전체 월</option>' +
-        sortedMonths.map(ym => {
-          const [y, m] = ym.split('-');
-          return `<option value="${ym}">${y}년 ${Number(m)}월</option>`;
-        }).join('');
+      els.filterMonth.innerHTML = buildYearGroupedMonthOptionsHtml(monthSet, currentYear);
+      const validValues = new Set(Array.from(els.filterMonth.options).map(o => o.value));
 
       if (!hasInitializedMonthFilter) {
         els.filterMonth.value = todayYm;
         hasInitializedMonthFilter = true;
-      } else if (currentVal === 'ALL' || sortedMonths.includes(currentVal)) {
+      } else if (validValues.has(currentVal)) {
         els.filterMonth.value = currentVal;
       } else {
         els.filterMonth.value = todayYm;
@@ -4830,7 +4909,13 @@
       const monthFilter = els.filterMonth.value;
 
       return refundRecords.filter(item => {
-        const matchesMonth = monthFilter === 'ALL' || (item.refundDate && item.refundDate.startsWith(monthFilter));
+        let matchesMonth = true;
+        if (monthFilter.startsWith('ALL:')) {
+          const targetYear = monthFilter.slice(4);
+          matchesMonth = Boolean(item.refundDate && item.refundDate.startsWith(`${targetYear}-`));
+        } else if (monthFilter !== 'ALL') {
+          matchesMonth = Boolean(item.refundDate && item.refundDate.startsWith(monthFilter));
+        }
         const matchesMethod = methodFilter === 'ALL' || item.paymentMethod === methodFilter;
         const matchesKeyword = !keyword ||
           item.userId.toLowerCase().includes(keyword) ||
@@ -5756,23 +5841,20 @@
 
     function updateDepositMonthSelectOptions() {
       const todayYm = getTodayDateString().slice(0, 7);
+      const currentYear = todayYm.slice(0, 4);
       const currentVal = els.depMonthSelect.value;
       const monthSet = new Set([todayYm, '2026-11', '2026-10', '2026-09', '2026-08', '2026-07', '2026-06', '2026-05', '2026-04', '2026-03', '2026-02', '2026-01']);
       Object.keys(depositLedger).forEach(dStr => {
         if (dStr && dStr.length >= 7) monthSet.add(dStr.slice(0, 7));
       });
-      const sortedMonths = Array.from(monthSet).sort((a, b) => b.localeCompare(a));
 
-      els.depMonthSelect.innerHTML = '<option value="ALL">2026년 전체 월</option>' +
-        sortedMonths.map(ym => {
-          const [y, m] = ym.split('-');
-          return `<option value="${ym}">${y}년 ${Number(m)}월</option>`;
-        }).join('');
+      els.depMonthSelect.innerHTML = buildYearGroupedMonthOptionsHtml(monthSet, currentYear);
+      const validValues = new Set(Array.from(els.depMonthSelect.options).map(o => o.value));
 
       if (!hasInitializedDepMonth) {
         els.depMonthSelect.value = todayYm;
         hasInitializedDepMonth = true;
-      } else if (currentVal === 'ALL' || sortedMonths.includes(currentVal)) {
+      } else if (validValues.has(currentVal)) {
         els.depMonthSelect.value = currentVal;
       } else {
         els.depMonthSelect.value = todayYm;
@@ -5862,7 +5944,7 @@
 
       const ym = targetDate.slice(0, 7);
       updateDepositMonthSelectOptions();
-      if (els.depMonthSelect.value !== 'ALL') {
+      if (!els.depMonthSelect.value.startsWith('ALL')) {
         els.depMonthSelect.value = ym;
         CustomSelectManager.sync(els.depMonthSelect);
       }
@@ -5887,13 +5969,17 @@
     }
 
     function renderDepositLedger() {
-      const selectedYm = els.depMonthSelect.value || '2026-11';
+      const selectedYm = els.depMonthSelect.value || getTodayDateString().slice(0, 7);
+      const isYearAll = selectedYm.startsWith('ALL');
+      const targetYear = isYearAll ? (selectedYm.split(':')[1] || getTodayDateString().slice(0, 4)) : selectedYm.slice(0, 4);
       const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
       const yesterdayStr = getYesterdayDateString();
 
       let rows = [];
-      if (selectedYm === 'ALL') {
-        const allDates = Object.keys(depositLedger).sort((a, b) => b.localeCompare(a));
+      if (isYearAll) {
+        const allDates = Object.keys(depositLedger)
+          .filter(dStr => dStr.startsWith(`${targetYear}-`))
+          .sort((a, b) => b.localeCompare(a));
         rows = allDates.map(dateStr => {
           const entry = depositLedger[dateStr] || { amount: 0, notes: [] };
           const dow = dowNames[new Date(`${dateStr}T00:00:00`).getDay()] || '';
@@ -5940,10 +6026,10 @@
         });
       });
 
-      if (selectedYm === 'ALL') {
-        els.depStatMonthLabel.textContent = '2026년 누적 입금 합계';
-        els.depTableCardTitle.textContent = '2026년 전체 월 일자별 무통장 입금 내역';
-        els.depChartCardTitle.textContent = '2026년 월별 입금 추이';
+      if (isYearAll) {
+        els.depStatMonthLabel.textContent = `${targetYear}년 누적 입금 합계`;
+        els.depTableCardTitle.textContent = `${targetYear}년 전체 월 일자별 무통장 입금 내역`;
+        els.depChartCardTitle.textContent = `${targetYear}년 월별 입금 추이`;
         els.depChartCardSubtitle.textContent = '그래프의 월 지점에 마우스를 올리면 당월 입금 합계, 최고 일 입금액, 일 평균 입금액을 확인할 수 있어요.';
       } else {
         const [y, m] = selectedYm.split('-').map(Number);
@@ -6007,8 +6093,8 @@
         }).join('');
       }
 
-      if (selectedYm === 'ALL') {
-        renderDepositMultiMonthChart();
+      if (isYearAll) {
+        renderDepositMultiMonthChart(targetYear);
       } else {
         renderDepositLineChart(rows);
       }
@@ -6153,8 +6239,7 @@
         tooltip.classList.remove('show');
       };
     }
-
-    function renderDepositMultiMonthChart() {
+    function renderDepositMultiMonthChart(targetYear = '2026') {
       const svg = els.depositLineChart;
       const tooltip = els.depositChartTooltip;
       const container = els.depositChartContainer;
@@ -6166,167 +6251,7 @@
 
       const monthMap = new Map();
       Object.entries(depositLedger).forEach(([dateStr, entry]) => {
-        const amt = Number(entry && entry.amount) || 0;
-        if (amt <= 0) return;
-        const ym = dateStr.slice(0, 7);
-        if (!monthMap.has(ym)) {
-          monthMap.set(ym, { ym, sum: 0, max: 0, count: 0 });
-        }
-        const stat = monthMap.get(ym);
-        stat.sum += amt;
-        stat.count += 1;
-        if (amt > stat.max) stat.max = amt;
-      });
-
-      const monthlyStats = Array.from(monthMap.values())
-        .sort((a, b) => a.ym.localeCompare(b.ym))
-        .map(s => ({
-          ...s,
-          avg: s.count > 0 ? Math.round(s.sum / s.count) : 0,
-          label: `${Number(s.ym.split('-')[1])}월`
-        }));
-
-      const W = 880;
-      const H = 270;
-      const padL = 74;
-      const padR = 28;
-      const padT = 26;
-      const padB = 38;
-      const plotW = W - padL - padR;
-      const plotH = H - padT - padB;
-
-      const rawMax = Math.max(100000000, ...monthlyStats.map(s => s.sum));
-      const stepBil = Math.max(1, Math.ceil(rawMax / 400000000));
-      const stepCount = Math.max(1, Math.ceil(rawMax / (stepBil * 100000000)));
-      const maxVal = stepCount * stepBil * 100000000;
-      const yGridHtml = [];
-      for (let i = 0; i <= stepCount; i++) {
-        const ratio = i / stepCount;
-        const y = padT + plotH - ratio * plotH;
-        const label = i === 0 ? '0' : `${i * stepBil}억`;
-        yGridHtml.push(`
-          <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
-          <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
-        `);
-      }
-
-      const n = Math.max(1, monthlyStats.length);
-      const points = monthlyStats.map((s, idx) => {
-        const x = n === 1 ? padL + plotW / 2 : padL + (idx / (n - 1)) * plotW;
-        const y = padT + plotH - (s.sum / maxVal) * plotH;
-        return { ...s, x, y };
-      });
-
-      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-      const areaPath = points.length > 0
-        ? `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(padT + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + plotH).toFixed(1)} Z`
-        : '';
-
-      const xLabelsHtml = points.map(p => `
-        <text x="${p.x.toFixed(1)}" y="${H - 12}" text-anchor="middle" font-size="11.5" fill="#4c5563" font-weight="700">${p.label}</text>
-      `).join('');
-
-      const dotsHtml = points.map(p => `
-        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.2" />
-      `).join('');
-
-      svg.innerHTML = `
-        <defs>
-          <linearGradient id="depMonthAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.24" />
-            <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
-          </linearGradient>
-        </defs>
-        ${yGridHtml.join('')}
-        ${areaPath ? `<path d="${areaPath}" fill="url(#depMonthAreaGrad)" />` : ''}
-        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />` : ''}
-        ${xLabelsHtml}
-        <line id="depMonthGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.4" stroke-dasharray="3 3" opacity="0" />
-        ${dotsHtml}
-        <g id="depMonthActiveMarker" opacity="0">
-          <circle id="depMonthActiveHalo" cx="0" cy="0" r="10" fill="#0096ff" fill-opacity="0.18" />
-          <circle id="depMonthActiveRing" cx="0" cy="0" r="5.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" />
-        </g>
-      `;
-
-      const guideLine = svg.querySelector('#depMonthGuideLine');
-      const activeMarker = svg.querySelector('#depMonthActiveMarker');
-      const activeHalo = svg.querySelector('#depMonthActiveHalo');
-      const activeRing = svg.querySelector('#depMonthActiveRing');
-
-      svg.onmousemove = (e) => {
-        if (points.length === 0) return;
-        const rect = svg.getBoundingClientRect();
-        const relX = ((e.clientX - rect.left) / rect.width) * W;
-
-        let closest = points[0];
-        let minDist = Math.abs(relX - closest.x);
-        for (let i = 1; i < points.length; i++) {
-          const dist = Math.abs(relX - points[i].x);
-          if (dist < minDist) {
-            minDist = dist;
-            closest = points[i];
-          }
-        }
-
-        guideLine.setAttribute('x1', closest.x.toFixed(1));
-        guideLine.setAttribute('x2', closest.x.toFixed(1));
-        guideLine.setAttribute('opacity', '1');
-        activeHalo.setAttribute('cx', closest.x.toFixed(1));
-        activeHalo.setAttribute('cy', closest.y.toFixed(1));
-        activeRing.setAttribute('cx', closest.x.toFixed(1));
-        activeRing.setAttribute('cy', closest.y.toFixed(1));
-        activeMarker.setAttribute('opacity', '1');
-
-        const [y, m] = closest.ym.split('-');
-        tooltip.innerHTML = `
-          <div class="chart-tooltip-date">${y}년 ${Number(m)}월 입금 요약</div>
-          <div style="font-size: 14.5px; font-weight: 800; color: #bfe3ff; margin-bottom: 3px;">당월 총 입금 합계 : ${formatNumber(closest.sum)}원</div>
-          <div style="font-size: 12.5px; font-weight: 600; color: #e2e8f0;">당월 최고 일 입금 : ${formatNumber(closest.max)}원</div>
-          <div style="font-size: 12.5px; font-weight: 600; color: #cbd5e1;">당월 일 평균 입금 : ${formatNumber(closest.avg)}원</div>
-        `;
-        tooltip.classList.add('show');
-
-        const pxX = (closest.x / W) * rect.width + container.scrollLeft;
-        const pxY = (closest.y / H) * rect.height;
-        const tipW = tooltip.offsetWidth || 235;
-        const tipH = tooltip.offsetHeight || 96;
-
-        let leftPos = pxX;
-        const minLeft = tipW / 2 + 12;
-        const maxLeft = container.clientWidth - tipW / 2 - 12;
-        if (leftPos < minLeft) leftPos = minLeft;
-        if (leftPos > maxLeft) leftPos = maxLeft;
-
-        if (pxY - tipH - 14 < 8) {
-          tooltip.style.transform = 'translate(-50%, 14px)';
-          tooltip.style.top = `${pxY}px`;
-        } else {
-          tooltip.style.transform = 'translate(-50%, -100%)';
-          tooltip.style.top = `${pxY - 12}px`;
-        }
-        tooltip.style.left = `${leftPos}px`;
-      };
-
-      svg.onmouseleave = () => {
-        guideLine.setAttribute('opacity', '0');
-        activeMarker.setAttribute('opacity', '0');
-        tooltip.classList.remove('show');
-      };
-    }
-
-    function renderDepositMultiMonthChart() {
-      const svg = els.depositLineChart;
-      const tooltip = els.depositChartTooltip;
-      const container = els.depositChartContainer;
-      if (!svg || !tooltip || !container) return;
-
-      tooltip.classList.remove('show');
-      svg.onmousemove = null;
-      svg.onmouseleave = null;
-
-      const monthMap = new Map();
-      Object.entries(depositLedger).forEach(([dateStr, entry]) => {
+        if (targetYear && !dateStr.startsWith(`${targetYear}-`)) return;
         const amt = Number(entry && entry.amount) || 0;
         if (amt <= 0) return;
         const ym = dateStr.slice(0, 7);
@@ -6482,12 +6407,14 @@
         return;
       }
 
-      const selectedYm = els.depMonthSelect.value || '2026-11';
+      const selectedYm = els.depMonthSelect.value || getTodayDateString().slice(0, 7);
+      const isYearAll = selectedYm.startsWith('ALL');
+      const targetYear = isYearAll ? (selectedYm.split(':')[1] || getTodayDateString().slice(0, 4)) : selectedYm.slice(0, 4);
       const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
       const targetDates = [];
 
-      if (selectedYm === 'ALL') {
-        Object.keys(depositLedger).sort().forEach(d => targetDates.push(d));
+      if (isYearAll) {
+        Object.keys(depositLedger).filter(d => d.startsWith(`${targetYear}-`)).sort().forEach(d => targetDates.push(d));
       } else {
         const [y, m] = selectedYm.split('-').map(Number);
         const daysInMonth = new Date(y, m, 0).getDate();
@@ -6519,7 +6446,7 @@
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '무통장 입금 내역');
-      const suffix = selectedYm === 'ALL' ? '전체' : selectedYm;
+      const suffix = isYearAll ? `${targetYear}년_전체` : selectedYm;
       const fileName = `무통장_입금내역_${suffix}_${getTodayDateString()}.xlsx`;
       XLSX.writeFile(wb, fileName);
       showToast(`입금 내역 엑셀 파일(${fileName}) 다운로드를 시작했어요.`);
@@ -7895,7 +7822,9 @@
       els.btnExportExcel.addEventListener('click', () => {
         const filtered = getFilteredRecords();
         const monthVal = els.filterMonth.value;
-        const suffix = monthVal === 'ALL' ? '전체' : monthVal;
+        const suffix = monthVal.startsWith('ALL:')
+          ? `${monthVal.slice(4)}년_전체`
+          : (monthVal === 'ALL' ? '전체' : monthVal);
         exportToExcel(filtered, `무통장_환불_누적내역_${suffix}_${getTodayDateString()}.xlsx`);
       });
       els.btnUploadRefundExcel.addEventListener('click', () => els.refundExcelInput.click());
