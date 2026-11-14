@@ -5012,7 +5012,7 @@
         ``,
         `오입금 포함 무통장 결제 수단의 환불은 공휴일 제외 매주 화요일과 목요일 일괄로 처리되고 있음에 이용에 참고 부탁드립니다.`,
         ``,
-        `(추가로 환불 접수 이후 하트를 사용하는 경우, 환불 접수는 자동으로 철회가 되오니 이용에 참고 부탁드립니다)`
+        `(환불 접수 이후 하트를 사용하는 경우, 환불 접수는 자동으로 철회가 되오니 이용에 참고 부탁드립니다)`
       ].join('\n');
 
       const ta = document.createElement('textarea');
@@ -5942,8 +5942,8 @@
 
       const W = 880;
       const H = 270;
-      const padL = 74;
-      const padR = 26;
+      const padL = 54;
+      const padR = 54;
       const padT = 26;
       const padB = 38;
       const plotW = W - padL - padR;
@@ -6265,26 +6265,22 @@
 
       const W = 880;
       const H = 270;
-      const padL = 72;
-      const padR = 28;
-      const padT = 28;
+      const padL = 54;
+      const padR = 54;
+      const padT = 26;
       const padB = 38;
       const plotW = W - padL - padR;
       const plotH = H - padT - padB;
 
-      const maxVal = Math.max(100000000, ...monthlyStats.map(s => s.sum));
-      const stepCount = 4;
+      const rawMax = Math.max(100000000, ...monthlyStats.map(s => s.sum));
+      const stepBil = Math.max(1, Math.ceil(rawMax / 400000000));
+      const stepCount = Math.max(1, Math.ceil(rawMax / (stepBil * 100000000)));
+      const maxVal = stepCount * stepBil * 100000000;
       const yGridHtml = [];
       for (let i = 0; i <= stepCount; i++) {
         const ratio = i / stepCount;
         const y = padT + plotH - ratio * plotH;
-        const val = Math.round(maxVal * ratio);
-        let label = '0';
-        if (val >= 100000000) {
-          label = `${(val / 100000000).toFixed(1).replace(/\.0$/, '')}억`;
-        } else if (val > 0) {
-          label = `${Math.round(val / 10000).toLocaleString('ko-KR')}만`;
-        }
+        const label = i === 0 ? '0' : `${i * stepBil}억`;
         yGridHtml.push(`
           <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
           <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
@@ -6308,26 +6304,31 @@
       `).join('');
 
       const dotsHtml = points.map(p => `
-        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#0096ff" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#ffffff" stroke="#0096ff" stroke-width="2.2" />
       `).join('');
 
       svg.innerHTML = `
         <defs>
           <linearGradient id="depMonthAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.22" />
+            <stop offset="0%" stop-color="#0096ff" stop-opacity="0.24" />
             <stop offset="100%" stop-color="#0096ff" stop-opacity="0.01" />
           </linearGradient>
         </defs>
         ${yGridHtml.join('')}
         ${areaPath ? `<path d="${areaPath}" fill="url(#depMonthAreaGrad)" />` : ''}
-        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />` : ''}
+        ${linePath ? `<path d="${linePath}" fill="none" stroke="#0096ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />` : ''}
         ${xLabelsHtml}
-        <line id="depMonthGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0" />
+        <line id="depMonthGuideLine" x1="0" y1="${padT}" x2="0" y2="${padT + plotH}" stroke="#0096ff" stroke-width="1.4" stroke-dasharray="3 3" opacity="0" />
         ${dotsHtml}
-        <circle id="depMonthActiveRing" cx="0" cy="0" r="6.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" opacity="0" />
+        <g id="depMonthActiveMarker" opacity="0">
+          <circle id="depMonthActiveHalo" cx="0" cy="0" r="10" fill="#0096ff" fill-opacity="0.18" />
+          <circle id="depMonthActiveRing" cx="0" cy="0" r="5.5" fill="#0096ff" stroke="#ffffff" stroke-width="2.5" />
+        </g>
       `;
 
       const guideLine = svg.querySelector('#depMonthGuideLine');
+      const activeMarker = svg.querySelector('#depMonthActiveMarker');
+      const activeHalo = svg.querySelector('#depMonthActiveHalo');
       const activeRing = svg.querySelector('#depMonthActiveRing');
 
       svg.onmousemove = (e) => {
@@ -6348,9 +6349,11 @@
         guideLine.setAttribute('x1', closest.x.toFixed(1));
         guideLine.setAttribute('x2', closest.x.toFixed(1));
         guideLine.setAttribute('opacity', '1');
+        activeHalo.setAttribute('cx', closest.x.toFixed(1));
+        activeHalo.setAttribute('cy', closest.y.toFixed(1));
         activeRing.setAttribute('cx', closest.x.toFixed(1));
         activeRing.setAttribute('cy', closest.y.toFixed(1));
-        activeRing.setAttribute('opacity', '1');
+        activeMarker.setAttribute('opacity', '1');
 
         const [y, m] = closest.ym.split('-');
         tooltip.innerHTML = `
@@ -6384,7 +6387,7 @@
 
       svg.onmouseleave = () => {
         guideLine.setAttribute('opacity', '0');
-        activeRing.setAttribute('opacity', '0');
+        activeMarker.setAttribute('opacity', '0');
         tooltip.classList.remove('show');
       };
     }
