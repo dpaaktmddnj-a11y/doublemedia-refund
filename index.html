@@ -3134,13 +3134,13 @@
 
     /* ==========================================================================
        1-2. 무통장 입금 내역 저장소 모듈 (DepositLedgerStorage)
-       - 2026년 1월 1일부터 오늘(2026-11)까지 11개월 전 기간 샘플 자동 구축
+       - 자정(00:00) 경과 기준 전날(어제)까지 샘플 데이터 자동 구축
        ========================================================================== */
     const DepositLedgerStorage = {
-      STORAGE_KEY: 'doublemedia_deposit_ledger_v11',
+      STORAGE_KEY: 'doublemedia_deposit_ledger_v12',
 
       getDemoSeedData() {
-        const todayStr = getTodayDateString();
+        const yesterdayStr = getYesterdayDateString();
         const data = {};
         // 2026년 1월 ~ 11월 (일자 수 및 월별 기준 매출 규모)
         const months = [
@@ -3165,11 +3165,11 @@
         const unprocAmounts = [110000, 220000, 330000, 550000, 1100000, 165000, 440000];
 
         months.forEach((m, mIdx) => {
-          const isCurrentMonth = m.ym === todayStr.slice(0, 7);
-          const maxSeedDay = isCurrentMonth ? Math.min(m.days, Number(todayStr.slice(8, 10))) : m.days;
+          const isCutoffMonth = m.ym === yesterdayStr.slice(0, 7);
+          const maxSeedDay = isCutoffMonth ? Math.min(m.days, Number(yesterdayStr.slice(8, 10))) : m.days;
 
           const dayCounts = new Array(m.days).fill(0);
-          if (isCurrentMonth) {
+          if (isCutoffMonth) {
             const novPattern = [1, 0, 2, 1, 0, 1, 2, 0];
             for (let d = 0; d < maxSeedDay; d++) {
               dayCounts[d] = novPattern[d % novPattern.length];
@@ -3192,7 +3192,7 @@
           for (let d = 1; d <= m.days; d++) {
             const dd = String(d).padStart(2, '0');
             const dateStr = `${m.ym}-${dd}`;
-            if (dateStr > todayStr) continue;
+            if (dateStr > yesterdayStr) continue;
 
             const dow = new Date(`${dateStr}T00:00:00`).getDay();
             const isWeekend = (dow === 0 || dow === 6);
@@ -5021,7 +5021,7 @@
     function renderDepositLedger() {
       const ym = els.depMonthSelect.value || '2026-11';
       const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
-      const todayStr = getTodayDateString();
+      const yesterdayStr = getYesterdayDateString();
 
       let totalAmount = 0;
       let activeDays = 0;
@@ -5047,8 +5047,8 @@
 
         allDates.forEach(dateStr => {
           const mKey = dateStr.slice(0, 7);
-          const isFutureDate = dateStr > todayStr;
-          const entry = isFutureDate ? { amount: 0, notes: [] } : (depositLedger[dateStr] || { amount: 0, notes: [] });
+          const isUnsettledDate = dateStr > yesterdayStr;
+          const entry = isUnsettledDate ? { amount: 0, notes: [] } : (depositLedger[dateStr] || { amount: 0, notes: [] });
           const amount = Number(entry.amount) || 0;
           const notes = Array.isArray(entry.notes) ? entry.notes : [];
 
@@ -5094,12 +5094,12 @@
             }).join('') + `</div>`;
           }
 
-          const amountCellHtml = isFutureDate
+          const amountCellHtml = isUnsettledDate
             ? `<td class="td-amount" style="color: var(--muted);">-</td>`
             : `<td class="td-amount" style="color: ${amount > 0 ? 'var(--ink)' : 'var(--muted)'};">${formatNumber(amount)}원</td>`;
 
           rowsHtml.push(`
-            <tr style="${isFutureDate ? 'opacity: 0.55;' : ''}">
+            <tr style="${isUnsettledDate ? 'opacity: 0.55;' : ''}">
               <td style="white-space: nowrap; font-weight: 700;">
                 ${dateStr} <span style="color: ${dowColor}; font-size: 12px;">(${dowLabel})</span>
               </td>
@@ -5163,12 +5163,12 @@
       for (let d = 1; d <= daysInMonth; d++) {
         const dd = String(d).padStart(2, '0');
         const dateStr = `${ym}-${dd}`;
-        const isFutureDate = dateStr > todayStr;
+        const isUnsettledDate = dateStr > yesterdayStr;
         const dowIdx = new Date(`${dateStr}T00:00:00`).getDay();
         const dowLabel = dowNames[dowIdx];
         const dowColor = dowIdx === 0 ? 'var(--coral)' : (dowIdx === 6 ? 'var(--accent-text)' : 'var(--ink-2)');
 
-        const entry = isFutureDate
+        const entry = isUnsettledDate
           ? { amount: 0, notes: [] }
           : (depositLedger[dateStr] || { amount: 0, notes: [] });
         const amount = Number(entry.amount) || 0;
@@ -5179,8 +5179,8 @@
           dateStr,
           dowLabel,
           amount,
-          hasData: !isFutureDate && amount > 0,
-          isFuture: isFutureDate
+          hasData: !isUnsettledDate && amount > 0,
+          isFuture: isUnsettledDate
         });
 
         if (amount > 0) {
@@ -5215,12 +5215,12 @@
           }).join('') + `</div>`;
         }
 
-        const amountCellHtml = isFutureDate
+        const amountCellHtml = isUnsettledDate
           ? `<td class="td-amount" style="color: var(--muted);">-</td>`
           : `<td class="td-amount" style="color: ${amount > 0 ? 'var(--ink)' : 'var(--muted)'};">${formatNumber(amount)}원</td>`;
 
         rowsHtml.push(`
-          <tr style="${isFutureDate ? 'opacity: 0.55;' : ''}">
+          <tr style="${isUnsettledDate ? 'opacity: 0.55;' : ''}">
             <td style="white-space: nowrap; font-weight: 700;">
               ${month}월 ${dd}일 <span style="color: ${dowColor}; font-size: 12px;">(${dowLabel})</span>
             </td>
@@ -6083,10 +6083,11 @@
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${ymPrefix}-${String(d).padStart(2, '0')}`;
         const isFutureDate = dateStr > todayStr;
+        const isUnsettledDepositDate = dateStr > getYesterdayDateString();
         const dayOfWeek = (firstDayOfWeek + d - 1) % 7;
         const dayClass = dayOfWeek === 0 ? 'sun' : (dayOfWeek === 6 ? 'sat' : '');
         const dayData = isFutureDate ? null : byDateMap[dateStr];
-        const depData = isFutureDate ? null : depositLedger[dateStr];
+        const depData = isUnsettledDepositDate ? null : depositLedger[dateStr];
         const depositAmt = depData ? (Number(depData.amount) || 0) : 0;
         const hasData = !isFutureDate && (Boolean(dayData) || depositAmt > 0);
         const isSelected = selectedCalDate === dateStr;
@@ -6154,17 +6155,21 @@
 
       const dayRecords = refundRecords.filter(r => r.refundDate === dateStr);
       const daySum = dayRecords.reduce((acc, r) => acc + (Number(r.refundAmount) || 0), 0);
-      const depData = depositLedger[dateStr];
+      const isUnsettledDepositDate = dateStr > getYesterdayDateString();
+      const depData = isUnsettledDepositDate ? null : depositLedger[dateStr];
       const depositAmt = depData ? (Number(depData.amount) || 0) : 0;
 
       els.selectedDateTitle.textContent = `${dateStr} 정산 상세 내역`;
-      els.selectedDateSubtitle.textContent = `무통장 입금 ${formatNumber(depositAmt)}원 · 환불 처리 ${dayRecords.length}건 · 총 환불 정산액 ${formatNumber(daySum)}원`;
+      const depStatusText = isUnsettledDepositDate
+        ? '무통장 입금 집계 대기 (자정 이후 반영)'
+        : `무통장 입금 ${formatNumber(depositAmt)}원`;
+      els.selectedDateSubtitle.textContent = `${depStatusText} · 환불 처리 ${dayRecords.length}건 · 총 환불 정산액 ${formatNumber(daySum)}원`;
 
       if (dayRecords.length === 0) {
         els.btnExportSelectedDate.style.display = 'none';
         els.selectedDateTableBody.innerHTML = `
           <tr>
-            <td colspan="6" class="empty-state">${dateStr}에는 접수된 환불 내역이 없어요. (무통장 입금: ${formatNumber(depositAmt)}원)</td>
+            <td colspan="6" class="empty-state">${dateStr}에는 접수된 환불 내역이 없어요. (${depStatusText})</td>
           </tr>
         `;
         return;
@@ -7435,6 +7440,26 @@
       renderCalendar();
       renderChargeCleanTable();
       renderNotices();
+
+      // 자정(00:00) 경과 시 전날 입금 샘플 및 당일 환불 샘플 자동 갱신
+      let lastObservedDate = getTodayDateString();
+      setInterval(() => {
+        const nowDateStr = getTodayDateString();
+        if (nowDateStr !== lastObservedDate) {
+          lastObservedDate = nowDateStr;
+          refundRecords = StorageManager.resetToDemo();
+          depositLedger = DepositLedgerStorage.resetToDemo();
+          els.depTargetDate.value = getYesterdayDateString();
+          CustomDatePicker.syncLabel(els.depTargetDate);
+          els.refundDate.value = getNextRefundDateString();
+          CustomDatePicker.syncLabel(els.refundDate);
+          updateDepositMonthSelectOptions();
+          renderDepositLedger();
+          renderRefundTable();
+          renderCalendar();
+          showToast('자정이 지나 전날 입금 내역과 당일 환불 내역 샘플이 자동으로 갱신됐어요.');
+        }
+      }, 30000);
     }
 
     window.addEventListener('DOMContentLoaded', initApp);
