@@ -2260,7 +2260,10 @@
                 <option value="제주은행">제주은행</option>
                 <option value="아이엠뱅크">아이엠뱅크</option>
                 <option value="미래에셋증권">미래에셋증권</option>
+                <option value="저축은행">저축은행</option>
+                <option value="manual">수기 입력 (직접 입력)</option>
               </select>
+              <input type="text" id="customBankName" class="input" placeholder="환불 은행명을 직접 입력하세요 (예: SBI저축은행, 씨티은행)" style="display: none; margin-top: 2px;">
             </div>
 
             <div class="field">
@@ -4029,6 +4032,7 @@
       holderName: document.getElementById('holderName'),
       paymentMethod: document.getElementById('paymentMethod'),
       bankName: document.getElementById('bankName'),
+      customBankName: document.getElementById('customBankName'),
       accountNumber: document.getElementById('accountNumber'),
       depositDateTime: document.getElementById('depositDateTime'),
       refundType: document.getElementById('refundType'),
@@ -4427,7 +4431,17 @@
 
       if (!els.holderName.value.trim()) els.holderName.value = latest.holderName;
       if (!els.accountNumber.value.trim()) {
-        els.bankName.value = latest.bankName;
+        const hasBankOption = Array.from(els.bankName.options).some(opt => opt.value === latest.bankName && opt.value !== 'manual');
+        if (hasBankOption) {
+          els.bankName.value = latest.bankName;
+          els.customBankName.style.display = 'none';
+          els.customBankName.value = '';
+        } else {
+          els.bankName.value = 'manual';
+          els.customBankName.style.display = 'block';
+          els.customBankName.value = latest.bankName || '';
+        }
+        CustomSelectManager.sync(els.bankName);
         els.accountNumber.value = latest.accountNumber;
       }
 
@@ -6760,13 +6774,17 @@
       const userId = els.userId.value.trim();
       const holderName = els.holderName.value.trim();
       const paymentMethod = els.paymentMethod.value;
-      const bankName = els.bankName.value;
+      const bankName = els.bankName.value === 'manual'
+        ? els.customBankName.value.trim()
+        : els.bankName.value;
       const accountNumber = els.accountNumber.value.trim();
       const depositDateTime = els.depositDateTime.value.trim();
       const refundAmount = parseFormattedNumber(els.refundAmount.value);
 
-      if (!refundDate || !userId || !holderName || !accountNumber || !depositDateTime || refundAmount <= 0) {
-        showToast('필수 항목(날짜, 아이디, 예금주, 계좌번호, 입금일시, 환불 금액)을 모두 입력해 주세요.');
+      if (!refundDate || !userId || !holderName || !bankName || !accountNumber || !depositDateTime || refundAmount <= 0) {
+        showToast(els.bankName.value === 'manual' && !bankName
+          ? '수기 입력을 선택한 경우 환불 은행명을 직접 입력해 주세요.'
+          : '필수 항목(날짜, 아이디, 예금주, 은행, 계좌번호, 입금일시, 환불 금액)을 모두 입력해 주세요.');
         return;
       }
 
@@ -6810,6 +6828,10 @@
     function clearInputForm(showMsg = true) {
       els.userId.value = '';
       els.holderName.value = '';
+      els.bankName.selectedIndex = 0;
+      CustomSelectManager.sync(els.bankName);
+      els.customBankName.value = '';
+      els.customBankName.style.display = 'none';
       els.accountNumber.value = '';
       els.refundAmount.value = '';
       els.rawDepositAmount.value = '';
@@ -7109,6 +7131,17 @@
       els.refundDate.value = getNextRefundDateString();
       CustomDatePicker.syncLabel(els.refundDate);
       els.depositDateTime.value = getCurrentDateTime24();
+
+      // 환불 은행 '수기 입력' 선택 시 직접 입력칸 표시 토글
+      els.bankName.addEventListener('change', () => {
+        if (els.bankName.value === 'manual') {
+          els.customBankName.style.display = 'block';
+          els.customBankName.focus();
+        } else {
+          els.customBankName.style.display = 'none';
+          els.customBankName.value = '';
+        }
+      });
 
       // 환불 계좌번호 입력 시 공백을 하이픈('-')으로 자동 변환 (예: 3333 03 4596211 -> 3333-03-4596211)
       els.accountNumber.addEventListener('input', (e) => {
