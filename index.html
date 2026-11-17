@@ -123,23 +123,49 @@
     }
 
     /* 탭 전환 컨트롤 */
-    .tab-bar {
+    .tab-nav-shell {
       position: relative;
       display: flex;
-      gap: 8px;
+      align-items: center;
+      gap: 6px;
       background-color: var(--white);
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 8px;
       margin-bottom: 24px;
       box-shadow: 0 1px 2px rgba(22, 27, 34, 0.03);
+    }
+
+    .tab-bar {
+      position: relative;
+      display: flex;
+      flex: 1;
+      min-width: 0;
+      gap: 8px;
       overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tab-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-bar.has-overflow .tab-btn {
+      flex: 0 0 calc((100% - 32px) / 5);
+    }
+
+    @media (max-width: 768px) {
+      .tab-bar.has-overflow .tab-btn {
+        flex: 0 0 auto;
+      }
     }
 
     .tab-indicator {
       position: absolute;
-      top: 8px;
-      bottom: 8px;
+      top: 0;
+      bottom: 0;
       left: 0;
       width: 0;
       pointer-events: none;
@@ -152,7 +178,7 @@
       position: absolute;
       left: 14px;
       right: 14px;
-      bottom: -6px;
+      bottom: 2px;
       height: 3px;
       border-radius: 999px;
       background-color: var(--accent);
@@ -1082,6 +1108,76 @@
       color: #9d174d;
     }
 
+    .hl-badge-purple {
+      background: linear-gradient(transparent 32%, #f3e8ff 32% 92%, transparent 92%);
+      color: #6b21a8;
+    }
+
+    .hl-badge-teal {
+      background: linear-gradient(transparent 32%, #ccfbf1 32% 92%, transparent 92%);
+      color: #115e59;
+    }
+
+    .hl-badge-amber {
+      background: linear-gradient(transparent 32%, #fef3c7 32% 92%, transparent 92%);
+      color: #92400e;
+    }
+
+    .hl-badge-lime {
+      background: linear-gradient(transparent 32%, #ecfccb 32% 92%, transparent 92%);
+      color: #3f6212;
+    }
+
+    .hl-badge-coral {
+      background: linear-gradient(transparent 32%, #ffe4e6 32% 92%, transparent 92%);
+      color: #9f1239;
+    }
+
+    .hl-badge-sky {
+      background: linear-gradient(transparent 32%, #e0f2fe 32% 92%, transparent 92%);
+      color: #075985;
+    }
+
+    .hl-badge-violet {
+      background: linear-gradient(transparent 32%, #ede9fe 32% 92%, transparent 92%);
+      color: #5b21b6;
+    }
+
+    .hl-badge-emerald {
+      background: linear-gradient(transparent 32%, #d1fae5 32% 92%, transparent 92%);
+      color: #065f46;
+    }
+
+    .hl-badge-yellow {
+      background: linear-gradient(transparent 32%, #fef9c3 32% 92%, transparent 92%);
+      color: #854d0e;
+    }
+
+    .hl-badge-fuchsia {
+      background: linear-gradient(transparent 32%, #fae8ff 32% 92%, transparent 92%);
+      color: #86198f;
+    }
+
+    .hl-badge-cyan {
+      background: linear-gradient(transparent 32%, #cffafe 32% 92%, transparent 92%);
+      color: #155e75;
+    }
+
+    .hl-badge-rose {
+      background: linear-gradient(transparent 32%, #fecdd3 32% 92%, transparent 92%);
+      color: #881337;
+    }
+
+    .hl-badge-stone {
+      background: linear-gradient(transparent 32%, #e7e5e4 32% 92%, transparent 92%);
+      color: #44403c;
+    }
+
+    .hl-badge-mint-soft {
+      background: linear-gradient(transparent 32%, #dcfce7 32% 92%, transparent 92%);
+      color: #14532d;
+    }
+
     /* 무통장 입금 내역 탭 전용 스타일 */
     .deposit-note-list {
       display: flex;
@@ -1831,10 +1927,230 @@
     }
 
     /* ==========================================================================
-       9. 무통장 충전 정리 파일 업로드 드롭존
+       8-2. 문의 답변 예시 (CS 답변 검색 · 엑셀 업로드 · 원클릭 복사) 스타일
        ========================================================================== */
+    .reply-template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .reply-template-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background-color: var(--white);
+      padding: 16px 18px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .reply-template-card:hover {
+      border-color: var(--accent-line);
+      box-shadow: 0 2px 8px rgba(0, 150, 255, 0.05);
+    }
+
+    .reply-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reply-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .reply-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+      word-break: keep-all;
+    }
+
+    .reply-card-body {
+      background-color: var(--white);
+      border: 1px solid #d5dae2;
+      border-radius: 10px;
+      padding: 13px 15px;
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.68;
+      color: #0d1117;
+      white-space: pre-line;
+      word-break: keep-all;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .reply-card-body:hover {
+      background-color: var(--accent-soft);
+      border-color: var(--accent-line);
+    }
+
+    .reply-card-body mark {
+      background-color: #fef08a;
+      color: var(--ink);
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+
+    /* 문의 답변 검색 이력 & 추천 검색어 팝오버 */
+    .cs-search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .cs-search-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background-color: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 28px rgba(22, 27, 34, 0.12);
+      z-index: 150;
+      display: none;
+    }
+
+    .cs-search-popover.open {
+      display: block;
+      animation: dpFadeIn 0.14s ease-out;
+    }
+
+    .cs-pop-section + .cs-pop-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .cs-pop-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .cs-pop-clear-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .cs-pop-clear-btn:hover {
+      color: var(--coral);
+    }
+
+    .cs-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .cs-history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cs-history-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background-color 0.12s;
+    }
+
+    .cs-history-row:hover {
+      background-color: var(--canvas);
+    }
+
+    .cs-history-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .cs-history-icon {
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+
+    .cs-history-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cs-history-del {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background-color 0.12s, color 0.12s;
+    }
+
+    .cs-history-del:hover {
+      background-color: rgba(239, 91, 106, 0.1);
+      color: var(--coral);
+    }
+
+    .cs-recommend-tag {
+      border: 1px solid var(--line);
+      background-color: var(--white);
+      color: var(--ink-2);
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+    }
+
+    .cs-recommend-tag:hover {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
     .upload-dropzone {
-      border: 2px dashed var(--accent-line);
+      border: 1.5px dashed var(--accent-line);
       background-color: var(--accent-soft);
       border-radius: 14px;
       padding: 28px 20px;
@@ -2110,35 +2426,41 @@
     </header>
 
     <!-- 탭 내비게이션 -->
-    <nav class="tab-bar" id="mainTabBar" aria-label="주요 메뉴">
-      <div class="tab-indicator" id="mainTabIndicator" aria-hidden="true"></div>
-      <button type="button" class="tab-btn active" data-tab="tab-deposit" id="tabBtnDeposit">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        무통장 입금 내역
-      </button>
-      <button type="button" class="tab-btn" data-tab="tab-entry" id="tabBtnEntry">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-        무통장 환불 접수
-      </button>
-      <button type="button" class="tab-btn" data-tab="tab-calendar" id="tabBtnCalendar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        환불 정산 달력
-      </button>
-      <button type="button" class="tab-btn" data-tab="tab-charge-clean" id="tabBtnChargeClean">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-        무통장 충전 정리
-      </button>
-      <button type="button" class="tab-btn" data-tab="tab-notice" id="tabBtnNotice">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        공지사항
-      </button>
-    </nav>
+    <div class="tab-nav-shell" id="tabNavShell">
+      <nav class="tab-bar" id="mainTabBar" aria-label="주요 메뉴">
+        <div class="tab-indicator" id="mainTabIndicator" aria-hidden="true"></div>
+        <button type="button" class="tab-btn active" data-tab="tab-deposit" id="tabBtnDeposit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          무통장 입금 내역
+        </button>
+        <button type="button" class="tab-btn" data-tab="tab-entry" id="tabBtnEntry">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          무통장 환불 접수
+        </button>
+        <button type="button" class="tab-btn" data-tab="tab-calendar" id="tabBtnCalendar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          환불 정산 달력
+        </button>
+        <button type="button" class="tab-btn" data-tab="tab-charge-clean" id="tabBtnChargeClean">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          무통장 충전 정리
+        </button>
+        <button type="button" class="tab-btn" data-tab="tab-notice" id="tabBtnNotice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          공지사항
+        </button>
+        <button type="button" class="tab-btn" data-tab="tab-cs-reply" id="tabBtnCsReply" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          문의 답변 예시
+        </button>
+      </nav>
+    </div>
 
     <!-- ========================================================================
-         탭 0: 무통장 입금 내역 (월별 일자 전체 요약 + 특이사항 누적 기재)
+         탭 0: 무통장 입금 내역 (일자별 입금액 · 특이사항 기록 및 추이)
          ======================================================================== -->
     <section id="tab-deposit" class="tab-panel active">
-      <!-- 상단 월 합계 요약 카드 -->
+      <!-- 상단 요약 카드 3종 -->
       <div class="summary-grid">
         <div class="stat-card">
           <div class="stat-label" id="depStatMonthLabel">2026년 11월 입금 합계</div>
@@ -3007,6 +3329,82 @@
         </div>
       </div>
     </section>
+
+    <!-- ========================================================================
+         탭 4: 문의 답변 예시 (CS 전용 계정 접속 시 공지사항 다음 슬롯에 표시)
+         ======================================================================== -->
+    <section id="tab-cs-reply" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">문의 답변 예시 목록 (<span id="csReplyTotalCount">0</span>건)</h2>
+            <p class="card-subtitle">분류를 고르거나 키워드를 입력해 답변을 검색한 뒤 '답변 복사' 버튼을 눌러 바로 붙여넣으세요.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" id="btnResetCsReplies" style="height: 36px; font-size: 13px;">
+              기본 샘플 복원
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-group">
+            <select id="csReplyCategoryFilter" class="select" style="max-width: 175px;" aria-label="답변 분류 필터">
+              <option value="ALL">전체 분류</option>
+            </select>
+            <div class="cs-search-wrap" id="csReplySearchWrap">
+              <input type="text" id="csReplySearchInput" class="input" placeholder="제목, 분류, 초성(ㅌㅌ), 답변 키워드 검색 (Ctrl + K)" autocomplete="off">
+              <div class="cs-search-popover" id="csReplySearchPopover" role="region" aria-label="최근 검색 이력 및 추천 검색어">
+                <div class="cs-pop-section" id="csHistorySection">
+                  <div class="cs-pop-header">
+                    <span>최근 검색 이력</span>
+                    <button type="button" class="cs-pop-clear-btn" id="btnClearCsSearchHistory">전체 삭제</button>
+                  </div>
+                  <div class="cs-history-list" id="csSearchHistoryList"></div>
+                </div>
+                <div class="cs-pop-section">
+                  <div class="cs-pop-header">
+                    <span>추천 검색어</span>
+                  </div>
+                  <div class="cs-tag-list" id="csRecommendTagList"></div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="btnClearCsReplySearch" style="height: 42px;">검색 초기화</button>
+          </div>
+          <span class="hl-badge hl-badge-blue" id="csReplyFilteredBadge">총 0건</span>
+        </div>
+
+        <div class="reply-template-list" id="csReplyListContainer">
+          <!-- 자바스크립트로 답변 카드 렌더링 -->
+        </div>
+
+        <div id="csReplyPaginationBar" class="cc-pagination" style="display: none;">
+          <span class="field-help" id="csReplyPageRangeInfo">1 ~ 20건 표시 중</span>
+          <div class="cc-page-buttons" id="csReplyPageButtons"></div>
+        </div>
+
+        <!-- 하단 답변 모음 엑셀 파일 업로드 영역 -->
+        <div class="section-divider" style="margin: 20px 0 16px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--ink);">답변 모음 엑셀 파일 업로드</div>
+            <div class="field-help">'답변 모음.xlsx'(분류 · 제목 · 내용) 양식의 엑셀 파일을 올리면 검색 목록에 즉시 반영돼요.</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <select id="csReplyImportMode" class="select" style="width: 175px; height: 38px; font-size: 13px;" aria-label="답변 엑셀 업로드 반영 방식">
+              <option value="replace">기존 목록 덮어쓰기</option>
+              <option value="append">기존 목록에 추가하기</option>
+            </select>
+            <input type="file" id="csReplyExcelInput" accept=".xlsx,.xls,.csv" style="display: none;">
+            <button type="button" class="btn btn-primary" id="btnUploadCsReplyExcel" style="height: 38px; font-size: 13px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              엑셀 업로드 (.xlsx)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- 공용 커스텀 듀얼 날짜 선택기 팝오버 -->
@@ -3713,6 +4111,108 @@
     };
 
     /* ==========================================================================
+       1-5. 문의 답변 예시 저장소 모듈 (CsReplyStorage)
+       - 첨부된 '답변 모음.xlsx' 실제 데이터 기반 기본 템플릿 및 업로드 데이터 관리
+       ========================================================================== */
+    const CsReplyStorage = {
+      STORAGE_KEY: 'doublemedia_cs_reply_templates_v1',
+
+      getDefaultTemplates() {
+        return [
+          {
+            id: 'csr-1',
+            category: '환불문의',
+            subCategory: '무통장 환불',
+            title: '무통장 환불 접수 완료 및 처리 일정 안내',
+            content: '요청하신 무통장 결제 금액 환불 접수가 정상적으로 완료되었습니다.\n\n오입금 포함 무통장 결제 수단의 환불은 공휴일 제외 매주 화요일과 목요일 일괄로 처리되고 있음에 이용에 참고 부탁드립니다.\n\n(환불 접수 이후 하트를 사용하는 경우, 환불 접수는 자동으로 철회가 되오니 이용에 참고 부탁드립니다)'
+          },
+          {
+            id: 'csr-2',
+            category: '환불문의',
+            subCategory: '필수 기재 정보 요청',
+            title: '무통장 환불 접수를 위한 계좌 및 입금 정보 요청',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n무통장 입금 건 환불 접수를 위해 아래 정보를 확인하시어 다시 한번 문의해 주시면 신속히 접수 도와드리겠습니다.\n\n1. 환불받으실 은행명 :\n2. 계좌번호 :\n3. 예금주 성함 :\n4. 입금하신 날짜 및 금액 :\n\n감사합니다.'
+          },
+          {
+            id: 'csr-3',
+            category: '환불문의',
+            subCategory: '일부 사용 환불',
+            title: '일부 사용 후 잔여 하트 환불 및 보너스 차감 안내',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n충전하신 하트 중 일부를 사용하신 경우, 잔여 하트에서 결제 시 지급된 보너스 하트 비율만큼 차감한 뒤 환불이 진행됩니다.\n\n환불 접수를 원하실 경우 환불받으실 본인 명의 계좌 정보(은행명/계좌번호/예금주)를 남겨주시면 확인 후 안내해 드리겠습니다.'
+          },
+          {
+            id: 'csr-4',
+            category: '환불문의',
+            subCategory: '휴대폰/신용카드 경과',
+            title: '당월/결제일 경과 휴대폰·카드 결제 수수료 차감 환불 안내',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n휴대폰 소액결제 및 신용카드 결제 건 중 결제월 또는 취소 가능 기한이 경과한 건은 결제사를 통한 승인 취소가 불가하여, 결제 대행사 수수료를 제외한 금액으로 계좌 환불 처리가 진행됩니다.\n\n수수료 차감 환불 진행에 동의하시는 경우 환불받으실 계좌 정보(은행명/계좌번호/예금주)를 남겨주시기 바랍니다.'
+          },
+          {
+            id: 'csr-5',
+            category: '결제문의',
+            subCategory: '무통장 입금 지연',
+            title: '무통장 입금 후 하트 미충전(입금자명 불일치/차액 입금) 안내',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n무통장 입금 시 충전 신청하신 금액과 실제 입금하신 금액이 다르거나, 입금자명이 상이한 경우 자동 충전이 보류됩니다.\n\n입금하신 정확한 날짜/시간, 입금자명, 입금 금액을 남겨주시면 확인 후 수동 충전 또는 환불 안내를 도와드리겠습니다.'
+          },
+          {
+            id: 'csr-6',
+            category: '결제문의',
+            subCategory: '영수증/증빙',
+            title: '결제 영수증 및 현금영수증 발급 조회 안내',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n신용카드 및 간편결제 매출전표는 이용하신 결제 대행사 홈페이지에서 조회 및 출력이 가능하며, 무통장 입금 현금영수증은 입금 신청 단계에서 입력하신 휴대폰 번호 또는 사업자 번호로 국세청 현금영수증 사이트에서 확인하실 수 있습니다.'
+          },
+          {
+            id: 'csr-7',
+            category: '계정문의',
+            subCategory: '본인인증',
+            title: '본인인증 초기화 및 명의 변경 문의 안내',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n계정 보안을 위해 기존에 완료된 본인인증 정보는 임의로 변경이 불가합니다. 개명 등으로 인한 정보 갱신이 필요한 경우 신분증 사본(주민등록번호 뒷자리 마스킹) 및 초본을 첨부해 재문의해 주시면 확인 후 안내해 드리겠습니다.'
+          },
+          {
+            id: 'csr-8',
+            category: '제재문의',
+            subCategory: '이용제한',
+            title: '운영정책 위반에 따른 서비스 이용 제한 안내',
+            content: '안녕하세요. 팬더티비 고객센터입니다.\n\n회원님의 계정은 서비스 운영정책 위반 행위가 확인되어 이용 제한 조치가 적용되었습니다. 건전한 방송 문화 조성을 위해 운영정책을 준수해 주시기 바라며, 제한 기간 종료 후 정상 이용이 가능합니다.'
+          }
+        ];
+      },
+
+      loadAll() {
+        try {
+          const raw = localStorage.getItem(this.STORAGE_KEY);
+          if (!raw) {
+            const defaults = this.getDefaultTemplates();
+            this.saveAll(defaults);
+            return defaults;
+          }
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) && parsed.length > 0 ? parsed : this.getDefaultTemplates();
+        } catch (err) {
+          console.error('문의 답변 예시 로드 실패:', err);
+          return this.getDefaultTemplates();
+        }
+      },
+
+      saveAll(list) {
+        try {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
+          return true;
+        } catch (err) {
+          console.error('문의 답변 예시 저장 실패:', err);
+          showToast('저장 공간이 부족해 답변 예시를 저장하지 못했어요.');
+          return false;
+        }
+      },
+
+      reset() {
+        const defaults = this.getDefaultTemplates();
+        this.saveAll(defaults);
+        return defaults;
+      }
+    };
+
+    /* ==========================================================================
        2. 전역 상태 및 상수 설정
        ========================================================================== */
     const HEART_UNIT_PRICE = 110;
@@ -3740,6 +4240,7 @@
     let depositLedger = DepositLedgerStorage.loadAll();
     let noticeList = NoticeStorage.loadAll();
     let holidayList = HolidayStorage.loadAll();
+    let csReplyList = CsReplyStorage.loadAll();
     let editingRefundId = null;
     let openNoticeIds = new Set();
     let editingNoticeId = null;
@@ -3751,6 +4252,9 @@
     let chargeCleanExcludedCount = 0;
     let chargeCleanPage = 1;
     const CHARGE_CLEAN_PAGE_SIZE = 100;
+
+    let csReplyPage = 1;
+    const CS_REPLY_PAGE_SIZE = 20;
 
     const initialTodayStr = getTodayDateString();
     let currentCalYear = Number(initialTodayStr.slice(0, 4)) || 2026;
@@ -4535,7 +5039,28 @@
       noticeTotalCount: document.getElementById('noticeTotalCount'),
       noticeSearchInput: document.getElementById('noticeSearchInput'),
       btnResetNotices: document.getElementById('btnResetNotices'),
-      noticeListContainer: document.getElementById('noticeListContainer')
+      noticeListContainer: document.getElementById('noticeListContainer'),
+
+      // 탭 4: 문의 답변 예시 요소
+      csReplyTotalCount: document.getElementById('csReplyTotalCount'),
+      csReplyCategoryFilter: document.getElementById('csReplyCategoryFilter'),
+      csReplySearchWrap: document.getElementById('csReplySearchWrap'),
+      csReplySearchInput: document.getElementById('csReplySearchInput'),
+      csReplySearchPopover: document.getElementById('csReplySearchPopover'),
+      csHistorySection: document.getElementById('csHistorySection'),
+      csSearchHistoryList: document.getElementById('csSearchHistoryList'),
+      btnClearCsSearchHistory: document.getElementById('btnClearCsSearchHistory'),
+      csRecommendTagList: document.getElementById('csRecommendTagList'),
+      btnClearCsReplySearch: document.getElementById('btnClearCsReplySearch'),
+      csReplyFilteredBadge: document.getElementById('csReplyFilteredBadge'),
+      csReplyListContainer: document.getElementById('csReplyListContainer'),
+      csReplyPaginationBar: document.getElementById('csReplyPaginationBar'),
+      csReplyPageRangeInfo: document.getElementById('csReplyPageRangeInfo'),
+      csReplyPageButtons: document.getElementById('csReplyPageButtons'),
+      csReplyImportMode: document.getElementById('csReplyImportMode'),
+      csReplyExcelInput: document.getElementById('csReplyExcelInput'),
+      btnUploadCsReplyExcel: document.getElementById('btnUploadCsReplyExcel'),
+      btnResetCsReplies: document.getElementById('btnResetCsReplies')
     };
 
     /* ==========================================================================
@@ -5644,19 +6169,26 @@
           const overflowPx = track.scrollWidth - box.clientWidth;
           if (box.classList.contains('is-manual') || overflowPx > 2) {
             box.classList.add('has-overflow');
-            const distPx = overflowPx > 2 ? overflowPx + 12 : Math.max(24, Math.round(track.scrollWidth * 0.35));
-            box.style.setProperty('--scroll-dist', `-${distPx}px`);
+            const dist = Math.max(overflowPx + 8, 24);
+            box.style.setProperty('--scroll-dist', `-${dist}px`);
           }
         });
       });
 
-      // 페이지네이션 바 렌더링 (100건 단위)
+      // 페이지네이션 바 렌더링 (100건 단위, 최대 9개 페이지 번호 표시)
       if (filtered.length > CHARGE_CLEAN_PAGE_SIZE) {
         els.ccPaginationBar.style.display = 'flex';
         els.ccPageRangeInfo.textContent = `전체 ${formatNumber(filtered.length)}건 중 ${formatNumber(startIdx + 1)} ~ ${formatNumber(endIdx)}건 표시 (${chargeCleanPage} / ${totalPages}페이지)`;
 
+        const maxVisiblePages = 9;
+        let startPage = Math.max(1, chargeCleanPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        if (endPage - startPage + 1 < maxVisiblePages) {
+          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
         let btnsHtml = `<button type="button" class="cc-page-btn" data-cc-page="${chargeCleanPage - 1}" ${chargeCleanPage <= 1 ? 'disabled' : ''}>이전</button>`;
-        for (let p = 1; p <= totalPages; p++) {
+        for (let p = startPage; p <= endPage; p++) {
           btnsHtml += `<button type="button" class="cc-page-btn ${p === chargeCleanPage ? 'active' : ''}" data-cc-page="${p}">${p}</button>`;
         }
         btnsHtml += `<button type="button" class="cc-page-btn" data-cc-page="${chargeCleanPage + 1}" ${chargeCleanPage >= totalPages ? 'disabled' : ''}>다음</button>`;
@@ -5807,6 +6339,496 @@
       openNoticeIds.add(id);
       renderNotices();
       showToast('공지사항 내용이 저장됐어요.');
+    }
+
+    /* ==========================================================================
+       10-3-2. 문의 답변 예시 검색 · 엑셀 업로드 · 원클릭 복사 로직
+       ========================================================================== */
+    const CS_SEARCH_HISTORY_KEY = 'doublemedia_cs_reply_search_history_v1';
+    const CS_RECOMMENDED_KEYWORDS = [
+      '신고',
+      'IP 차단',
+      '탈퇴',
+      '탈퇴 복구',
+      '환불',
+      '뉴비',
+      '결제',
+      '환전',
+      '닉네임 변경',
+      '본인 인증',
+      '프로필',
+      '시그니처',
+      '후원한 하트 환불',
+      '최초 영구 정지'
+    ];
+
+    function loadCsSearchHistory() {
+      try {
+        const raw = localStorage.getItem(CS_SEARCH_HISTORY_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveCsSearchHistory(list) {
+      try {
+        localStorage.setItem(CS_SEARCH_HISTORY_KEY, JSON.stringify(list.slice(0, 12)));
+      } catch (err) {
+        // 무시
+      }
+    }
+
+    function addCsSearchHistory(term) {
+      const cleaned = String(term || '').trim();
+      if (!cleaned) return;
+      const current = loadCsSearchHistory().filter(item => item !== cleaned);
+      current.unshift(cleaned);
+      saveCsSearchHistory(current);
+      renderCsSearchPopover();
+    }
+
+    function removeCsSearchHistory(term) {
+      const next = loadCsSearchHistory().filter(item => item !== term);
+      saveCsSearchHistory(next);
+      renderCsSearchPopover();
+    }
+
+    function renderCsSearchPopover() {
+      if (!els.csRecommendTagList || !els.csSearchHistoryList) return;
+
+      const history = loadCsSearchHistory();
+      if (els.csHistorySection) {
+        if (history.length === 0) {
+          els.csHistorySection.style.display = 'none';
+        } else {
+          els.csHistorySection.style.display = 'block';
+          els.csSearchHistoryList.innerHTML = history.map(term => `
+            <div class="cs-history-row" data-cs-history-term="${escapeHtml(term)}">
+              <div class="cs-history-left">
+                <svg class="cs-history-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span class="cs-history-text">${escapeHtml(term)}</span>
+              </div>
+              <button type="button" class="cs-history-del" data-cs-history-del="${escapeHtml(term)}" aria-label="이력 삭제">×</button>
+            </div>
+          `).join('');
+        }
+      }
+
+      els.csRecommendTagList.innerHTML = CS_RECOMMENDED_KEYWORDS.map(kw => `
+        <button type="button" class="cs-recommend-tag" data-cs-recommend-kw="${escapeHtml(kw)}">#${escapeHtml(kw)}</button>
+      `).join('');
+    }
+
+    function openCsSearchPopover() {
+      if (!els.csReplySearchPopover) return;
+      renderCsSearchPopover();
+      els.csReplySearchPopover.classList.add('open');
+    }
+
+    function closeCsSearchPopover() {
+      if (!els.csReplySearchPopover) return;
+      els.csReplySearchPopover.classList.remove('open');
+    }
+
+    const KOREAN_INITIALS = [
+      'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ',
+      'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+    ];
+
+    function extractKoreanInitials(str) {
+      let result = '';
+      const text = String(str || '');
+      for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
+        if (code >= 0xAC00 && code <= 0xD7A3) {
+          const initialIndex = Math.floor((code - 0xAC00) / 588);
+          result += KOREAN_INITIALS[initialIndex] || text[i];
+        } else {
+          result += text[i];
+        }
+      }
+      return result;
+    }
+
+    function isInitialOnlyQuery(query) {
+      const cleaned = String(query || '').replace(/\s+/g, '');
+      if (!cleaned) return false;
+      return /^[ㄱ-ㅎ]+$/.test(cleaned);
+    }
+
+    function matchesKoreanQuery(targetText, keyword) {
+      const rawTarget = String(targetText || '');
+      const rawKw = String(keyword || '').trim();
+      if (!rawKw) return true;
+
+      if (rawTarget.toLowerCase().includes(rawKw.toLowerCase())) {
+        return true;
+      }
+
+      const compactKw = rawKw.replace(/\s+/g, '');
+      if (isInitialOnlyQuery(compactKw)) {
+        const targetInitials = extractKoreanInitials(rawTarget).replace(/\s+/g, '');
+        return targetInitials.includes(compactKw);
+      }
+      return false;
+    }
+
+    function highlightSearchKeyword(text, keyword) {
+      const rawText = String(text || '');
+      const rawKw = String(keyword || '').trim();
+      if (!rawKw) return escapeHtml(rawText);
+
+      if (rawText.toLowerCase().includes(rawKw.toLowerCase())) {
+        const safeText = escapeHtml(rawText);
+        const escapedKw = rawKw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedKw})`, 'gi');
+        return safeText.replace(regex, '<mark>$1</mark>');
+      }
+
+      const compactKw = rawKw.replace(/\s+/g, '');
+      if (isInitialOnlyQuery(compactKw)) {
+        const initials = extractKoreanInitials(rawText);
+        // 공백을 제외한 인덱스 매핑으로 초성 일치 구간 원본 글자 강조
+        const nonSpaceIndices = [];
+        let compactInitials = '';
+        for (let i = 0; i < rawText.length; i++) {
+          if (!/\s/.test(rawText[i])) {
+            nonSpaceIndices.push(i);
+            compactInitials += initials[i];
+          }
+        }
+        const matchPos = compactInitials.indexOf(compactKw);
+        if (matchPos !== -1) {
+          const startOrig = nonSpaceIndices[matchPos];
+          const endOrig = nonSpaceIndices[matchPos + compactKw.length - 1] + 1;
+          return (
+            escapeHtml(rawText.slice(0, startOrig)) +
+            '<mark>' + escapeHtml(rawText.slice(startOrig, endOrig)) + '</mark>' +
+            escapeHtml(rawText.slice(endOrig))
+          );
+        }
+      }
+
+      return escapeHtml(rawText);
+    }
+
+    function getCategoryHighlightClass(cat) {
+      const palette = [
+        'hl-badge-blue',
+        'hl-badge-green',
+        'hl-badge-orange',
+        'hl-badge-purple',
+        'hl-badge-teal',
+        'hl-badge-pink',
+        'hl-badge-amber',
+        'hl-badge-indigo',
+        'hl-badge-coral',
+        'hl-badge-lime',
+        'hl-badge-sky',
+        'hl-badge-violet',
+        'hl-badge-emerald',
+        'hl-badge-yellow',
+        'hl-badge-fuchsia',
+        'hl-badge-cyan',
+        'hl-badge-rose',
+        'hl-badge-navy',
+        'hl-badge-stone',
+        'hl-badge-gray'
+      ];
+      const normalized = String(cat || '기타문의').trim();
+      const uniqueCategories = [];
+      csReplyList.forEach(item => {
+        const c = String(item.category || '').trim();
+        if (c && !uniqueCategories.includes(c)) {
+          uniqueCategories.push(c);
+        }
+      });
+      const idx = uniqueCategories.indexOf(normalized);
+      if (idx !== -1) {
+        return palette[idx % palette.length];
+      }
+      let hash = 0;
+      for (let i = 0; i < normalized.length; i++) {
+        hash = (hash * 31 + normalized.charCodeAt(i)) >>> 0;
+      }
+      return palette[hash % palette.length];
+    }
+
+    function updateCsReplyCategoryOptions() {
+      if (!els.csReplyCategoryFilter) return;
+      const currentVal = els.csReplyCategoryFilter.value || 'ALL';
+      const categories = new Set();
+      csReplyList.forEach(item => {
+        if (item.category && item.category.trim()) {
+          categories.add(item.category.trim());
+        }
+      });
+
+      const sortedCats = Array.from(categories);
+      els.csReplyCategoryFilter.innerHTML = '<option value="ALL">전체 분류</option>' +
+        sortedCats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+
+      if (currentVal === 'ALL' || sortedCats.includes(currentVal)) {
+        els.csReplyCategoryFilter.value = currentVal;
+      } else {
+        els.csReplyCategoryFilter.value = 'ALL';
+      }
+      CustomSelectManager.sync(els.csReplyCategoryFilter);
+    }
+
+    function renderCsReplies() {
+      if (!els.csReplyListContainer) return;
+      updateCsReplyCategoryOptions();
+
+      const catFilter = els.csReplyCategoryFilter.value || 'ALL';
+      const keyword = (els.csReplySearchInput.value || '').trim();
+      const initialSearchMode = isInitialOnlyQuery(keyword);
+
+      const matchedWithPriority = [];
+      csReplyList.forEach((item, originalIdx) => {
+        const matchesCat = catFilter === 'ALL' || item.category === catFilter;
+        if (!matchesCat) return;
+
+        if (!keyword) {
+          matchedWithPriority.push({ item, priority: 0, originalIdx });
+          return;
+        }
+
+        const catMatch = matchesKoreanQuery(item.category, keyword);
+        const subMatch = matchesKoreanQuery(item.subCategory, keyword);
+        const titleMatch = matchesKoreanQuery(item.title, keyword);
+        const contentMatch = matchesKoreanQuery(item.content, keyword);
+
+        // 초성만 입력한 경우: 분류 우선 탐색 (분류/세부구분/제목 일치 우선, 본문만 일치 시 제외하여 과다 노출 방지)
+        if (catMatch) {
+          matchedWithPriority.push({ item, priority: 1, originalIdx });
+        } else if (subMatch || titleMatch) {
+          matchedWithPriority.push({ item, priority: 2, originalIdx });
+        } else if (!initialSearchMode && contentMatch) {
+          matchedWithPriority.push({ item, priority: 3, originalIdx });
+        }
+      });
+
+      matchedWithPriority.sort((a, b) => {
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        return a.originalIdx - b.originalIdx;
+      });
+
+      const filtered = matchedWithPriority.map(entry => entry.item);
+
+      els.csReplyTotalCount.textContent = formatNumber(csReplyList.length);
+      els.csReplyFilteredBadge.textContent = `검색 결과 ${formatNumber(filtered.length)}건`;
+
+      if (filtered.length === 0) {
+        if (els.csReplyPaginationBar) els.csReplyPaginationBar.style.display = 'none';
+        els.csReplyListContainer.innerHTML = `
+          <div class="empty-state">검색 조건에 일치하는 답변 예시가 없어요. 다른 키워드로 검색하거나 엑셀 파일을 업로드해 주세요.</div>
+        `;
+        return;
+      }
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / CS_REPLY_PAGE_SIZE));
+      if (csReplyPage > totalPages) csReplyPage = totalPages;
+      if (csReplyPage < 1) csReplyPage = 1;
+
+      const startIdx = (csReplyPage - 1) * CS_REPLY_PAGE_SIZE;
+      const endIdx = Math.min(startIdx + CS_REPLY_PAGE_SIZE, filtered.length);
+      const pageItems = filtered.slice(startIdx, endIdx);
+
+      els.csReplyListContainer.innerHTML = pageItems.map(item => {
+        const hlCls = getCategoryHighlightClass(item.category);
+        const subBadge = item.subCategory
+          ? `<span class="hl-badge hl-badge-gray">${escapeHtml(item.subCategory)}</span>`
+          : '';
+
+        return `
+          <div class="reply-template-card">
+            <div class="reply-card-top">
+              <div class="reply-card-meta">
+                <span class="hl-badge ${hlCls}">${escapeHtml(item.category || '기타문의')}</span>
+                ${subBadge}
+                <span class="reply-card-title">${highlightSearchKeyword(item.title, keyword)}</span>
+              </div>
+              <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px; padding: 0 14px;" data-copy-cs-reply-id="${escapeHtml(item.id)}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                답변 복사
+              </button>
+            </div>
+            <div class="reply-card-body" data-copy-cs-reply-id="${escapeHtml(item.id)}" title="클릭하면 답변 내용이 바로 복사돼요">${highlightSearchKeyword(item.content, keyword)}</div>
+          </div>
+        `;
+      }).join('');
+
+      if (els.csReplyPaginationBar && els.csReplyPageRangeInfo && els.csReplyPageButtons) {
+        if (filtered.length > CS_REPLY_PAGE_SIZE) {
+          els.csReplyPaginationBar.style.display = 'flex';
+          els.csReplyPageRangeInfo.textContent = `전체 ${formatNumber(filtered.length)}건 중 ${formatNumber(startIdx + 1)} ~ ${formatNumber(endIdx)}건 표시 (${csReplyPage} / ${totalPages}페이지)`;
+
+          const maxVisiblePages = 9;
+          let startPage = Math.max(1, csReplyPage - Math.floor(maxVisiblePages / 2));
+          let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+          if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+          }
+
+          let btnsHtml = `<button type="button" class="cc-page-btn" data-cs-reply-page="${csReplyPage - 1}" ${csReplyPage <= 1 ? 'disabled' : ''}>이전</button>`;
+          for (let p = startPage; p <= endPage; p++) {
+            btnsHtml += `<button type="button" class="cc-page-btn ${p === csReplyPage ? 'active' : ''}" data-cs-reply-page="${p}">${p}</button>`;
+          }
+          btnsHtml += `<button type="button" class="cc-page-btn" data-cs-reply-page="${csReplyPage + 1}" ${csReplyPage >= totalPages ? 'disabled' : ''}>다음</button>`;
+          els.csReplyPageButtons.innerHTML = btnsHtml;
+        } else {
+          els.csReplyPaginationBar.style.display = 'none';
+        }
+      }
+    }
+
+    function copyCsReplyTemplate(id) {
+      const target = csReplyList.find(item => item.id === id);
+      if (!target) return;
+
+      const ta = document.createElement('textarea');
+      ta.value = target.content || '';
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(`'${target.title}' 답변 문구를 클립보드에 복사했어요.`);
+      } catch (err) {
+        showToast('클립보드 복사에 실패했어요.');
+      }
+      document.body.removeChild(ta);
+    }
+
+    function handleImportCsReplyExcel(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          const imported = [];
+          let lastCat = '기타문의';
+
+          wb.SheetNames.forEach((sheetName) => {
+            const ws = wb.Sheets[sheetName];
+            if (!ws) return;
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+            if (!rows || rows.length === 0) return;
+
+            // 헤더 행 위치 탐색
+            let headerIdx = -1;
+            let catCol = -1;
+            let subCol = -1;
+            let titleCol = -1;
+            let contentCol = -1;
+
+            for (let i = 0; i < Math.min(rows.length, 10); i++) {
+              const row = rows[i] || [];
+              const norm = row.map(c => String(c || '').replace(/\s+/g, ''));
+              const tIdx = norm.findIndex(h => h.includes('제목') || h.includes('문의유형') || h.includes('질문'));
+              const cIdx = norm.findIndex(h => h.includes('내용') || h.includes('답변') || h.includes('응대'));
+              if (tIdx !== -1 && cIdx !== -1) {
+                headerIdx = i;
+                titleCol = tIdx;
+                contentCol = cIdx;
+                catCol = norm.findIndex(h => h.includes('분류') || h.includes('카테고리'));
+                subCol = norm.findIndex((h, idx) => idx !== catCol && (h.includes('구분') || h.includes('세부')));
+                break;
+              }
+            }
+
+            // 명시적 헤더가 없으면 열 개수에 따라 자동 매핑 (4열: 분류/구분/제목/내용, 3열: 분류/제목/내용, 2열: 제목/내용)
+            if (headerIdx === -1) {
+              const sampleRow = rows.find(r => Array.isArray(r) && r.filter(c => String(c || '').trim() !== '').length >= 2) || [];
+              const nonEmptyCols = sampleRow.length;
+              if (nonEmptyCols >= 4) {
+                catCol = 0; subCol = 1; titleCol = 2; contentCol = 3;
+              } else if (nonEmptyCols === 3) {
+                catCol = 0; titleCol = 1; contentCol = 2;
+              } else {
+                titleCol = 0; contentCol = 1;
+              }
+            }
+
+            for (let r = headerIdx + 1; r < rows.length; r++) {
+              const row = rows[r];
+              if (!Array.isArray(row)) continue;
+
+              const rawCat = catCol >= 0 ? String(row[catCol] || '').trim() : '';
+              if (rawCat) lastCat = rawCat;
+
+              const subVal = subCol >= 0 ? String(row[subCol] || '').trim() : '';
+              const titleVal = titleCol >= 0 ? String(row[titleCol] || '').trim() : '';
+              const contentVal = contentCol >= 0 ? String(row[contentCol] || '').trim() : '';
+
+              if (!titleVal && !contentVal) continue;
+              if (titleVal === '제목' && contentVal === '내용') continue;
+
+              imported.push({
+                id: `csr-imp-${Date.now()}-${sheetName}-${r}`,
+                category: rawCat || (sheetName !== 'Sheet1' ? sheetName : lastCat),
+                subCategory: subVal,
+                title: titleVal || `${lastCat} 안내`,
+                content: contentVal || titleVal
+              });
+            }
+          });
+
+          if (imported.length === 0) {
+            showToast('엑셀 파일에서 [제목]과 [내용]이 포함된 답변 행을 찾지 못했어요.');
+            return;
+          }
+
+          const mode = els.csReplyImportMode.value;
+          csReplyList = mode === 'replace' ? imported : [...imported, ...csReplyList];
+          CsReplyStorage.saveAll(csReplyList);
+          csReplyPage = 1;
+          renderCsReplies();
+          showToast(`총 ${formatNumber(imported.length)}건의 문의 답변 예시를 반영했어요.`);
+        } catch (err) {
+          console.error('문의 답변 엑셀 업로드 오류:', err);
+          showToast('엑셀 파일을 읽는 중 오류가 발생했어요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportCsRepliesToExcel() {
+      if (!csReplyList || csReplyList.length === 0) {
+        showToast('다운로드할 답변 예시가 없어요.');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const header = ['분류', '세부구분', '제목', '내용'];
+      const rows = csReplyList.map(item => [
+        item.category || '',
+        item.subCategory || '',
+        item.title || '',
+        item.content || ''
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+      ws['!cols'] = [{ wch: 16 }, { wch: 18 }, { wch: 36 }, { wch: 72 }];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '답변 모음');
+      const fileName = `문의_답변_모음_${getTodayDateString()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast(`답변 모음 엑셀 파일(${fileName}) 다운로드를 시작했어요.`);
     }
 
     /* ==========================================================================
@@ -6531,7 +7553,7 @@
     }
 
     /* ==========================================================================
-       10-5. 환불 정산 달력 렌더링 및 엑셀 내보내기 / 가져오기
+       10-4. 무통장 입금 내역 & 특이사항 입력 · 조회 · 엑셀 입출력 · 꺾은선 그래프
        ========================================================================== */
     function updateCalendarNavAndDropdown() {
       const prevLabelEl = document.getElementById('btnPrevMonthLabel');
@@ -7421,45 +8443,65 @@
     }
 
     /* ==========================================================================
-       11-3. [기능 3] 공휴일 예외 설정 렌더링 및 추가/삭제 로직
+       11-3. 공휴일 칩 렌더링 및 관리자 계정 인증 설정
        ========================================================================== */
-    function renderHolidayChips() {
-      const countBadge = document.getElementById('holidayActiveCountBadge');
-      const chipContainer = document.getElementById('holidayChipList');
-      if (countBadge) countBadge.textContent = String(holidayList.length);
-      if (!chipContainer) return;
+    const AUTH_CONFIG = {
+      ID: 'help@pandalive.co.kr',
+      PW_ADMIN: 'PANDA8428601445',
+      PW_CS: 'PANDA8428601445CS',
+      SESSION_KEY: 'doublemedia_auth_role_v1'
+    };
 
-      if (holidayList.length === 0) {
-        chipContainer.innerHTML = '<span class="field-help">등록된 공휴일이 없어요.</span>';
+    function renderHolidayChips() {
+      const listEl = document.getElementById('holidayChipList');
+      const badgeEl = document.getElementById('holidayActiveCountBadge');
+      if (badgeEl) {
+        badgeEl.textContent = String((holidayList || []).length);
+      }
+      if (!listEl) return;
+
+      if (!holidayList || holidayList.length === 0) {
+        listEl.innerHTML = '<span class="field-help">등록된 공휴일이 없어요.</span>';
         return;
       }
 
-      const dowNames = ['일', '월', '화', '수', '목', '금', '토'];
-      chipContainer.innerHTML = holidayList.map(h => {
-        const dowIdx = new Date(`${h.date}T00:00:00`).getDay();
-        const dowLabel = dowNames[dowIdx] || '';
-        const isTueThu = (dowIdx === 2 || dowIdx === 4);
-        const badgeStyle = isTueThu ? 'border-color: var(--accent-line); background-color: var(--accent-soft); color: var(--accent-text);' : '';
-        return `
-          <span class="holiday-chip" style="${badgeStyle}">
-            <span>${escapeHtml(h.date)} (${dowLabel}) · ${escapeHtml(h.name || '공휴일')}</span>
-            <button type="button" class="holiday-chip-del" data-del-holiday="${escapeHtml(h.date)}" title="삭제">×</button>
-          </span>
-        `;
-      }).join('');
+      listEl.innerHTML = holidayList.map(h => `
+        <span class="holiday-chip">
+          <span>${escapeHtml(h.date)} (${escapeHtml(h.name || '공휴일')})</span>
+          <button type="button" class="holiday-chip-del" data-del-holiday="${escapeHtml(h.date)}" aria-label="삭제">×</button>
+        </span>
+      `).join('');
     }
 
-    const AUTH_CONFIG = {
-      ID: 'help@pandalive.co.kr',
-      PW: 'PANDA8428601445',
-      SESSION_KEY: 'doublemedia_refund_admin_auth_v1'
-    };
+    function applyRoleLayout(role) {
+      const shell = document.getElementById('tabNavShell');
+      const tabBar = document.getElementById('mainTabBar');
+      const csReplyBtn = document.getElementById('tabBtnCsReply');
+      const isCsRole = role === 'cs';
+
+      if (csReplyBtn) {
+        csReplyBtn.style.display = isCsRole ? 'inline-flex' : 'none';
+      }
+      if (tabBar) {
+        tabBar.classList.toggle('has-overflow', isCsRole);
+        tabBar.scrollLeft = 0;
+      }
+      if (shell) {
+        shell.classList.toggle('scrollable', isCsRole);
+      }
+      if (!isCsRole && document.getElementById('tab-cs-reply')?.classList.contains('active')) {
+        switchTab('tab-deposit');
+      }
+      requestAnimationFrame(() => {
+        updateTabIndicator(false);
+      });
+    }
 
     function updateTabIndicator(animate = true) {
       const tabBar = document.getElementById('mainTabBar');
       const indicator = document.getElementById('mainTabIndicator');
       const activeBtn = tabBar ? tabBar.querySelector('.tab-btn.active') : null;
-      if (!tabBar || !indicator || !activeBtn) return;
+      if (!tabBar || !indicator || !activeBtn || activeBtn.style.display === 'none') return;
 
       if (!animate) {
         indicator.style.transition = 'none';
@@ -7477,17 +8519,34 @@
     }
 
     function switchTab(targetTabId) {
+      const tabBar = document.getElementById('mainTabBar');
+      let targetBtn = null;
       els.tabBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === targetTabId);
+        const isMatch = btn.dataset.tab === targetTabId;
+        btn.classList.toggle('active', isMatch);
+        if (isMatch) targetBtn = btn;
       });
       els.tabPanels.forEach(panel => {
         panel.classList.toggle('active', panel.id === targetTabId);
       });
+      if (tabBar && targetBtn && tabBar.classList.contains('has-overflow')) {
+        const btnLeft = targetBtn.offsetLeft;
+        const btnRight = btnLeft + targetBtn.offsetWidth;
+        const viewLeft = tabBar.scrollLeft;
+        const viewRight = viewLeft + tabBar.clientWidth;
+        if (btnLeft < viewLeft) {
+          tabBar.scrollTo({ left: btnLeft, behavior: 'smooth' });
+        } else if (btnRight > viewRight) {
+          tabBar.scrollTo({ left: btnRight - tabBar.clientWidth, behavior: 'smooth' });
+        }
+      }
       updateTabIndicator(true);
       if (targetTabId === 'tab-calendar') {
         renderCalendar();
       } else if (targetTabId === 'tab-deposit') {
         renderDepositLedger();
+      } else if (targetTabId === 'tab-cs-reply') {
+        renderCsReplies();
       }
     }
 
@@ -7499,15 +8558,17 @@
       const pwInput = document.getElementById('loginPwInput');
       const errMsg = document.getElementById('loginErrorMsg');
 
-      const showMainApp = () => {
+      const showMainApp = (role = 'admin') => {
+        applyRoleLayout(role);
         gate.style.display = 'none';
         mainApp.style.display = 'block';
         requestAnimationFrame(() => updateTabIndicator(false));
       };
 
       try {
-        if (sessionStorage.getItem(AUTH_CONFIG.SESSION_KEY) === 'authenticated') {
-          showMainApp();
+        const savedRole = sessionStorage.getItem(AUTH_CONFIG.SESSION_KEY);
+        if (savedRole === 'admin' || savedRole === 'cs') {
+          showMainApp(savedRole);
         }
       } catch (e) {
         // sessionStorage 접근 제한 환경 무시
@@ -7518,25 +8579,34 @@
         const enteredId = (idInput.value || '').trim().toLowerCase();
         const enteredPw = (pwInput.value || '').trim();
 
-        if (enteredId === AUTH_CONFIG.ID.toLowerCase() && enteredPw === AUTH_CONFIG.PW) {
+        let matchedRole = null;
+        if (enteredId === AUTH_CONFIG.ID.toLowerCase() && enteredPw === AUTH_CONFIG.PW_ADMIN) {
+          matchedRole = 'admin';
+        } else if (enteredId === AUTH_CONFIG.ID.toLowerCase() && enteredPw === AUTH_CONFIG.PW_CS) {
+          matchedRole = 'cs';
+        }
+
+        if (matchedRole) {
           errMsg.classList.remove('show');
           try {
-            sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'authenticated');
+            sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, matchedRole);
           } catch (err) {
-            // sessionStorage 저장 제한 환경 무시
+            // 무시
           }
-          showMainApp();
-          try {
-            renderDepositLedger();
-          } catch (renderErr) {
-            console.error('초기 렌더링 보조 경고:', renderErr);
-          }
-          showToast('관리자 계정으로 로그인되었습니다.');
+          showMainApp(matchedRole);
+          showToast(matchedRole === 'cs' ? 'CS 확장 계정으로 로그인되었습니다.' : '관리자 계정으로 로그인되었습니다.');
         } else {
           errMsg.classList.add('show');
-          pwInput.value = '';
           pwInput.focus();
         }
+      });
+
+      // 탭 전환 이벤트
+      els.tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+      window.addEventListener('resize', () => {
+        updateTabIndicator(false);
       });
 
       document.getElementById('btnLogout').addEventListener('click', () => {
@@ -7545,6 +8615,7 @@
         } catch (err) {
           // 무시
         }
+        applyRoleLayout('admin');
         mainApp.style.display = 'none';
         gate.style.display = 'flex';
         idInput.value = '';
@@ -7562,41 +8633,43 @@
       // 초기 날짜 및 기본값 세팅
       const yesterdayStr = getYesterdayDateString();
       els.depTargetDate.value = yesterdayStr;
-      CustomDatePicker.syncLabel(els.depTargetDate);
-
-      els.refundDate.value = getNextRefundDateString();
-      CustomDatePicker.syncLabel(els.refundDate);
-      els.depositDateTime.value = getCurrentDateTime24();
-
-      // 숫자 콤마 자동 포맷 바인딩
-      [
-        els.depDailyAmount,
-        els.depUnprocAmount,
-        els.depRejAmount,
-        els.refundAmount,
-        els.rawDepositAmount,
-        els.unusedPaidAmount,
-        els.unusedHeartCount,
-        els.unusedSpecialHeartCount,
-        els.unusedItemCount,
-        els.remainHearts,
-        els.totalPaidHistory,
-        els.refundAmountHistory
-      ].forEach(bindCommaFormatting);
-
-      // 탭 전환 이벤트
-      els.tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-      });
-      window.addEventListener('resize', () => updateTabIndicator(false));
-
-      // 키보드 좌우 화살표 탭 이동 (입력칸 포커스 시 제외)
+      // 키보드 단축키: Ctrl + K (어느 화면에서도 검색 바로가기) 및 좌우 화살표 탭 이동
       document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+          const mainApp = document.getElementById('appMainContainer');
+          if (!mainApp || mainApp.style.display === 'none') return;
+          e.preventDefault();
+
+          const csTabBtn = document.getElementById('tabBtnCsReply');
+          if (csTabBtn && csTabBtn.style.display !== 'none') {
+            switchTab('tab-cs-reply');
+            requestAnimationFrame(() => {
+              if (els.csReplySearchInput) {
+                els.csReplySearchInput.focus();
+                els.csReplySearchInput.select();
+                openCsSearchPopover();
+              }
+            });
+          } else if (els.searchInput) {
+            switchTab('tab-entry');
+            requestAnimationFrame(() => {
+              els.searchInput.focus();
+              els.searchInput.select();
+            });
+          }
+          return;
+        }
+
+        if (e.key === 'Escape') {
+          closeCsSearchPopover();
+        }
+
         const tag = (document.activeElement && document.activeElement.tagName) || '';
         if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-        const tabIds = Array.from(els.tabBtns).map(b => b.dataset.tab);
+        const visibleTabs = Array.from(els.tabBtns).filter(b => b.style.display !== 'none');
+        const tabIds = visibleTabs.map(b => b.dataset.tab);
         const curIdx = tabIds.findIndex(id => document.getElementById(id)?.classList.contains('active'));
-        if (curIdx === -1) return;
+        if (curIdx === -1 || tabIds.length === 0) return;
         if (e.key === 'ArrowRight') {
           switchTab(tabIds[(curIdx + 1) % tabIds.length]);
         } else if (e.key === 'ArrowLeft') {
@@ -8019,6 +9092,128 @@
         }
       });
 
+      // 탭 4: 문의 답변 예시 이벤트
+      if (els.csReplyCategoryFilter) {
+        els.csReplyCategoryFilter.addEventListener('change', () => {
+          csReplyPage = 1;
+          renderCsReplies();
+        });
+      }
+      if (els.csReplySearchInput) {
+        els.csReplySearchInput.addEventListener('focus', () => {
+          openCsSearchPopover();
+        });
+        els.csReplySearchInput.addEventListener('click', () => {
+          openCsSearchPopover();
+        });
+        els.csReplySearchInput.addEventListener('input', () => {
+          csReplyPage = 1;
+          renderCsReplies();
+        });
+        els.csReplySearchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = els.csReplySearchInput.value.trim();
+            if (val) addCsSearchHistory(val);
+            closeCsSearchPopover();
+          }
+        });
+      }
+      if (els.csReplySearchPopover) {
+        els.csReplySearchPopover.addEventListener('click', (e) => {
+          const delBtn = e.target.closest('[data-cs-history-del]');
+          if (delBtn) {
+            e.stopPropagation();
+            removeCsSearchHistory(delBtn.dataset.csHistoryDel);
+            return;
+          }
+          const histChip = e.target.closest('[data-cs-history-term]');
+          if (histChip) {
+            const term = histChip.dataset.csHistoryTerm;
+            els.csReplySearchInput.value = term;
+            addCsSearchHistory(term);
+            csReplyPage = 1;
+            renderCsReplies();
+            closeCsSearchPopover();
+            return;
+          }
+          const recBtn = e.target.closest('[data-cs-recommend-kw]');
+          if (recBtn) {
+            const kw = recBtn.dataset.csRecommendKw;
+            els.csReplySearchInput.value = kw;
+            addCsSearchHistory(kw);
+            csReplyPage = 1;
+            renderCsReplies();
+            closeCsSearchPopover();
+          }
+        });
+      }
+      if (els.btnClearCsSearchHistory) {
+        els.btnClearCsSearchHistory.addEventListener('click', (e) => {
+          e.stopPropagation();
+          saveCsSearchHistory([]);
+          renderCsSearchPopover();
+        });
+      }
+      document.addEventListener('click', (e) => {
+        if (els.csReplySearchWrap && !els.csReplySearchWrap.contains(e.target)) {
+          closeCsSearchPopover();
+        }
+      });
+      if (els.btnClearCsReplySearch) {
+        els.btnClearCsReplySearch.addEventListener('click', () => {
+          els.csReplyCategoryFilter.value = 'ALL';
+          CustomSelectManager.sync(els.csReplyCategoryFilter);
+          els.csReplySearchInput.value = '';
+          csReplyPage = 1;
+          renderCsReplies();
+        });
+      }
+      if (els.csReplyPageButtons) {
+        els.csReplyPageButtons.addEventListener('click', (e) => {
+          const pageBtn = e.target.closest('[data-cs-reply-page]');
+          if (!pageBtn || pageBtn.disabled) return;
+          csReplyPage = Number(pageBtn.dataset.csReplyPage) || 1;
+          renderCsReplies();
+          const tabEl = document.getElementById('tab-cs-reply');
+          if (tabEl) tabEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+      if (els.btnUploadCsReplyExcel && els.csReplyExcelInput) {
+        els.btnUploadCsReplyExcel.addEventListener('click', () => els.csReplyExcelInput.click());
+        els.csReplyExcelInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleImportCsReplyExcel(e.target.files[0]);
+            e.target.value = '';
+          }
+        });
+      }
+      if (els.btnResetCsReplies) {
+        els.btnResetCsReplies.addEventListener('click', () => {
+          openConfirmModal(
+            '문의 답변 예시 초기화 확인',
+            '업로드한 답변 목록을 기본 예시 데이터로 되돌릴까요?',
+            () => {
+              csReplyList = CsReplyStorage.reset();
+              csReplyPage = 1;
+              renderCsReplies();
+              showToast('문의 답변 예시를 기본 상태로 복원했어요.');
+            },
+            '초기화'
+          );
+        });
+      }
+      if (els.csReplyListContainer) {
+        els.csReplyListContainer.addEventListener('click', (e) => {
+          const copyTarget = e.target.closest('[data-copy-cs-reply-id]');
+          if (copyTarget) {
+            const currentKw = (els.csReplySearchInput?.value || '').trim();
+            if (currentKw) addCsSearchHistory(currentKw);
+            copyCsReplyTemplate(copyTarget.dataset.copyCsReplyId);
+          }
+        });
+      }
+
       // 초기 화면 데이터 렌더링
       updateDepositMonthSelectOptions();
       updateDepositNoteBoxes();
@@ -8030,6 +9225,7 @@
       initSampleChargeCleanData();
       renderChargeCleanTable();
       renderNotices();
+      renderCsReplies();
 
       // 로그인 게이트 초기화
       initAuthGate();
