@@ -3327,6 +3327,26 @@
         <div class="notice-list" id="noticeListContainer">
           <!-- 자바스크립트로 15개 공지사항 렌더링 -->
         </div>
+
+        <!-- 하단 공지사항 엑셀 일괄 업로드 영역 -->
+        <div class="section-divider" style="margin: 20px 0 16px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--ink);">공지사항 엑셀 업로드</div>
+            <div class="field-help">엑셀 파일의 A열(공지 제목)과 B열(상세 내용) 양식을 올리면 공지 목록에 즉시 반영돼요.</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <select id="noticeImportMode" class="select" style="width: 175px; height: 38px; font-size: 13px;" aria-label="공지사항 엑셀 업로드 반영 방식">
+              <option value="replace">기존 목록 덮어쓰기</option>
+              <option value="append">기존 목록에 추가하기</option>
+            </select>
+            <input type="file" id="noticeExcelInput" accept=".xlsx,.xls,.csv" style="display: none;">
+            <button type="button" class="btn btn-primary" id="btnUploadNoticeExcel" style="height: 38px; font-size: 13px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              엑셀 업로드 (.xlsx)
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -3985,22 +4005,7 @@
           if (raw) {
             const parsed = JSON.parse(raw);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              const savedById = new Map(parsed.map(item => [item.id, item]));
-              const synced = defaults.map(defItem => {
-                const existing = savedById.get(defItem.id);
-                return {
-                  id: defItem.id,
-                  title: defItem.title,
-                  content: existing && typeof existing.content === 'string' ? existing.content : defItem.content
-                };
-              });
-              parsed.forEach(item => {
-                if (!defaults.some(d => d.id === item.id)) {
-                  synced.push(item);
-                }
-              });
-              this.saveAll(synced);
-              return synced;
+              return parsed;
             }
           }
 
@@ -5040,6 +5045,9 @@
       noticeSearchInput: document.getElementById('noticeSearchInput'),
       btnResetNotices: document.getElementById('btnResetNotices'),
       noticeListContainer: document.getElementById('noticeListContainer'),
+      noticeImportMode: document.getElementById('noticeImportMode'),
+      noticeExcelInput: document.getElementById('noticeExcelInput'),
+      btnUploadNoticeExcel: document.getElementById('btnUploadNoticeExcel'),
 
       // 탭 4: 문의 답변 예시 요소
       csReplyTotalCount: document.getElementById('csReplyTotalCount'),
@@ -6339,6 +6347,79 @@
       openNoticeIds.add(id);
       renderNotices();
       showToast('공지사항 내용이 저장됐어요.');
+    }
+
+    function handleImportNoticeExcel(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          const imported = [];
+
+          wb.SheetNames.forEach((sheetName) => {
+            const ws = wb.Sheets[sheetName];
+            if (!ws) return;
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+            if (!rows || rows.length === 0) return;
+
+            let headerIdx = -1;
+            let titleCol = 0;
+            let contentCol = 1;
+
+            const firstRow = rows[0] || [];
+            const firstA = String(firstRow[0] || '').replace(/\s+/g, '');
+            const firstB = String(firstRow[1] || '').replace(/\s+/g, '');
+            const isExplicitHeader =
+              ['제목', '공지제목', '공지사항제목'].includes(firstA) ||
+              ['내용', '상세내용', '상세안내내용', '공지내용'].includes(firstB);
+
+            if (isExplicitHeader) {
+              headerIdx = 0;
+            }
+
+            for (let r = headerIdx + 1; r < rows.length; r++) {
+              const row = rows[r];
+              if (!Array.isArray(row)) continue;
+
+              const titleVal = String(row[titleCol] || '').trim();
+              const contentVal = String(row[contentCol] || '').trim();
+
+              if (!titleVal && !contentVal) continue;
+              if (titleVal === '공지 제목' || titleVal === '제목') continue;
+
+              imported.push({
+                id: `notice-imp-${Date.now()}-${sheetName}-${r}`,
+                title: titleVal || `공지사항 ${imported.length + 1}`,
+                content: contentVal
+              });
+            }
+          });
+
+          if (imported.length === 0) {
+            showToast('엑셀 파일에서 공지사항 행(A열 제목, B열 내용)을 찾지 못했어요.');
+            return;
+          }
+
+          const mode = els.noticeImportMode ? els.noticeImportMode.value : 'replace';
+          noticeList = mode === 'replace' ? imported : [...noticeList, ...imported];
+          NoticeStorage.saveAll(noticeList);
+          openNoticeIds.clear();
+          editingNoticeId = null;
+          renderNotices();
+          showToast(`총 ${formatNumber(imported.length)}건의 공지사항을 반영했어요.`);
+        } catch (err) {
+          console.error('공지사항 엑셀 업로드 오류:', err);
+          showToast('엑셀 파일을 읽는 중 오류가 발생했어요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
 
     /* ==========================================================================
@@ -9053,16 +9134,25 @@
 
       // 탭 3: 공지사항 이벤트
       els.noticeSearchInput.addEventListener('input', renderNotices);
+      if (els.btnUploadNoticeExcel && els.noticeExcelInput) {
+        els.btnUploadNoticeExcel.addEventListener('click', () => els.noticeExcelInput.click());
+        els.noticeExcelInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleImportNoticeExcel(e.target.files[0]);
+            e.target.value = '';
+          }
+        });
+      }
       els.btnResetNotices.addEventListener('click', () => {
         openConfirmModal(
           '공지사항 초기화 확인',
-          '작성한 공지사항 내용을 모두 초기 상태로 되돌릴까요?',
+          '공지사항 목록을 기본 예시 1~15번 상태로 되돌릴까요?',
           () => {
             noticeList = NoticeStorage.reset();
             openNoticeIds.clear();
             editingNoticeId = null;
             renderNotices();
-            showToast('공지사항 목록을 초기화했어요.');
+            showToast('공지사항 목록을 공지사항 예시 1~15로 초기화했어요.');
           },
           '초기화'
         );
