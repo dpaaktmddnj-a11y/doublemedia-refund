@@ -2726,6 +2726,7 @@
                 <option value="네이버페이">네이버페이 (수수료 3.4%)</option>
                 <option value="토스페이">토스페이 (수수료 2.75%)</option>
                 <option value="삼성페이">삼성페이 (수수료 5.5%)</option>
+                <option value="도서상품권">도서상품권 (수수료 8.8%)</option>
                 <option value="컬쳐랜드상품권">컬쳐랜드상품권 (수수료 9.9%)</option>
               </select>
             </div>
@@ -2879,6 +2880,7 @@
                     <option value="0.0275">토스페이 수수료 2.75% 차감</option>
                     <option value="0.034">네이버페이 수수료 3.4% 차감</option>
                     <option value="0.055">신용카드 수수료 5.5% 차감</option>
+                    <option value="0.088">도서상품권 수수료 8.8% 차감</option>
                     <option value="0.099">컬쳐랜드 수수료 9.9% 차감</option>
                     <option value="0.11">휴대폰 수수료 11% 차감</option>
                     <option value="0">차감 없음 (0%)</option>
@@ -3053,6 +3055,7 @@
               <option value="네이버페이">네이버페이</option>
               <option value="토스페이">토스페이</option>
               <option value="삼성페이">삼성페이</option>
+              <option value="도서상품권">도서상품권</option>
               <option value="컬쳐랜드상품권">컬쳐랜드상품권</option>
             </select>
           </div>
@@ -4228,6 +4231,7 @@
       '네이버페이': 0.034,
       '토스페이': 0.0275,
       '삼성페이': 0.055,
+      '도서상품권': 0.088,
       '컬쳐랜드상품권': 0.099
     };
 
@@ -4237,6 +4241,7 @@
       '네이버페이': '네이버페이 결제건의 경우 당월이 지난 결제 건은 결제 수단으로서\n취소 처리가 불가하여 수수료 3.4% 제외 후 환불금 입금',
       '토스페이': '토스페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 2.75% 제외 후 환불금 입금',
       '삼성페이': '삼성페이 결제의 경우 결제일로부터 일정 기간이 경과하면\n결제사 취소 처리가 불가하여 수수료 5.5% 제외 후 환불금 입금',
+      '도서상품권': '도서상품권 상품권 결제의 경우 일부 사용 시\n결제사 페이지를 통한 부분 환불이 불가하여\n수수료 8.8% 제외 후 환불금 입금',
       '컬쳐랜드상품권': '컬쳐랜드 상품권 결제의 경우 일부 사용 시\n결제사 페이지를 통한 부분 환불이 불가하여\n수수료 9.9% 제외 후 환불금 입금'
     };
 
@@ -4440,6 +4445,7 @@
       if (m === '휴대폰') return 'hl-badge-orange';
       if (m === '네이버페이') return 'hl-badge-green';
       if (m === '토스페이') return 'hl-badge-navy';
+      if (m === '도서상품권') return 'hl-badge-teal';
       if (m === '컬쳐랜드상품권') return 'hl-badge-pink';
       return 'hl-badge-gray'; // 신용카드, 삼성페이 등
     }
@@ -4592,14 +4598,10 @@
 
           itemBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (selectEl.selectedIndex !== idx) {
-              selectEl.selectedIndex = idx;
-              selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-            } else {
-              this.sync(selectEl);
-            }
-            inst.wrap.classList.remove('open');
-            inst.trigger.setAttribute('aria-expanded', 'false');
+            selectEl.selectedIndex = idx;
+            this.sync(selectEl);
+            this.closeAll();
+            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
           });
 
           menu.appendChild(itemBtn);
