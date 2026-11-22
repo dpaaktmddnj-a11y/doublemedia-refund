@@ -1271,14 +1271,18 @@
 
     .table-wrap {
       width: 100%;
+      max-height: 1080px;
       overflow-x: auto;
+      overflow-y: auto;
       border: 1px solid var(--line);
       border-radius: 12px;
+      position: relative;
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 14px;
       text-align: left;
       min-width: 780px;
@@ -1286,14 +1290,19 @@
 
     thead {
       background-color: var(--canvas);
-      border-bottom: 1px solid var(--line);
     }
 
     th {
+      position: sticky;
+      top: 0;
+      z-index: 12;
+      background-color: var(--canvas);
+      border-bottom: 1px solid var(--line);
       padding: 12px;
       font-weight: 700;
       color: var(--ink-2);
       white-space: nowrap;
+      box-shadow: 0 1px 0 var(--line);
     }
 
     td {
