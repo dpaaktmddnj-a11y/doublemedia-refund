@@ -3212,7 +3212,7 @@
       <!-- 월간 정산 요약 카드 3종 -->
       <div class="summary-grid">
         <div class="stat-card">
-          <div class="stat-label">연간 총 환불 정산 금액</div>
+          <div class="stat-label" id="calStatAmountLabel">월간 총 환불 정산 금액</div>
           <div class="stat-value accent" id="calStatAmount">0원</div>
           <div class="stat-sub" id="calStatAvgAmount">건당 평균 0원</div>
         </div>
@@ -5104,6 +5104,7 @@
       btnResetDemo: document.getElementById('btnResetDemo'),
 
       // 달력 요소
+      calStatAmountLabel: document.getElementById('calStatAmountLabel'),
       calStatMonthLabel: document.getElementById('calStatMonthLabel'),
       calStatCount: document.getElementById('calStatCount'),
       calStatActiveDays: document.getElementById('calStatActiveDays'),
@@ -7847,6 +7848,9 @@
 
         els.calStatAmount.textContent = `${formatNumber(totalAmount)}원`;
         els.calStatAvgAmount.textContent = `건당 평균 ${formatNumber(avgAmount)}원`;
+        if (els.calStatAmountLabel) {
+          els.calStatAmountLabel.textContent = `${yearStr}년 연간 총 환불 정산 금액`;
+        }
         els.calStatMonthLabel.textContent = `${yearStr}년 연간 총 환불 건수`;
         els.calStatCount.textContent = `${formatNumber(yearRecords.length)}건`;
         els.calStatActiveDays.textContent = `연간 환불 처리일 ${activeDaySet.size}일`;
@@ -7941,6 +7945,9 @@
 
       els.calStatAmount.textContent = `${formatNumber(totalAmount)}원`;
       els.calStatAvgAmount.textContent = `건당 평균 ${formatNumber(avgAmount)}원`;
+      if (els.calStatAmountLabel) {
+        els.calStatAmountLabel.textContent = '월간 총 환불 정산 금액';
+      }
       els.calStatMonthLabel.textContent = `${currentCalMonth}월 총 환불 건수`;
       els.calStatCount.textContent = `${formatNumber(monthRecords.length)}건`;
       els.calStatActiveDays.textContent = `환불 처리일 ${activeDaySet.size}일`;
