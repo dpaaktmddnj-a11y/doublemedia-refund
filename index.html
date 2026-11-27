@@ -1190,6 +1190,16 @@
       color: #14532d;
     }
 
+    .hl-badge-indigo {
+      background: linear-gradient(transparent 32%, #e0e7ff 32% 92%, transparent 92%);
+      color: #3730a3;
+    }
+
+    .hl-badge-red {
+      background: linear-gradient(transparent 32%, #fee2e2 32% 92%, transparent 92%);
+      color: #991b1b;
+    }
+
     /* 무통장 입금 내역 탭 전용 스타일 */
     .deposit-note-list {
       display: flex;
@@ -1967,6 +1977,47 @@
     .reply-template-card:hover {
       border-color: var(--accent-line);
       box-shadow: 0 2px 8px rgba(0, 150, 255, 0.05);
+    }
+
+    .reply-template-card.is-pinned {
+      border-color: var(--accent-line);
+      background-color: #f8fcff;
+      box-shadow: 0 2px 8px rgba(0, 150, 255, 0.06);
+    }
+
+    .reply-template-card.is-pinned .reply-card-body {
+      background-color: var(--white);
+      border-color: var(--accent-line);
+    }
+
+    .btn-pin-reply {
+      height: 34px;
+      padding: 0 11px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background-color: var(--white);
+      color: var(--ink-2);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .btn-pin-reply:hover {
+      background-color: var(--canvas);
+      border-color: var(--accent-line);
+      color: var(--accent-text);
+    }
+
+    .btn-pin-reply.pinned {
+      background-color: var(--accent-soft);
+      border-color: var(--accent-line);
+      color: var(--accent-text);
+      font-weight: 800;
     }
 
     .reply-card-top {
@@ -3477,8 +3528,12 @@
                 </div>
               </div>
             </div>
+            <button type="button" class="btn btn-secondary" id="btnResetCsReplyFilter" style="height: 42px; color: var(--coral);">검색 초기화</button>
           </div>
-          <span class="hl-badge hl-badge-blue" id="csReplyFilteredBadge">총 0건</span>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span class="hl-badge hl-badge-blue" id="csReplyFilteredBadge">총 0건</span>
+            <span class="hl-badge hl-badge-yellow" id="csReplyPinnedBadge">📌 고정 0건</span>
+          </div>
         </div>
 
         <div class="reply-template-list" id="csReplyListContainer">
@@ -5159,11 +5214,13 @@
       csReplyCategoryFilter: document.getElementById('csReplyCategoryFilter'),
       csReplySearchWrap: document.getElementById('csReplySearchWrap'),
       csReplySearchInput: document.getElementById('csReplySearchInput'),
+      btnResetCsReplyFilter: document.getElementById('btnResetCsReplyFilter'),
       csReplySearchPopover: document.getElementById('csReplySearchPopover'),
       csHistorySection: document.getElementById('csHistorySection'),
       csSearchHistoryList: document.getElementById('csSearchHistoryList'),
       btnClearCsSearchHistory: document.getElementById('btnClearCsSearchHistory'),
       csRecommendTagList: document.getElementById('csRecommendTagList'),
+      csReplyPinnedBadge: document.getElementById('csReplyPinnedBadge'),
       csReplyFilteredBadge: document.getElementById('csReplyFilteredBadge'),
       csReplyListContainer: document.getElementById('csReplyListContainer'),
       csReplyPaginationBar: document.getElementById('csReplyPaginationBar'),
@@ -6589,9 +6646,37 @@
     }
 
     const CS_SEARCH_HISTORY_KEY = 'doublemedia_cs_search_history_v1';
+    const CS_PINNED_REPLIES_KEY = 'doublemedia_cs_pinned_replies_v1';
     const CS_RECOMMENDED_KEYWORDS = [
       '무통장 환불', '일부 사용', '휴대폰 결제', '신용카드', '입금 지연', '본인인증', '영수증', '이용제한'
     ];
+
+    function loadPinnedCsReplyIds() {
+      try {
+        const raw = localStorage.getItem(CS_PINNED_REPLIES_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function savePinnedCsReplyIds(ids) {
+      try {
+        localStorage.setItem(CS_PINNED_REPLIES_KEY, JSON.stringify(ids));
+      } catch (err) {
+        // 무시
+      }
+    }
+
+    function togglePinCsReply(id) {
+      const pinned = loadPinnedCsReplyIds();
+      const exists = pinned.includes(id);
+      const next = exists ? pinned.filter(item => item !== id) : [id, ...pinned];
+      savePinnedCsReplyIds(next);
+      renderCsReplies();
+      showToast(exists ? '상단 고정을 해제했어요.' : '자주 쓰는 답변을 상단에 고정했어요.');
+    }
 
     function loadCsSearchHistory() {
       try {
@@ -6765,8 +6850,8 @@
         'hl-badge-cyan',
         'hl-badge-rose',
         'hl-badge-navy',
-        'hl-badge-stone',
-        'hl-badge-gray'
+        'hl-badge-red',
+        'hl-badge-stone'
       ];
       const normalized = String(cat || '기타문의').trim();
       const uniqueCategories = [];
@@ -6816,14 +6901,20 @@
       const catFilter = els.csReplyCategoryFilter.value || 'ALL';
       const keyword = (els.csReplySearchInput.value || '').trim();
       const initialSearchMode = isInitialOnlyQuery(keyword);
+      const pinnedIds = loadPinnedCsReplyIds();
+      const pinnedSet = new Set(pinnedIds);
 
       const matchedWithPriority = [];
       csReplyList.forEach((item, originalIdx) => {
         const matchesCat = catFilter === 'ALL' || item.category === catFilter;
         if (!matchesCat) return;
 
+        const isPinned = pinnedSet.has(item.id);
+        const pinRank = isPinned ? 0 : 1;
+        const pinOrder = isPinned ? pinnedIds.indexOf(item.id) : originalIdx;
+
         if (!keyword) {
-          matchedWithPriority.push({ item, priority: 0, originalIdx });
+          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 0, originalIdx });
           return;
         }
 
@@ -6834,20 +6925,28 @@
 
         // 초성만 입력한 경우: 분류 우선 탐색 (분류/세부구분/제목 일치 우선, 본문만 일치 시 제외하여 과다 노출 방지)
         if (catMatch) {
-          matchedWithPriority.push({ item, priority: 1, originalIdx });
+          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 1, originalIdx });
         } else if (subMatch || titleMatch) {
-          matchedWithPriority.push({ item, priority: 2, originalIdx });
+          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 2, originalIdx });
         } else if (!initialSearchMode && contentMatch) {
-          matchedWithPriority.push({ item, priority: 3, originalIdx });
+          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 3, originalIdx });
         }
       });
 
       matchedWithPriority.sort((a, b) => {
+        if (a.pinRank !== b.pinRank) return a.pinRank - b.pinRank;
+        if (a.pinRank === 0 && a.pinOrder !== b.pinOrder) return a.pinOrder - b.pinOrder;
         if (a.priority !== b.priority) return a.priority - b.priority;
         return a.originalIdx - b.originalIdx;
       });
 
       const filtered = matchedWithPriority.map(entry => entry.item);
+
+      const validIdSet = new Set(csReplyList.map(item => item.id));
+      const activePinnedCount = pinnedIds.filter(id => validIdSet.has(id)).length;
+      if (els.csReplyPinnedBadge) {
+        els.csReplyPinnedBadge.textContent = `📌 고정 ${formatNumber(activePinnedCount)}건`;
+      }
 
       els.csReplyTotalCount.textContent = formatNumber(csReplyList.length);
       els.csReplyFilteredBadge.textContent = `검색 결과 ${formatNumber(filtered.length)}건`;
@@ -6869,23 +6968,33 @@
       const pageItems = filtered.slice(startIdx, endIdx);
 
       els.csReplyListContainer.innerHTML = pageItems.map(item => {
+        const isPinned = pinnedSet.has(item.id);
         const hlCls = getCategoryHighlightClass(item.category);
         const subBadge = item.subCategory
           ? `<span class="hl-badge hl-badge-gray">${escapeHtml(item.subCategory)}</span>`
           : '';
+        const pinBadge = isPinned
+          ? `<span class="hl-badge hl-badge-yellow">📌 상단 고정</span>`
+          : '';
 
         return `
-          <div class="reply-template-card">
+          <div class="reply-template-card ${isPinned ? 'is-pinned' : ''}">
             <div class="reply-card-top">
               <div class="reply-card-meta">
+                ${pinBadge}
                 <span class="hl-badge ${hlCls}">${escapeHtml(item.category || '기타문의')}</span>
                 ${subBadge}
                 <span class="reply-card-title">${highlightSearchKeyword(item.title, keyword)}</span>
               </div>
-              <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px; padding: 0 14px;" data-copy-cs-reply-id="${escapeHtml(item.id)}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                답변 복사
-              </button>
+              <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <button type="button" class="btn-pin-reply ${isPinned ? 'pinned' : ''}" data-pin-cs-reply-id="${escapeHtml(item.id)}" title="${isPinned ? '상단 고정 해제' : '목록 최상단에 고정'}">
+                  📌 ${isPinned ? '고정됨' : '고정'}
+                </button>
+                <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px; padding: 0 14px;" data-copy-cs-reply-id="${escapeHtml(item.id)}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  답변 복사
+                </button>
+              </div>
             </div>
             <div class="reply-card-body" data-copy-cs-reply-id="${escapeHtml(item.id)}" title="클릭하면 답변 내용이 바로 복사돼요">${highlightSearchKeyword(item.content, keyword)}</div>
           </div>
@@ -7024,6 +7133,10 @@
           const mode = els.csReplyImportMode.value;
           csReplyList = mode === 'replace' ? imported : [...imported, ...csReplyList];
           CsReplyStorage.saveAll(csReplyList);
+          if (mode === 'replace') {
+            const validIds = new Set(csReplyList.map(item => item.id));
+            savePinnedCsReplyIds(loadPinnedCsReplyIds().filter(id => validIds.has(id)));
+          }
           csReplyPage = 1;
           renderCsReplies();
           showToast(`총 ${formatNumber(imported.length)}건의 문의 답변 예시를 반영했어요.`);
@@ -9383,6 +9496,21 @@
           }
         });
       }
+      if (els.btnResetCsReplyFilter) {
+        els.btnResetCsReplyFilter.addEventListener('click', () => {
+          if (els.csReplyCategoryFilter) {
+            els.csReplyCategoryFilter.value = 'ALL';
+            CustomSelectManager.sync(els.csReplyCategoryFilter);
+          }
+          if (els.csReplySearchInput) {
+            els.csReplySearchInput.value = '';
+          }
+          closeCsSearchPopover();
+          csReplyPage = 1;
+          renderCsReplies();
+          showToast('답변 검색 조건을 초기화했어요.');
+        });
+      }
       if (els.csReplySearchPopover) {
         els.csReplySearchPopover.addEventListener('click', (e) => {
           const delBtn = e.target.closest('[data-cs-history-del]');
@@ -9445,6 +9573,11 @@
       }
       if (els.csReplyListContainer) {
         els.csReplyListContainer.addEventListener('click', (e) => {
+          const pinBtn = e.target.closest('[data-pin-cs-reply-id]');
+          if (pinBtn) {
+            togglePinCsReply(pinBtn.dataset.pinCsReplyId);
+            return;
+          }
           const copyTarget = e.target.closest('[data-copy-cs-reply-id]');
           if (copyTarget) {
             const currentKw = (els.csReplySearchInput?.value || '').trim();
