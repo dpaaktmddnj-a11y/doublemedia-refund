@@ -60,19 +60,12 @@
     }
 
     /* ==========================================================================
-       3. 헤더 및 탭 내비게이션 (최상단 헤더 ~ 탭 항목 바 전체 고정)
+       3. 헤더 및 탭 내비게이션
        ========================================================================== */
     .sticky-top-area {
-      position: sticky;
-      top: 0;
-      z-index: 95;
-      background-color: rgba(246, 248, 250, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       padding-top: 28px;
       padding-bottom: 14px;
       margin-bottom: 12px;
-      border-bottom: 1px solid rgba(230, 233, 238, 0.85);
     }
 
     @media (max-width: 600px) {
@@ -1976,52 +1969,6 @@
       box-shadow: 0 2px 8px rgba(0, 150, 255, 0.05);
     }
 
-    .reply-template-card.is-pinned {
-      border-color: var(--accent-line);
-      background-color: #fafdff;
-      box-shadow: 0 2px 10px rgba(0, 150, 255, 0.06);
-    }
-
-    .reply-card-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .btn-pin-reply {
-      height: 34px;
-      padding: 0 11px;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      background-color: var(--white);
-      color: var(--ink-2);
-      font-family: inherit;
-      font-size: 12.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: background-color 0.15s, border-color 0.15s, color 0.15s;
-    }
-
-    .btn-pin-reply:hover {
-      background-color: var(--canvas);
-      border-color: var(--muted);
-      color: var(--ink);
-    }
-
-    .btn-pin-reply.pinned {
-      background-color: var(--accent-soft);
-      border-color: var(--accent-line);
-      color: var(--accent-text);
-    }
-
-    .btn-pin-reply.pinned:hover {
-      background-color: #dcefff;
-    }
-
     .reply-card-top {
       display: flex;
       align-items: center;
@@ -2535,10 +2482,6 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
               백업 · 복원
             </button>
-            <button type="button" class="btn btn-secondary" id="btnResetDemo" title="예시 데이터를 초기 상태로 되돌립니다">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-              샘플 데이터 초기화
-            </button>
             <button type="button" class="btn btn-secondary" id="btnLogout" style="color: var(--coral);" title="현재 세션을 잠그고 로그인 화면으로 이동합니다">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
               로그아웃
@@ -2609,9 +2552,6 @@
           <div>
             <h2 class="card-title">일자별 입금 금액 · 특이사항 기재</h2>
             <p class="card-subtitle">날짜를 고르고 입금 금액을 저장하거나, 특이사항 유형을 선택해 양식에 맞게 여러 건 누적 기록할 수 있어요.</p>
-          </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary" id="btnResetDepositDemo" style="height: 36px; font-size: 13px;">초기화</button>
           </div>
         </div>
 
@@ -3371,7 +3311,7 @@
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn btn-secondary" id="btnLoadSampleChargeExcel" style="height: 36px; font-size: 13px;">원본 샘플로 테스트</button>
-            <button type="button" class="btn btn-secondary" id="btnClearChargeClean" style="height: 36px; font-size: 13px;">초기화</button>
+            <button type="button" class="btn btn-secondary" id="btnClearChargeClean" style="height: 36px; font-size: 13px; color: var(--coral);">초기화</button>
           </div>
         </div>
 
@@ -3447,7 +3387,32 @@
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <input type="text" id="noticeSearchInput" class="input" style="width: 210px; height: 36px;" placeholder="공지 제목·내용 검색">
-            <button type="button" class="btn btn-secondary" id="btnResetNotices" style="height: 36px; font-size: 13px;">초기화</button>
+            <button type="button" class="btn btn-primary" id="btnOpenNewNotice" style="height: 36px; font-size: 13px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              추가하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 신규 공지사항 작성 폼 패널 -->
+        <div id="newNoticeComposerBox" class="calc-box" style="display: none; margin-top: 0; margin-bottom: 16px;">
+          <div class="calc-box-header">
+            <span class="calc-box-title">새 공지사항 작성</span>
+            <span class="field-help">제목과 상세 안내 내용을 작성하면 공지 목록 최상단에 추가돼요.</span>
+          </div>
+          <div class="notice-edit-area">
+            <div class="field">
+              <label class="field-label" for="newNoticeTitleInput">공지 제목 <span class="req">필수</span></label>
+              <input type="text" id="newNoticeTitleInput" class="input" placeholder="예: [안내] 공휴일 무통장 환불 처리 일정 변경 안내">
+            </div>
+            <div class="field">
+              <label class="field-label" for="newNoticeContentInput">상세 안내 본문</label>
+              <textarea id="newNoticeContentInput" class="textarea" style="min-height: 130px;" placeholder="공지 제목을 클릭했을 때 펼쳐질 상세 안내 내용을 입력해 주세요."></textarea>
+            </div>
+            <div class="notice-body-actions" style="margin-top: 4px;">
+              <button type="button" class="btn btn-secondary" id="btnCancelNewNotice" style="height: 34px; font-size: 13px;">취소</button>
+              <button type="button" class="btn btn-primary" id="btnSaveNewNotice" style="height: 34px; font-size: 13px;">공지 등록하기</button>
+            </div>
           </div>
         </div>
 
@@ -3487,11 +3452,6 @@
             <h2 class="card-title">문의 답변 예시 목록 (<span id="csReplyTotalCount">0</span>건)</h2>
             <p class="card-subtitle">분류를 고르거나 키워드를 입력해 답변을 검색한 뒤 '답변 복사' 버튼을 눌러 바로 붙여넣으세요.</p>
           </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary" id="btnResetCsReplies" style="height: 36px; font-size: 13px;">
-              기본 샘플 복원
-            </button>
-          </div>
         </div>
 
         <div class="toolbar">
@@ -3517,7 +3477,6 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="btn btn-secondary" id="btnClearCsReplySearch" style="height: 42px;">검색 초기화</button>
           </div>
           <span class="hl-badge hl-badge-blue" id="csReplyFilteredBadge">총 0건</span>
         </div>
@@ -3606,7 +3565,7 @@
   </button>
 
   <!-- 일괄 삭제 확인 모달 팝업 -->
-  <div id="dmConfirmModal" class="dm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="dmConfirmTitle">
+  <div id="dmConfirmModal" class="dm-modal-backdrop" style="z-index: 1200;" role="dialog" aria-modal="true" aria-labelledby="dmConfirmTitle">
     <div class="dm-modal-card">
       <h3 class="dm-modal-title" id="dmConfirmTitle">일괄 삭제 확인</h3>
       <p class="dm-modal-desc" id="dmConfirmDesc">선택한 대기 내역을 삭제할까요?</p>
@@ -3643,6 +3602,15 @@
             JSON 파일 복원
           </button>
         </div>
+      </div>
+
+      <div class="backup-section-box" style="margin-bottom: 0;">
+        <div class="backup-section-title">3. 샘플 데이터 초기화</div>
+        <div class="backup-section-desc">입금 내역과 환불 정산 내역을 2026년 기본 샘플 데이터 상태로 되돌려요.</div>
+        <button type="button" class="btn btn-secondary" id="btnResetDemo" style="width: 100%; height: 38px; font-size: 13px; color: var(--coral);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          샘플 데이터 초기화
+        </button>
       </div>
 
       <div class="dm-modal-actions" style="margin-top: 16px;">
@@ -5044,7 +5012,6 @@
       depTableCardTitle: document.getElementById('depTableCardTitle'),
       depMonthSelect: document.getElementById('depMonthSelect'),
       depositLedgerBody: document.getElementById('depositLedgerBody'),
-      btnResetDepositDemo: document.getElementById('btnResetDepositDemo'),
       btnExportDepositExcel: document.getElementById('btnExportDepositExcel'),
       depositImportMode: document.getElementById('depositImportMode'),
       depositExcelInput: document.getElementById('depositExcelInput'),
@@ -5176,7 +5143,12 @@
       // 탭 3: 공지사항 요소
       noticeTotalCount: document.getElementById('noticeTotalCount'),
       noticeSearchInput: document.getElementById('noticeSearchInput'),
-      btnResetNotices: document.getElementById('btnResetNotices'),
+      btnOpenNewNotice: document.getElementById('btnOpenNewNotice'),
+      newNoticeComposerBox: document.getElementById('newNoticeComposerBox'),
+      newNoticeTitleInput: document.getElementById('newNoticeTitleInput'),
+      newNoticeContentInput: document.getElementById('newNoticeContentInput'),
+      btnCancelNewNotice: document.getElementById('btnCancelNewNotice'),
+      btnSaveNewNotice: document.getElementById('btnSaveNewNotice'),
       noticeListContainer: document.getElementById('noticeListContainer'),
       noticeImportMode: document.getElementById('noticeImportMode'),
       noticeExcelInput: document.getElementById('noticeExcelInput'),
@@ -5192,7 +5164,6 @@
       csSearchHistoryList: document.getElementById('csSearchHistoryList'),
       btnClearCsSearchHistory: document.getElementById('btnClearCsSearchHistory'),
       csRecommendTagList: document.getElementById('csRecommendTagList'),
-      btnClearCsReplySearch: document.getElementById('btnClearCsReplySearch'),
       csReplyFilteredBadge: document.getElementById('csReplyFilteredBadge'),
       csReplyListContainer: document.getElementById('csReplyListContainer'),
       csReplyPaginationBar: document.getElementById('csReplyPaginationBar'),
@@ -5200,8 +5171,7 @@
       csReplyPageButtons: document.getElementById('csReplyPageButtons'),
       csReplyImportMode: document.getElementById('csReplyImportMode'),
       csReplyExcelInput: document.getElementById('csReplyExcelInput'),
-      btnUploadCsReplyExcel: document.getElementById('btnUploadCsReplyExcel'),
-      btnResetCsReplies: document.getElementById('btnResetCsReplies')
+      btnUploadCsReplyExcel: document.getElementById('btnUploadCsReplyExcel')
     };
 
     /* ==========================================================================
@@ -6411,12 +6381,19 @@
         if (isEditing) {
           bodyInnerHtml = `
             <div class="notice-edit-area">
-              <label class="field-label" for="noticeTextarea-${escapeHtml(item.id)}">
-                <span>${escapeHtml(item.title)} — 상세 안내 본문</span>
-                <span class="field-help">줄바꿈이 그대로 유지되어 표시돼요.</span>
-              </label>
-              <textarea id="noticeTextarea-${escapeHtml(item.id)}" class="textarea" style="min-height: 140px;" placeholder="이 공지 항목을 클릭했을 때 펼쳐질 상세 안내 내용을 입력해 주세요.">${escapeHtml(item.content || '')}</textarea>
+              <div class="field">
+                <label class="field-label" for="noticeTitleInput-${escapeHtml(item.id)}">공지 제목</label>
+                <input type="text" id="noticeTitleInput-${escapeHtml(item.id)}" class="input" value="${escapeHtml(item.title)}">
+              </div>
+              <div class="field">
+                <label class="field-label" for="noticeTextarea-${escapeHtml(item.id)}">
+                  <span>상세 안내 본문</span>
+                  <span class="field-help">줄바꿈이 그대로 유지되어 표시돼요.</span>
+                </label>
+                <textarea id="noticeTextarea-${escapeHtml(item.id)}" class="textarea" style="min-height: 140px;" placeholder="이 공지 항목을 클릭했을 때 펼쳐질 상세 안내 내용을 입력해 주세요.">${escapeHtml(item.content || '')}</textarea>
+              </div>
               <div class="notice-body-actions">
+                <button type="button" class="btn-danger-ghost" style="height: 34px; padding: 0 12px; margin-right: auto;" data-delete-notice-id="${escapeHtml(item.id)}">공지 삭제</button>
                 <button type="button" class="btn btn-secondary" style="height: 34px; font-size: 13px;" data-cancel-notice-id="${escapeHtml(item.id)}">취소</button>
                 <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px;" data-save-notice-id="${escapeHtml(item.id)}">내용 저장</button>
               </div>
@@ -6426,6 +6403,7 @@
           bodyInnerHtml = `
             <div class="notice-content-view">${escapeHtml(item.content)}</div>
             <div class="notice-body-actions">
+              <button type="button" class="btn-danger-ghost" style="height: 34px; padding: 0 12px; margin-right: auto;" data-delete-notice-id="${escapeHtml(item.id)}">공지 삭제</button>
               <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px;" data-edit-notice-id="${escapeHtml(item.id)}">내용 수정하기</button>
             </div>
           `;
@@ -6433,6 +6411,7 @@
           bodyInnerHtml = `
             <div class="notice-content-empty">아직 등록된 상세 내용이 없어요. 아래 버튼을 눌러 공지 내용을 작성해 주세요.</div>
             <div class="notice-body-actions">
+              <button type="button" class="btn-danger-ghost" style="height: 34px; padding: 0 12px; margin-right: auto;" data-delete-notice-id="${escapeHtml(item.id)}">공지 삭제</button>
               <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px;" data-edit-notice-id="${escapeHtml(item.id)}">내용 작성하기</button>
             </div>
           `;
@@ -6468,11 +6447,14 @@
     }
 
     function saveNoticeContent(id) {
+      const titleInput = document.getElementById(`noticeTitleInput-${id}`);
       const textarea = document.getElementById(`noticeTextarea-${id}`);
       if (!textarea) return;
+      const newTitle = titleInput ? titleInput.value.trim() : '';
       const newText = textarea.value;
       const target = noticeList.find(n => n.id === id);
       if (target) {
+        if (newTitle) target.title = newTitle;
         target.content = newText;
         NoticeStorage.saveAll(noticeList);
       }
@@ -6480,6 +6462,65 @@
       openNoticeIds.add(id);
       renderNotices();
       showToast('공지사항 내용이 저장됐어요.');
+    }
+
+    function openNewNoticeComposer() {
+      if (!els.newNoticeComposerBox) return;
+      els.newNoticeComposerBox.style.display = 'block';
+      if (els.newNoticeTitleInput) {
+        els.newNoticeTitleInput.value = '';
+        els.newNoticeTitleInput.focus();
+      }
+      if (els.newNoticeContentInput) {
+        els.newNoticeContentInput.value = '';
+      }
+    }
+
+    function closeNewNoticeComposer() {
+      if (!els.newNoticeComposerBox) return;
+      els.newNoticeComposerBox.style.display = 'none';
+      if (els.newNoticeTitleInput) els.newNoticeTitleInput.value = '';
+      if (els.newNoticeContentInput) els.newNoticeContentInput.value = '';
+    }
+
+    function saveNewNotice() {
+      const titleVal = (els.newNoticeTitleInput?.value || '').trim();
+      const contentVal = els.newNoticeContentInput?.value || '';
+      if (!titleVal) {
+        showToast('새 공지사항의 제목을 입력해 주세요.');
+        els.newNoticeTitleInput?.focus();
+        return;
+      }
+
+      const newNotice = {
+        id: `notice-custom-${Date.now()}`,
+        title: titleVal,
+        content: contentVal
+      };
+      noticeList.unshift(newNotice);
+      NoticeStorage.saveAll(noticeList);
+      openNoticeIds.add(newNotice.id);
+      closeNewNoticeComposer();
+      renderNotices();
+      showToast(`'${titleVal}' 공지사항이 등록됐어요.`);
+    }
+
+    function deleteNoticeItem(id) {
+      const target = noticeList.find(n => n.id === id);
+      if (!target) return;
+      openConfirmModal(
+        '공지사항 삭제 확인',
+        `'${target.title}' 공지 항목을 삭제할까요?`,
+        () => {
+          noticeList = noticeList.filter(n => n.id !== id);
+          NoticeStorage.saveAll(noticeList);
+          openNoticeIds.delete(id);
+          if (editingNoticeId === id) editingNoticeId = null;
+          renderNotices();
+          showToast('선택한 공지사항을 삭제했어요.');
+        },
+        '삭제하기'
+      );
     }
 
     function handleImportNoticeExcel(file) {
@@ -6502,46 +6543,38 @@
             const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
             if (!rows || rows.length === 0) return;
 
-            let headerIdx = -1;
-            let titleCol = 0;
-            let contentCol = 1;
-
-            const firstRow = rows[0] || [];
-            const firstA = String(firstRow[0] || '').replace(/\s+/g, '');
-            const firstB = String(firstRow[1] || '').replace(/\s+/g, '');
-            const isExplicitHeader =
-              ['제목', '공지제목', '공지사항제목'].includes(firstA) ||
-              ['내용', '상세내용', '상세안내내용', '공지내용'].includes(firstB);
-
-            if (isExplicitHeader) {
-              headerIdx = 0;
-            }
-
-            for (let r = headerIdx + 1; r < rows.length; r++) {
+            for (let r = 0; r < rows.length; r++) {
               const row = rows[r];
               if (!Array.isArray(row)) continue;
 
-              const titleVal = String(row[titleCol] || '').trim();
-              const contentVal = String(row[contentCol] || '').trim();
+              const colA = String(row[0] ?? '').trim();
+              const colB = String(row[1] ?? '').trim();
+              if (!colA && !colB) continue;
 
-              if (!titleVal && !contentVal) continue;
-              if (titleVal === '공지 제목' || titleVal === '제목') continue;
+              // 첫 행이 명시적 헤더('공지 제목', '상세 안내 내용')인 경우에만 건너뛰기
+              if (r === 0) {
+                const normA = colA.replace(/\s+/g, '');
+                const normB = colB.replace(/\s+/g, '');
+                if ((normA === '제목' || normA === '공지제목') && (normB === '내용' || normB === '상세내용' || normB === '상세안내내용')) {
+                  continue;
+                }
+              }
 
               imported.push({
                 id: `notice-imp-${Date.now()}-${sheetName}-${r}`,
-                title: titleVal || `공지사항 ${imported.length + 1}`,
-                content: contentVal
+                title: colA || `공지사항 ${imported.length + 1}`,
+                content: colB
               });
             }
           });
 
           if (imported.length === 0) {
-            showToast('엑셀 파일에서 공지사항 행(A열 제목, B열 내용)을 찾지 못했어요.');
+            showToast('엑셀 파일에서 유효한 공지사항(A열 제목, B열 내용)을 찾지 못했어요.');
             return;
           }
 
           const mode = els.noticeImportMode ? els.noticeImportMode.value : 'replace';
-          noticeList = mode === 'replace' ? imported : [...noticeList, ...imported];
+          noticeList = mode === 'replace' ? imported : [...imported, ...noticeList];
           NoticeStorage.saveAll(noticeList);
           openNoticeIds.clear();
           editingNoticeId = null;
@@ -6555,60 +6588,10 @@
       reader.readAsArrayBuffer(file);
     }
 
-    /* ==========================================================================
-       10-3-2. 문의 답변 예시 검색 · 엑셀 업로드 · 원클릭 복사 로직
-       ========================================================================== */
-    const CS_SEARCH_HISTORY_KEY = 'doublemedia_cs_reply_search_history_v1';
-    const CS_PINNED_REPLIES_KEY = 'doublemedia_cs_pinned_replies_v1';
+    const CS_SEARCH_HISTORY_KEY = 'doublemedia_cs_search_history_v1';
     const CS_RECOMMENDED_KEYWORDS = [
-      '신고',
-      'IP 차단',
-      '탈퇴',
-      '탈퇴 복구',
-      '환불',
-      '뉴비',
-      '결제',
-      '환전',
-      '닉네임 변경',
-      '본인 인증',
-      '프로필',
-      '시그니처',
-      '후원한 하트 환불',
-      '최초 영구 정지'
+      '무통장 환불', '일부 사용', '휴대폰 결제', '신용카드', '입금 지연', '본인인증', '영수증', '이용제한'
     ];
-
-    function loadPinnedCsReplyIds() {
-      try {
-        const raw = localStorage.getItem(CS_PINNED_REPLIES_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (err) {
-        return [];
-      }
-    }
-
-    function savePinnedCsReplyIds(ids) {
-      try {
-        localStorage.setItem(CS_PINNED_REPLIES_KEY, JSON.stringify(ids));
-      } catch (err) {
-        // 무시
-      }
-    }
-
-    function togglePinCsReply(id) {
-      const target = csReplyList.find(item => item.id === id);
-      if (!target) return;
-
-      const current = loadPinnedCsReplyIds();
-      const exists = current.includes(id);
-      const next = exists ? current.filter(itemId => itemId !== id) : [id, ...current];
-      savePinnedCsReplyIds(next);
-      renderCsReplies();
-      showToast(exists
-        ? `'${target.title}' 상단 고정을 해제했어요.`
-        : `📌 '${target.title}' 답변을 상단에 고정했어요.`
-      );
-    }
 
     function loadCsSearchHistory() {
       try {
@@ -6833,20 +6816,14 @@
       const catFilter = els.csReplyCategoryFilter.value || 'ALL';
       const keyword = (els.csReplySearchInput.value || '').trim();
       const initialSearchMode = isInitialOnlyQuery(keyword);
-      const pinnedIds = loadPinnedCsReplyIds();
-      const pinnedSet = new Set(pinnedIds);
 
       const matchedWithPriority = [];
       csReplyList.forEach((item, originalIdx) => {
         const matchesCat = catFilter === 'ALL' || item.category === catFilter;
         if (!matchesCat) return;
 
-        const isPinned = pinnedSet.has(item.id);
-        const pinRank = isPinned ? 0 : 1;
-        const pinOrder = isPinned ? pinnedIds.indexOf(item.id) : originalIdx;
-
         if (!keyword) {
-          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 0, originalIdx });
+          matchedWithPriority.push({ item, priority: 0, originalIdx });
           return;
         }
 
@@ -6857,28 +6834,23 @@
 
         // 초성만 입력한 경우: 분류 우선 탐색 (분류/세부구분/제목 일치 우선, 본문만 일치 시 제외하여 과다 노출 방지)
         if (catMatch) {
-          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 1, originalIdx });
+          matchedWithPriority.push({ item, priority: 1, originalIdx });
         } else if (subMatch || titleMatch) {
-          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 2, originalIdx });
+          matchedWithPriority.push({ item, priority: 2, originalIdx });
         } else if (!initialSearchMode && contentMatch) {
-          matchedWithPriority.push({ item, pinRank, pinOrder, priority: 3, originalIdx });
+          matchedWithPriority.push({ item, priority: 3, originalIdx });
         }
       });
 
       matchedWithPriority.sort((a, b) => {
-        if (a.pinRank !== b.pinRank) return a.pinRank - b.pinRank;
         if (a.priority !== b.priority) return a.priority - b.priority;
-        if (a.pinRank === 0 && a.pinOrder !== b.pinOrder) return a.pinOrder - b.pinOrder;
         return a.originalIdx - b.originalIdx;
       });
 
       const filtered = matchedWithPriority.map(entry => entry.item);
-      const pinnedCountInFiltered = filtered.filter(item => pinnedSet.has(item.id)).length;
 
       els.csReplyTotalCount.textContent = formatNumber(csReplyList.length);
-      els.csReplyFilteredBadge.textContent = pinnedCountInFiltered > 0
-        ? `검색 결과 ${formatNumber(filtered.length)}건 (📌 고정 ${pinnedCountInFiltered}건)`
-        : `검색 결과 ${formatNumber(filtered.length)}건`;
+      els.csReplyFilteredBadge.textContent = `검색 결과 ${formatNumber(filtered.length)}건`;
 
       if (filtered.length === 0) {
         if (els.csReplyPaginationBar) els.csReplyPaginationBar.style.display = 'none';
@@ -6897,34 +6869,23 @@
       const pageItems = filtered.slice(startIdx, endIdx);
 
       els.csReplyListContainer.innerHTML = pageItems.map(item => {
-        const isPinned = pinnedSet.has(item.id);
         const hlCls = getCategoryHighlightClass(item.category);
         const subBadge = item.subCategory
           ? `<span class="hl-badge hl-badge-gray">${escapeHtml(item.subCategory)}</span>`
           : '';
-        const pinBadge = isPinned
-          ? `<span class="hl-badge hl-badge-amber">📌 상단 고정</span>`
-          : '';
 
         return `
-          <div class="reply-template-card ${isPinned ? 'is-pinned' : ''}">
+          <div class="reply-template-card">
             <div class="reply-card-top">
               <div class="reply-card-meta">
-                ${pinBadge}
                 <span class="hl-badge ${hlCls}">${escapeHtml(item.category || '기타문의')}</span>
                 ${subBadge}
                 <span class="reply-card-title">${highlightSearchKeyword(item.title, keyword)}</span>
               </div>
-              <div class="reply-card-actions">
-                <button type="button" class="btn-pin-reply ${isPinned ? 'pinned' : ''}" data-pin-cs-reply-id="${escapeHtml(item.id)}" title="${isPinned ? '상단 고정 해제' : '목록 최상단에 고정'}">
-                  <span>📌</span>
-                  <span>${isPinned ? '고정됨' : '고정'}</span>
-                </button>
-                <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px; padding: 0 14px;" data-copy-cs-reply-id="${escapeHtml(item.id)}">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                  답변 복사
-                </button>
-              </div>
+              <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px; padding: 0 14px;" data-copy-cs-reply-id="${escapeHtml(item.id)}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                답변 복사
+              </button>
             </div>
             <div class="reply-card-body" data-copy-cs-reply-id="${escapeHtml(item.id)}" title="클릭하면 답변 내용이 바로 복사돼요">${highlightSearchKeyword(item.content, keyword)}</div>
           </div>
@@ -9062,6 +9023,7 @@
             renderPendingQueueTable();
             renderRefundTable();
             renderCalendar();
+            document.getElementById('dmBackupModal').classList.remove('open');
             showToast('샘플 데이터를 초기 상태로 복원했어요.');
           },
           '초기화'
@@ -9076,20 +9038,6 @@
       });
       els.depositEntryForm.addEventListener('submit', handleSaveDepositEntry);
       els.depMonthSelect.addEventListener('change', renderDepositLedger);
-      els.btnResetDepositDemo.addEventListener('click', () => {
-        openConfirmModal(
-          '입금 내역 샘플 초기화',
-          '무통장 입금 내역을 2026년 기본 샘플 데이터로 초기화할까요?',
-          () => {
-            depositLedger = DepositLedgerStorage.resetToDemo();
-            updateDepositMonthSelectOptions();
-            renderDepositLedger();
-            renderCalendar();
-            showToast('무통장 입금 내역을 초기화했어요.');
-          },
-          '초기화'
-        );
-      });
       els.btnExportDepositExcel.addEventListener('click', exportDepositLedgerToExcel);
       els.btnUploadDepositExcel.addEventListener('click', () => els.depositExcelInput.click());
       els.depositExcelInput.addEventListener('change', (e) => {
@@ -9353,6 +9301,22 @@
 
       // 탭 3: 공지사항 이벤트
       els.noticeSearchInput.addEventListener('input', renderNotices);
+      if (els.btnOpenNewNotice) {
+        els.btnOpenNewNotice.addEventListener('click', () => {
+          const isOpen = els.newNoticeComposerBox && els.newNoticeComposerBox.style.display !== 'none';
+          if (isOpen) {
+            closeNewNoticeComposer();
+          } else {
+            openNewNoticeComposer();
+          }
+        });
+      }
+      if (els.btnCancelNewNotice) {
+        els.btnCancelNewNotice.addEventListener('click', closeNewNoticeComposer);
+      }
+      if (els.btnSaveNewNotice) {
+        els.btnSaveNewNotice.addEventListener('click', saveNewNotice);
+      }
       if (els.btnUploadNoticeExcel && els.noticeExcelInput) {
         els.btnUploadNoticeExcel.addEventListener('click', () => els.noticeExcelInput.click());
         els.noticeExcelInput.addEventListener('change', (e) => {
@@ -9362,20 +9326,6 @@
           }
         });
       }
-      els.btnResetNotices.addEventListener('click', () => {
-        openConfirmModal(
-          '공지사항 초기화 확인',
-          '공지사항 목록을 기본 예시 1~15번 상태로 되돌릴까요?',
-          () => {
-            noticeList = NoticeStorage.reset();
-            openNoticeIds.clear();
-            editingNoticeId = null;
-            renderNotices();
-            showToast('공지사항 목록을 공지사항 예시 1~15로 초기화했어요.');
-          },
-          '초기화'
-        );
-      });
       els.noticeListContainer.addEventListener('click', (e) => {
         const toggleBtn = e.target.closest('[data-toggle-notice-id]');
         if (toggleBtn) {
@@ -9398,6 +9348,11 @@
         const saveBtn = e.target.closest('[data-save-notice-id]');
         if (saveBtn) {
           saveNoticeContent(saveBtn.dataset.saveNoticeId);
+          return;
+        }
+        const deleteBtn = e.target.closest('[data-delete-notice-id]');
+        if (deleteBtn) {
+          deleteNoticeItem(deleteBtn.dataset.deleteNoticeId);
         }
       });
 
@@ -9469,15 +9424,6 @@
           closeCsSearchPopover();
         }
       });
-      if (els.btnClearCsReplySearch) {
-        els.btnClearCsReplySearch.addEventListener('click', () => {
-          els.csReplyCategoryFilter.value = 'ALL';
-          CustomSelectManager.sync(els.csReplyCategoryFilter);
-          els.csReplySearchInput.value = '';
-          csReplyPage = 1;
-          renderCsReplies();
-        });
-      }
       if (els.csReplyPageButtons) {
         els.csReplyPageButtons.addEventListener('click', (e) => {
           const pageBtn = e.target.closest('[data-cs-reply-page]');
@@ -9497,28 +9443,8 @@
           }
         });
       }
-      if (els.btnResetCsReplies) {
-        els.btnResetCsReplies.addEventListener('click', () => {
-          openConfirmModal(
-            '문의 답변 예시 초기화 확인',
-            '업로드한 답변 목록을 기본 예시 데이터로 되돌릴까요?',
-            () => {
-              csReplyList = CsReplyStorage.reset();
-              csReplyPage = 1;
-              renderCsReplies();
-              showToast('문의 답변 예시를 기본 상태로 복원했어요.');
-            },
-            '초기화'
-          );
-        });
-      }
       if (els.csReplyListContainer) {
         els.csReplyListContainer.addEventListener('click', (e) => {
-          const pinBtn = e.target.closest('[data-pin-cs-reply-id]');
-          if (pinBtn) {
-            togglePinCsReply(pinBtn.dataset.pinCsReplyId);
-            return;
-          }
           const copyTarget = e.target.closest('[data-copy-cs-reply-id]');
           if (copyTarget) {
             const currentKw = (els.csReplySearchInput?.value || '').trim();
