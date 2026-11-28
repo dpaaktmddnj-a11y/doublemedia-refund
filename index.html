@@ -8066,14 +8066,22 @@
       const plotH = H - padT - padB;
 
       const rawMax = Math.max(10000000, ...rows.map(r => r.amount));
-      const stepTenMil = Math.max(1, Math.ceil(rawMax / 50000000));
-      const stepCount = Math.max(1, Math.ceil(rawMax / (stepTenMil * 10000000)));
-      const maxVal = stepCount * stepTenMil * 10000000;
+      let stepUnit = 100000000; // 1억 단위 기본
+      if (rawMax <= 100000000) {
+        stepUnit = 20000000; // 0.2억 단위
+      } else if (rawMax <= 250000000) {
+        stepUnit = 50000000; // 0.5억 단위
+      } else {
+        stepUnit = Math.max(1, Math.ceil(rawMax / 500000000)) * 100000000;
+      }
+      const stepCount = Math.max(1, Math.ceil(rawMax / stepUnit));
+      const maxVal = stepCount * stepUnit;
       const yGridHtml = [];
       for (let i = 0; i <= stepCount; i++) {
         const ratio = i / stepCount;
         const y = padT + plotH - ratio * plotH;
-        const label = i === 0 ? '0' : `${formatNumber(i * stepTenMil * 1000)}만`;
+        const eokVal = (i * stepUnit) / 100000000;
+        const label = i === 0 ? '0' : `${Number.isInteger(eokVal) ? formatNumber(eokVal) : Number(eokVal.toFixed(1))}억`;
         yGridHtml.push(`
           <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
           <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
@@ -8228,14 +8236,22 @@
       const plotH = H - padT - padB;
 
       const rawMax = Math.max(100000000, ...monthlyStats.map(s => s.sum));
-      const stepBil = Math.max(1, Math.ceil(rawMax / 400000000));
-      const stepCount = Math.max(1, Math.ceil(rawMax / (stepBil * 100000000)));
-      const maxVal = stepCount * stepBil * 100000000;
+      let stepUnit = 100000000;
+      if (rawMax <= 100000000) {
+        stepUnit = 20000000;
+      } else if (rawMax <= 250000000) {
+        stepUnit = 50000000;
+      } else {
+        stepUnit = Math.max(1, Math.ceil(rawMax / 500000000)) * 100000000;
+      }
+      const stepCount = Math.max(1, Math.ceil(rawMax / stepUnit));
+      const maxVal = stepCount * stepUnit;
       const yGridHtml = [];
       for (let i = 0; i <= stepCount; i++) {
         const ratio = i / stepCount;
         const y = padT + plotH - ratio * plotH;
-        const label = i === 0 ? '0' : `${i * stepBil}억`;
+        const eokVal = (i * stepUnit) / 100000000;
+        const label = i === 0 ? '0' : `${Number.isInteger(eokVal) ? formatNumber(eokVal) : Number(eokVal.toFixed(1))}억`;
         yGridHtml.push(`
           <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
           <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
@@ -8803,23 +8819,21 @@
       const plotH = H - padT - padB;
 
       const rawMax = Math.max(10000000, ...stats.map(s => s.refundSum));
-      // 억 단위 또는 천만 단위 깔끔한 눈금 산출
-      let stepUnit = 10000000;
-      if (rawMax >= 100000000) {
-        stepUnit = Math.max(1, Math.ceil(rawMax / 400000000)) * 100000000;
-      } else if (rawMax >= 40000000) {
-        stepUnit = 20000000;
+      let stepUnit = 100000000;
+      if (rawMax <= 100000000) {
+        stepUnit = 20000000; // 0.2억 단위
+      } else if (rawMax <= 250000000) {
+        stepUnit = 50000000; // 0.5억 단위
+      } else {
+        stepUnit = Math.max(1, Math.ceil(rawMax / 500000000)) * 100000000;
       }
       const stepCount = Math.max(1, Math.ceil(rawMax / stepUnit));
       const maxVal = stepCount * stepUnit;
 
       const formatAxisLabel = (val) => {
         if (val === 0) return '0';
-        if (val >= 100000000) {
-          const eok = val / 100000000;
-          return Number.isInteger(eok) ? `${formatNumber(eok)}억` : `${eok.toFixed(1)}억`;
-        }
-        return `${formatNumber(Math.round(val / 10000))}만`;
+        const eok = val / 100000000;
+        return Number.isInteger(eok) ? `${formatNumber(eok)}억` : `${Number(eok.toFixed(1))}억`;
       };
 
       const yGridHtml = [];
