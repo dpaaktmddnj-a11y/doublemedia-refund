@@ -1250,12 +1250,54 @@
       color: #78350f;
     }
 
+    /* 미처리 특이사항 전용 컴팩트 환불 접수 전환 버튼 */
+    .btn-transfer-refund {
+      flex-shrink: 0;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 6px;
+      border: 1px solid var(--accent-line);
+      background-color: var(--white);
+      color: var(--accent-text);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+    }
+
+    .btn-transfer-refund:hover {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
     .deposit-row-actions {
       display: flex;
       gap: 6px;
       justify-content: center;
       flex-wrap: nowrap;
       white-space: nowrap;
+    }
+
+    .deposit-note-action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .deposit-note-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-height: 26px;
     }
 
     .btn-row-edit {
@@ -2073,6 +2115,64 @@
       font-weight: 700;
     }
 
+    /* 문의 답변 변수 치환({변수명}) 미니 바 & 카드 내 편집 폼 */
+    .reply-var-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background-color: var(--accent-soft);
+      border: 1px solid var(--accent-line);
+      border-radius: 9px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+    }
+
+    .reply-var-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent-text);
+      white-space: nowrap;
+    }
+
+    .reply-var-field {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background-color: var(--white);
+      border: 1px solid var(--accent-line);
+      border-radius: 7px;
+      padding: 2px 8px;
+    }
+
+    .reply-var-key {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--ink-2);
+    }
+
+    .reply-var-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+      width: 96px;
+      height: 24px;
+    }
+
+    .reply-card-edit-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
     /* 문의 답변 검색 이력 & 추천 검색어 팝오버 */
     .cs-search-wrap {
       position: relative;
@@ -2598,12 +2698,18 @@
       </div>
 
       <!-- 카드 1: 일자별 입금 금액 및 특이사항 입력 -->
-      <div class="card">
+      <div class="card" id="depositEntryCard">
         <div class="card-header">
           <div>
-            <h2 class="card-title">일자별 입금 금액 · 특이사항 기재</h2>
+            <h2 class="card-title" id="depositFormCardTitle">일자별 입금 금액 · 특이사항 기재</h2>
             <p class="card-subtitle">날짜를 고르고 입금 금액을 저장하거나, 특이사항 유형을 선택해 양식에 맞게 여러 건 누적 기록할 수 있어요.</p>
           </div>
+        </div>
+
+        <!-- 특이사항 수정 모드 알림 배너 -->
+        <div id="depositEditBanner" class="edit-mode-banner" role="status">
+          <span id="depositEditBannerText">선택한 특이사항 항목을 수정 중이에요. 내용을 변경한 뒤 '수정 내용 저장'을 눌러 주세요.</span>
+          <button type="button" class="btn btn-secondary" id="btnCancelDepositEdit" style="height: 32px; font-size: 12.5px; padding: 0 12px;">수정 취소</button>
         </div>
 
         <form id="depositEntryForm" novalidate>
@@ -2699,9 +2805,10 @@
           <div class="form-actions">
             <span class="field-help">금액만 저장하거나, 특이사항을 여러 번 반복 추가할 수 있어요.</span>
             <div class="form-actions-right">
+              <button type="button" class="btn btn-secondary" id="btnCancelDepositEditBottom" style="display: none;">수정 취소</button>
               <button type="submit" class="btn btn-primary" id="btnSaveDeposit">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                입금 · 특이사항 기록
+                <span id="btnSaveDepositLabel">입금 · 특이사항 기록</span>
               </button>
             </div>
           </div>
@@ -3502,6 +3609,44 @@
           <div>
             <h2 class="card-title">문의 답변 예시 목록 (<span id="csReplyTotalCount">0</span>건)</h2>
             <p class="card-subtitle">분류를 고르거나 키워드를 입력해 답변을 검색한 뒤 '답변 복사' 버튼을 눌러 바로 붙여넣으세요.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" id="btnOpenNewCsReply" style="height: 36px; font-size: 13px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              추가하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 신규 문의 답변 예시 작성 폼 패널 -->
+        <div id="newCsReplyComposerBox" class="calc-box" style="display: none; margin-top: 0; margin-bottom: 16px;">
+          <div class="calc-box-header">
+            <span class="calc-box-title">새 문의 답변 예시 등록</span>
+            <span class="field-help">본문에 {고객명}, {금액} 등 중괄호 변수를 넣으면 복사 전 자동 채우기 칸이 생겨요.</span>
+          </div>
+          <div class="notice-edit-area">
+            <div class="form-grid-2">
+              <div class="field">
+                <label class="field-label" for="newCsReplyCategoryInput">분류 <span class="req">필수</span></label>
+                <input type="text" id="newCsReplyCategoryInput" class="input" placeholder="예: 환불문의, 결제문의, 계정문의">
+              </div>
+              <div class="field">
+                <label class="field-label" for="newCsReplySubCategoryInput">세부구분 (선택)</label>
+                <input type="text" id="newCsReplySubCategoryInput" class="input" placeholder="예: 무통장 환불, 본인인증">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="newCsReplyTitleInput">답변 제목 <span class="req">필수</span></label>
+              <input type="text" id="newCsReplyTitleInput" class="input" placeholder="예: 무통장 입금 확인 및 수동 충전 완료 안내">
+            </div>
+            <div class="field">
+              <label class="field-label" for="newCsReplyContentInput">답변 본문 내용 <span class="req">필수</span></label>
+              <textarea id="newCsReplyContentInput" class="textarea" style="min-height: 130px;" placeholder="예: 안녕하세요, {고객명}님. 요청하신 {금액}원 확인이 완료되었습니다."></textarea>
+            </div>
+            <div class="notice-body-actions" style="margin-top: 4px;">
+              <button type="button" class="btn btn-secondary" id="btnCancelNewCsReply" style="height: 34px; font-size: 13px;">취소</button>
+              <button type="button" class="btn btn-primary" id="btnSaveNewCsReply" style="height: 34px; font-size: 13px;">답변 등록하기</button>
+            </div>
           </div>
         </div>
 
@@ -4406,8 +4551,9 @@
     let editingRefundId = null;
     let openNoticeIds = new Set();
     let editingNoticeId = null;
-
-    let chargeCleanRows = [];
+    let editingCsReplyId = null;
+    let editingDepositNoteInfo = null;
+    let csReplyVarValues = {};
     let chargeCleanHeaders = ['번호', '메모(관리자)', '이름(인증이름)', '입금자명 ', '금액', '승인자'];
     let chargeCleanAmountColIndex = -1;
     let chargeCleanFileName = '';
@@ -5211,6 +5357,14 @@
 
       // 탭 4: 문의 답변 예시 요소
       csReplyTotalCount: document.getElementById('csReplyTotalCount'),
+      btnOpenNewCsReply: document.getElementById('btnOpenNewCsReply'),
+      newCsReplyComposerBox: document.getElementById('newCsReplyComposerBox'),
+      newCsReplyCategoryInput: document.getElementById('newCsReplyCategoryInput'),
+      newCsReplySubCategoryInput: document.getElementById('newCsReplySubCategoryInput'),
+      newCsReplyTitleInput: document.getElementById('newCsReplyTitleInput'),
+      newCsReplyContentInput: document.getElementById('newCsReplyContentInput'),
+      btnCancelNewCsReply: document.getElementById('btnCancelNewCsReply'),
+      btnSaveNewCsReply: document.getElementById('btnSaveNewCsReply'),
       csReplyCategoryFilter: document.getElementById('csReplyCategoryFilter'),
       csReplySearchWrap: document.getElementById('csReplySearchWrap'),
       csReplySearchInput: document.getElementById('csReplySearchInput'),
@@ -6981,12 +7135,62 @@
 
       els.csReplyListContainer.innerHTML = pageItems.map(item => {
         const isPinned = pinnedSet.has(item.id);
+        const isEditing = editingCsReplyId === item.id;
         const hlCls = getCategoryHighlightClass(item.category);
         const subBadge = item.subCategory
           ? `<span class="hl-badge hl-badge-gray">${escapeHtml(item.subCategory)}</span>`
           : '';
         const pinBadge = isPinned
           ? `<span class="hl-badge hl-badge-yellow">📌 상단 고정</span>`
+          : '';
+
+        if (isEditing) {
+          return `
+            <div class="reply-template-card ${isPinned ? 'is-pinned' : ''}">
+              <div class="reply-card-edit-box">
+                <div class="form-grid-2">
+                  <div class="field">
+                    <label class="field-label" for="editCsCat-${escapeHtml(item.id)}">분류</label>
+                    <input type="text" id="editCsCat-${escapeHtml(item.id)}" class="input" value="${escapeHtml(item.category || '')}">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="editCsSub-${escapeHtml(item.id)}">세부구분</label>
+                    <input type="text" id="editCsSub-${escapeHtml(item.id)}" class="input" value="${escapeHtml(item.subCategory || '')}">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="editCsTitle-${escapeHtml(item.id)}">답변 제목</label>
+                  <input type="text" id="editCsTitle-${escapeHtml(item.id)}" class="input" value="${escapeHtml(item.title || '')}">
+                </div>
+                <div class="field">
+                  <label class="field-label" for="editCsContent-${escapeHtml(item.id)}">답변 본문 ({변수명} 치환 지원)</label>
+                  <textarea id="editCsContent-${escapeHtml(item.id)}" class="textarea" style="min-height: 130px;">${escapeHtml(item.content || '')}</textarea>
+                </div>
+                <div class="notice-body-actions" style="margin-top: 2px;">
+                  <button type="button" class="btn-danger-ghost" style="height: 34px; padding: 0 12px; margin-right: auto;" data-delete-cs-reply-id="${escapeHtml(item.id)}">삭제</button>
+                  <button type="button" class="btn btn-secondary" style="height: 34px; font-size: 13px;" data-cancel-edit-cs-reply-id="${escapeHtml(item.id)}">취소</button>
+                  <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px;" data-save-edit-cs-reply-id="${escapeHtml(item.id)}">저장</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        const placeholders = extractCsReplyPlaceholders(item.content);
+        const resolvedContent = getResolvedCsReplyContent(item);
+        const varBarHtml = placeholders.length > 0
+          ? `<div class="reply-var-bar">
+              <span class="reply-var-label">변수 자동 채우기</span>
+              ${placeholders.map(key => {
+                const curVal = (csReplyVarValues[item.id] && csReplyVarValues[item.id][key]) || '';
+                return `
+                  <label class="reply-var-field">
+                    <span class="reply-var-key">{${escapeHtml(key)}}</span>
+                    <input type="text" class="reply-var-input" data-cs-var-reply-id="${escapeHtml(item.id)}" data-cs-var-key="${escapeHtml(key)}" value="${escapeHtml(curVal)}" placeholder="${escapeHtml(key)} 입력">
+                  </label>
+                `;
+              }).join('')}
+            </div>`
           : '';
 
         return `
@@ -7002,13 +7206,17 @@
                 <button type="button" class="btn-pin-reply ${isPinned ? 'pinned' : ''}" data-pin-cs-reply-id="${escapeHtml(item.id)}" title="${isPinned ? '상단 고정 해제' : '목록 최상단에 고정'}">
                   📌 ${isPinned ? '고정됨' : '고정'}
                 </button>
+                <button type="button" class="btn btn-secondary" style="height: 34px; font-size: 12.5px; padding: 0 11px;" data-edit-cs-reply-id="${escapeHtml(item.id)}">
+                  수정
+                </button>
                 <button type="button" class="btn btn-primary" style="height: 34px; font-size: 13px; padding: 0 14px;" data-copy-cs-reply-id="${escapeHtml(item.id)}">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   답변 복사
                 </button>
               </div>
             </div>
-            <div class="reply-card-body" data-copy-cs-reply-id="${escapeHtml(item.id)}" title="클릭하면 답변 내용이 바로 복사돼요">${highlightSearchKeyword(item.content, keyword)}</div>
+            ${varBarHtml}
+            <div class="reply-card-body" data-cs-body-id="${escapeHtml(item.id)}" data-copy-cs-reply-id="${escapeHtml(item.id)}" title="클릭하면 답변 내용이 바로 복사돼요">${highlightSearchKeyword(resolvedContent, keyword)}</div>
           </div>
         `;
       }).join('');
@@ -7037,12 +7245,130 @@
       }
     }
 
+    function extractCsReplyPlaceholders(content) {
+      const text = String(content || '');
+      const matches = text.match(/\{([^{}\r\n]{1,24})\}/g);
+      if (!matches) return [];
+      const seen = new Set();
+      const keys = [];
+      matches.forEach(m => {
+        const key = m.slice(1, -1).trim();
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          keys.push(key);
+        }
+      });
+      return keys;
+    }
+
+    function getResolvedCsReplyContent(item) {
+      let text = String(item?.content || '');
+      const vars = csReplyVarValues[item?.id];
+      if (!vars) return text;
+      Object.entries(vars).forEach(([key, val]) => {
+        if (val && val.trim() !== '') {
+          const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          text = text.replace(new RegExp(`\\{\\s*${escapedKey}\\s*\\}`, 'g'), val);
+        }
+      });
+      return text;
+    }
+
+    function openNewCsReplyComposer() {
+      if (!els.newCsReplyComposerBox) return;
+      els.newCsReplyComposerBox.style.display = 'block';
+      if (els.newCsReplyCategoryInput) {
+        els.newCsReplyCategoryInput.value = '';
+        els.newCsReplyCategoryInput.focus();
+      }
+      if (els.newCsReplySubCategoryInput) els.newCsReplySubCategoryInput.value = '';
+      if (els.newCsReplyTitleInput) els.newCsReplyTitleInput.value = '';
+      if (els.newCsReplyContentInput) els.newCsReplyContentInput.value = '';
+    }
+
+    function closeNewCsReplyComposer() {
+      if (!els.newCsReplyComposerBox) return;
+      els.newCsReplyComposerBox.style.display = 'none';
+    }
+
+    function saveNewCsReply() {
+      const catVal = (els.newCsReplyCategoryInput?.value || '').trim() || '기타문의';
+      const subVal = (els.newCsReplySubCategoryInput?.value || '').trim();
+      const titleVal = (els.newCsReplyTitleInput?.value || '').trim();
+      const contentVal = (els.newCsReplyContentInput?.value || '').trim();
+
+      if (!titleVal || !contentVal) {
+        showToast('답변 제목과 본문 내용을 모두 입력해 주세요.');
+        if (!titleVal) els.newCsReplyTitleInput?.focus();
+        else els.newCsReplyContentInput?.focus();
+        return;
+      }
+
+      const newItem = {
+        id: `csr-custom-${Date.now()}`,
+        category: catVal,
+        subCategory: subVal,
+        title: titleVal,
+        content: contentVal
+      };
+      csReplyList.unshift(newItem);
+      CsReplyStorage.saveAll(csReplyList);
+      csReplyPage = 1;
+      closeNewCsReplyComposer();
+      renderCsReplies();
+      showToast(`'${titleVal}' 답변 예시가 등록됐어요.`);
+    }
+
+    function saveEditedCsReply(id) {
+      const target = csReplyList.find(item => item.id === id);
+      if (!target) return;
+
+      const catVal = (document.getElementById(`editCsCat-${id}`)?.value || '').trim() || '기타문의';
+      const subVal = (document.getElementById(`editCsSub-${id}`)?.value || '').trim();
+      const titleVal = (document.getElementById(`editCsTitle-${id}`)?.value || '').trim();
+      const contentVal = (document.getElementById(`editCsContent-${id}`)?.value || '').trim();
+
+      if (!titleVal || !contentVal) {
+        showToast('답변 제목과 본문 내용을 비워둘 수 없어요.');
+        return;
+      }
+
+      target.category = catVal;
+      target.subCategory = subVal;
+      target.title = titleVal;
+      target.content = contentVal;
+      CsReplyStorage.saveAll(csReplyList);
+      editingCsReplyId = null;
+      renderCsReplies();
+      showToast('문의 답변 예시가 수정 저장됐어요.');
+    }
+
+    function deleteCsReplyItem(id) {
+      const target = csReplyList.find(item => item.id === id);
+      if (!target) return;
+
+      openConfirmModal(
+        '문의 답변 예시 삭제 확인',
+        `'${target.title}' 답변 항목을 삭제할까요?`,
+        () => {
+          csReplyList = csReplyList.filter(item => item.id !== id);
+          CsReplyStorage.saveAll(csReplyList);
+          savePinnedCsReplyIds(loadPinnedCsReplyIds().filter(pid => pid !== id));
+          if (editingCsReplyId === id) editingCsReplyId = null;
+          renderCsReplies();
+          showToast('선택한 문의 답변 예시를 삭제했어요.');
+        },
+        '삭제하기'
+      );
+    }
+
     function copyCsReplyTemplate(id) {
       const target = csReplyList.find(item => item.id === id);
       if (!target) return;
 
+      const resolvedText = getResolvedCsReplyContent(target);
       const ta = document.createElement('textarea');
-      ta.value = target.content || '';
+      ta.value = resolvedText;
       ta.style.position = 'fixed';
       ta.style.opacity = '0';
       document.body.appendChild(ta);
@@ -7260,7 +7586,7 @@
       }
 
       const noteType = els.depNoteType.value;
-      let addedNote = false;
+      let builtNote = null;
 
       if (noteType === 'unprocessed') {
         const dt = els.depUnprocDateTime.value.trim().replace(/\./g, '-');
@@ -7270,15 +7596,10 @@
           showToast('미처리 건의 입금 날짜·시각, 입금자명, 입금 금액을 모두 입력해 주세요.');
           return;
         }
-        depositLedger[targetDate].notes.push({
-          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        builtNote = {
           type: 'unprocessed',
           text: `${dt} / ${name} / ${formatNumber(amt)}원`
-        });
-        els.depUnprocDateTime.value = '';
-        els.depUnprocName.value = '';
-        els.depUnprocAmount.value = '';
-        addedNote = true;
+        };
       } else if (noteType === 'test') {
         const dt = els.depTestDateTime.value.trim().replace(/\./g, '-');
         const name = els.depTestName.value.trim();
@@ -7286,14 +7607,10 @@
           showToast('테스트 입금 건의 입금 날짜·시각과 입금자명을 입력해 주세요.');
           return;
         }
-        depositLedger[targetDate].notes.push({
-          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        builtNote = {
           type: 'test',
           text: `${dt} / ${name} / 1원 / 테스트 입금 건`
-        });
-        els.depTestDateTime.value = '';
-        els.depTestName.value = '';
-        addedNote = true;
+        };
       } else if (noteType === 'rejected') {
         const amt = parseFormattedNumber(els.depRejAmount.value);
         const name = els.depRejName.value.trim();
@@ -7301,19 +7618,64 @@
           showToast('차액 환불 거절 건의 차액 금액과 입금자명을 입력해 주세요.');
           return;
         }
-        depositLedger[targetDate].notes.push({
-          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        builtNote = {
           type: 'rejected',
           text: `차액 ${formatNumber(amt)}원 환불 거절 (입금자명 : ${name})`
-        });
-        els.depRejAmount.value = '';
-        els.depRejName.value = '';
-        addedNote = true;
+        };
       }
 
-      if (!updatedAmount && !addedNote) {
+      if (editingDepositNoteInfo) {
+        if (!builtNote) {
+          showToast('수정할 특이사항 유형과 내용을 입력해 주세요.');
+          return;
+        }
+        const { origDate, noteId } = editingDepositNoteInfo;
+        const origEntry = depositLedger[origDate];
+        if (origDate === targetDate && origEntry && Array.isArray(origEntry.notes)) {
+          const idx = origEntry.notes.findIndex(n => n.id === noteId);
+          if (idx !== -1) {
+            origEntry.notes[idx] = { id: noteId, ...builtNote };
+          } else {
+            origEntry.notes.push({ id: noteId, ...builtNote });
+          }
+        } else {
+          if (origEntry && Array.isArray(origEntry.notes)) {
+            origEntry.notes = origEntry.notes.filter(n => n.id !== noteId);
+          }
+          depositLedger[targetDate].notes.push({ id: noteId, ...builtNote });
+        }
+
+        DepositLedgerStorage.saveAll(depositLedger);
+        exitDepositNoteEditMode(false);
+        const ym = targetDate.slice(0, 7);
+        updateDepositMonthSelectOptions();
+        if (!els.depMonthSelect.value.startsWith('ALL')) {
+          els.depMonthSelect.value = ym;
+          CustomSelectManager.sync(els.depMonthSelect);
+        }
+        renderDepositLedger();
+        renderCalendar();
+        showToast(`${targetDate} 특이사항 항목이 수정 저장됐어요.`);
+        return;
+      }
+
+      if (!updatedAmount && !builtNote) {
         showToast('입금 금액을 입력하거나 특이사항 유형을 선택해 주세요.');
         return;
+      }
+
+      if (builtNote) {
+        depositLedger[targetDate].notes.push({
+          id: `dn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          ...builtNote
+        });
+        els.depUnprocDateTime.value = '';
+        els.depUnprocName.value = '';
+        els.depUnprocAmount.value = '';
+        els.depTestDateTime.value = '';
+        els.depTestName.value = '';
+        els.depRejAmount.value = '';
+        els.depRejName.value = '';
       }
 
       DepositLedgerStorage.saveAll(depositLedger);
@@ -7331,11 +7693,145 @@
       showToast(`${targetDate} 입금 및 특이사항 내역이 기록됐어요.`);
     }
 
+    function startEditDepositNote(dateStr, noteId) {
+      const entry = depositLedger[dateStr];
+      if (!entry || !Array.isArray(entry.notes)) return;
+      const note = entry.notes.find(n => n.id === noteId);
+      if (!note) return;
+
+      editingDepositNoteInfo = { origDate: dateStr, noteId };
+
+      els.depTargetDate.value = dateStr;
+      CustomDatePicker.syncLabel(els.depTargetDate);
+      els.depDailyAmount.value = entry.amount > 0 ? formatNumber(entry.amount) : '';
+
+      els.depUnprocDateTime.value = '';
+      els.depUnprocName.value = '';
+      els.depUnprocAmount.value = '';
+      els.depTestDateTime.value = '';
+      els.depTestName.value = '';
+      els.depRejAmount.value = '';
+      els.depRejName.value = '';
+
+      const text = String(note.text || '');
+      if (note.type === 'unprocessed') {
+        els.depNoteType.value = 'unprocessed';
+        CustomSelectManager.sync(els.depNoteType);
+        updateDepositNoteBoxes();
+        const parts = text.split('/').map(s => s.trim());
+        if (parts.length >= 3) {
+          els.depUnprocDateTime.value = parts[0] || '';
+          els.depUnprocName.value = parts[1] || '';
+          const amt = parseFormattedNumber(parts[2]);
+          els.depUnprocAmount.value = amt > 0 ? formatNumber(amt) : '';
+        }
+      } else if (note.type === 'test') {
+        els.depNoteType.value = 'test';
+        CustomSelectManager.sync(els.depNoteType);
+        updateDepositNoteBoxes();
+        const parts = text.split('/').map(s => s.trim());
+        if (parts.length >= 2) {
+          els.depTestDateTime.value = parts[0] || '';
+          els.depTestName.value = parts[1] || '';
+        }
+      } else {
+        els.depNoteType.value = 'rejected';
+        CustomSelectManager.sync(els.depNoteType);
+        updateDepositNoteBoxes();
+        const amtMatch = text.match(/차액\s*([\d,]+)\s*원/);
+        const nameMatch = text.match(/입금자명\s*:\s*([^)]+)\)/);
+        if (amtMatch) {
+          const amt = parseFormattedNumber(amtMatch[1]);
+          els.depRejAmount.value = amt > 0 ? formatNumber(amt) : '';
+        }
+        if (nameMatch) {
+          els.depRejName.value = nameMatch[1].trim();
+        }
+      }
+      updateDepositNotePreviews();
+
+      const titleEl = document.getElementById('depositFormCardTitle');
+      const bannerEl = document.getElementById('depositEditBanner');
+      const bannerTextEl = document.getElementById('depositEditBannerText');
+      const saveLabelEl = document.getElementById('btnSaveDepositLabel');
+      const cancelBottomBtn = document.getElementById('btnCancelDepositEditBottom');
+
+      if (titleEl) titleEl.textContent = `특이사항 항목 수정 (${dateStr})`;
+      if (bannerTextEl) bannerTextEl.textContent = `'${text}' 항목을 수정 중이에요. 내용을 변경한 뒤 '수정 내용 저장'을 눌러 주세요.`;
+      if (bannerEl) bannerEl.classList.add('show');
+      if (saveLabelEl) saveLabelEl.textContent = '수정 내용 저장';
+      if (cancelBottomBtn) cancelBottomBtn.style.display = 'inline-flex';
+
+      const cardEl = document.getElementById('depositEntryCard');
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      showToast('선택한 특이사항 내용을 상단 입력창으로 불러왔어요.');
+    }
+
+    function exitDepositNoteEditMode(showMsg = true) {
+      editingDepositNoteInfo = null;
+      const titleEl = document.getElementById('depositFormCardTitle');
+      const bannerEl = document.getElementById('depositEditBanner');
+      const saveLabelEl = document.getElementById('btnSaveDepositLabel');
+      const cancelBottomBtn = document.getElementById('btnCancelDepositEditBottom');
+
+      if (titleEl) titleEl.textContent = '일자별 입금 금액 · 특이사항 기재';
+      if (bannerEl) bannerEl.classList.remove('show');
+      if (saveLabelEl) saveLabelEl.textContent = '입금 · 특이사항 기록';
+      if (cancelBottomBtn) cancelBottomBtn.style.display = 'none';
+
+      els.depDailyAmount.value = '';
+      els.depUnprocDateTime.value = '';
+      els.depUnprocName.value = '';
+      els.depUnprocAmount.value = '';
+      els.depTestDateTime.value = '';
+      els.depTestName.value = '';
+      els.depRejAmount.value = '';
+      els.depRejName.value = '';
+      els.depNoteType.value = 'none';
+      CustomSelectManager.sync(els.depNoteType);
+      updateDepositNoteBoxes();
+
+      if (showMsg) {
+        showToast('특이사항 수정을 취소했어요.');
+      }
+    }
+
+    function deleteSingleDepositNote(dateStr, noteId) {
+      const entry = depositLedger[dateStr];
+      if (!entry || !Array.isArray(entry.notes)) return;
+      const targetNote = entry.notes.find(n => n.id === noteId);
+      if (!targetNote) return;
+
+      openConfirmModal(
+        '특이사항 개별 삭제 확인',
+        `'${targetNote.text}' 항목을 삭제할까요?`,
+        () => {
+          if (editingDepositNoteInfo && editingDepositNoteInfo.noteId === noteId) {
+            exitDepositNoteEditMode(false);
+          }
+          entry.notes = entry.notes.filter(n => n.id !== noteId);
+          if ((Number(entry.amount) || 0) <= 0 && entry.notes.length === 0) {
+            delete depositLedger[dateStr];
+          }
+          DepositLedgerStorage.saveAll(depositLedger);
+          renderDepositLedger();
+          renderCalendar();
+          showToast(`${dateStr} 특이사항 항목을 삭제했어요.`);
+        },
+        '삭제하기'
+      );
+    }
+
     function clearDepositDay(dateStr) {
       openConfirmModal(
         '일자 입금 내역 초기화 확인',
         `${dateStr} 날짜에 기록된 입금 금액과 특이사항을 모두 비울까요?`,
         () => {
+          if (editingDepositNoteInfo && editingDepositNoteInfo.origDate === dateStr) {
+            exitDepositNoteEditMode(false);
+          }
           delete depositLedger[dateStr];
           DepositLedgerStorage.saveAll(depositLedger);
           renderDepositLedger();
@@ -7442,14 +7938,34 @@
             ? `<div class="deposit-note-list">
                 ${r.notes.map(n => {
                   const cls = n.type === 'rejected' ? 'is-rejected' : (n.type === 'test' ? 'is-test' : 'is-unprocessed');
+                  const transferBtnHtml = n.type === 'unprocessed'
+                    ? `<button type="button" class="btn-transfer-refund" data-transfer-dep-date="${escapeHtml(r.dateStr)}" data-transfer-note-id="${escapeHtml(n.id)}" title="이 미처리 건 정보로 무통장 환불 접수 화면을 바로 채웁니다">환불 접수 ↗</button>`
+                    : '';
                   return `
                     <div class="deposit-note-item ${cls}">
                       <span class="deposit-note-text"><span class="deposit-note-highlight">${escapeHtml(n.text)}</span></span>
+                      ${transferBtnHtml}
                     </div>
                   `;
                 }).join('')}
               </div>`
             : `<span style="color: var(--muted); font-size: 13px;">특이사항 없음</span>`;
+
+          const manageHtml = r.notes.length > 0
+            ? `<div class="deposit-note-action-list">
+                ${r.notes.map(n => `
+                  <div class="deposit-note-action-row">
+                    <button type="button" class="btn-row-edit" style="height: 26px; padding: 0 9px;" data-edit-dep-date="${escapeHtml(r.dateStr)}" data-edit-note-id="${escapeHtml(n.id)}">수정</button>
+                    <button type="button" class="btn-danger-ghost" style="height: 26px; padding: 0 9px;" data-del-dep-date="${escapeHtml(r.dateStr)}" data-del-note-id="${escapeHtml(n.id)}">삭제</button>
+                  </div>
+                `).join('')}
+              </div>`
+            : `<div class="deposit-row-actions">
+                <button type="button" class="btn-row-edit" data-select-dep-date="${escapeHtml(r.dateStr)}">수정</button>
+                ${r.amount > 0
+                  ? `<button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 8px;" data-clear-dep-date="${escapeHtml(r.dateStr)}">삭제</button>`
+                  : ''}
+              </div>`;
 
           return `
             <tr>
@@ -7458,14 +7974,7 @@
               </td>
               <td style="text-align: right; white-space: nowrap;">${amountHtml}</td>
               <td>${notesHtml}</td>
-              <td style="text-align: center; white-space: nowrap;">
-                <div class="deposit-row-actions">
-                  <button type="button" class="btn-row-edit" data-select-dep-date="${escapeHtml(r.dateStr)}">수정</button>
-                  ${(r.amount > 0 || r.notes.length > 0)
-                    ? `<button type="button" class="btn-danger-ghost" style="height: 30px; padding: 0 8px;" data-clear-dep-date="${escapeHtml(r.dateStr)}">삭제</button>`
-                    : ''}
-                </div>
-              </td>
+              <td style="text-align: center; white-space: nowrap;">${manageHtml}</td>
             </tr>
           `;
         }).join('');
@@ -7476,6 +7985,65 @@
       } else {
         renderDepositLineChart(rows);
       }
+    }
+
+    function transferUnprocessedDepositToRefund(dateStr, noteId) {
+      const entry = depositLedger[dateStr];
+      if (!entry || !Array.isArray(entry.notes)) return;
+      const note = entry.notes.find(n => n.id === noteId);
+      if (!note) return;
+
+      // 표준 미처리 양식: "YYYY-MM-DD HH:MM / 입금자명 / 금액원" 파싱
+      const parts = String(note.text || '').split('/').map(s => s.trim());
+      let parsedDateTime = `${dateStr} 12:00`;
+      let parsedHolder = '';
+      let parsedAmount = 0;
+
+      if (parts.length >= 3) {
+        const dtMatch = parts[0].match(/(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)/);
+        if (dtMatch) parsedDateTime = dtMatch[1];
+        parsedHolder = parts[1] || '';
+        parsedAmount = parseFormattedNumber(parts[2]);
+      } else {
+        const dtMatch = note.text.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})/);
+        if (dtMatch) parsedDateTime = dtMatch[1];
+        const amtMatch = note.text.match(/([\d,]+)\s*원/);
+        if (amtMatch) parsedAmount = parseFormattedNumber(amtMatch[1]);
+      }
+
+      if (editingRefundId) {
+        exitRefundEditMode(false);
+      }
+
+      switchTab('tab-entry');
+
+      els.refundDate.value = getNextRefundDateString();
+      CustomDatePicker.syncLabel(els.refundDate);
+
+      els.paymentMethod.value = '무통장';
+      CustomSelectManager.sync(els.paymentMethod);
+
+      els.refundType.value = '미충전';
+      CustomSelectManager.sync(els.refundType);
+      updateCalculatorPanels();
+
+      els.holderName.value = parsedHolder;
+      els.depositDateTime.value = parsedDateTime;
+      els.rawDepositAmount.value = parsedAmount > 0 ? formatNumber(parsedAmount) : '';
+      els.unchargedMemoType.value = '입금은 하였으나 결제 요청하지 않고 환불 요청';
+      CustomSelectManager.sync(els.unchargedMemoType);
+
+      recalculateRefund();
+
+      const entryCard = document.getElementById('refundEntryCard');
+      if (entryCard) {
+        entryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      setTimeout(() => {
+        els.userId.focus();
+      }, 250);
+
+      showToast(`${parsedHolder ? `'${parsedHolder}' 님 ` : ''}미처리 건(${formatNumber(parsedAmount)}원) 정보를 환불 접수창에 채웠어요. 고객 아이디와 계좌번호만 입력해 주세요.`);
     }
 
     function renderDepositLineChart(rows) {
@@ -7497,15 +8065,15 @@
       const plotW = W - padL - padR;
       const plotH = H - padT - padB;
 
-      const rawMax = Math.max(100000000, ...rows.map(r => r.amount));
-      const maxBil = Math.max(1, Math.ceil(rawMax / 100000000));
-      const maxVal = maxBil * 100000000;
-      const stepCount = maxBil;
+      const rawMax = Math.max(10000000, ...rows.map(r => r.amount));
+      const stepTenMil = Math.max(1, Math.ceil(rawMax / 50000000));
+      const stepCount = Math.max(1, Math.ceil(rawMax / (stepTenMil * 10000000)));
+      const maxVal = stepCount * stepTenMil * 10000000;
       const yGridHtml = [];
       for (let i = 0; i <= stepCount; i++) {
         const ratio = i / stepCount;
         const y = padT + plotH - ratio * plotH;
-        const label = i === 0 ? '0' : `${i}억`;
+        const label = i === 0 ? '0' : `${formatNumber(i * stepTenMil * 1000)}만`;
         yGridHtml.push(`
           <line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#e6e9ee" stroke-dasharray="${i === 0 ? 'none' : '4 4'}" />
           <text x="${padL - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#7a8492" font-weight="600">${label}</text>
@@ -9184,6 +9752,8 @@
         if (inp) inp.addEventListener('change', updateDepositNotePreviews);
       });
       els.depositEntryForm.addEventListener('submit', handleSaveDepositEntry);
+      document.getElementById('btnCancelDepositEdit')?.addEventListener('click', () => exitDepositNoteEditMode(true));
+      document.getElementById('btnCancelDepositEditBottom')?.addEventListener('click', () => exitDepositNoteEditMode(true));
       els.depMonthSelect.addEventListener('change', renderDepositLedger);
       els.btnExportDepositExcel.addEventListener('click', exportDepositLedgerToExcel);
       els.btnUploadDepositExcel.addEventListener('click', () => els.depositExcelInput.click());
@@ -9194,12 +9764,37 @@
         }
       });
       els.depositLedgerBody.addEventListener('click', (e) => {
+        const transferBtn = e.target.closest('[data-transfer-dep-date]');
+        if (transferBtn) {
+          transferUnprocessedDepositToRefund(
+            transferBtn.dataset.transferDepDate,
+            transferBtn.dataset.transferNoteId
+          );
+          return;
+        }
+        const editNoteBtn = e.target.closest('[data-edit-note-id]');
+        if (editNoteBtn) {
+          startEditDepositNote(
+            editNoteBtn.dataset.editDepDate,
+            editNoteBtn.dataset.editNoteId
+          );
+          return;
+        }
+        const delNoteBtn = e.target.closest('[data-del-note-id]');
+        if (delNoteBtn) {
+          deleteSingleDepositNote(
+            delNoteBtn.dataset.delDepDate,
+            delNoteBtn.dataset.delNoteId
+          );
+          return;
+        }
         const selBtn = e.target.closest('[data-select-dep-date]');
         if (selBtn) {
+          if (editingDepositNoteInfo) exitDepositNoteEditMode(false);
           const dStr = selBtn.dataset.selectDepDate;
+          const entry = depositLedger[dStr];
           els.depTargetDate.value = dStr;
           CustomDatePicker.syncLabel(els.depTargetDate);
-          const entry = depositLedger[dStr];
           els.depDailyAmount.value = entry && entry.amount > 0 ? formatNumber(entry.amount) : '';
           updateDepositNotePreviews();
           els.depositEntryForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -9504,6 +10099,22 @@
       });
 
       // 탭 4: 문의 답변 예시 이벤트
+      if (els.btnOpenNewCsReply) {
+        els.btnOpenNewCsReply.addEventListener('click', () => {
+          const isOpen = els.newCsReplyComposerBox && els.newCsReplyComposerBox.style.display !== 'none';
+          if (isOpen) {
+            closeNewCsReplyComposer();
+          } else {
+            openNewCsReplyComposer();
+          }
+        });
+      }
+      if (els.btnCancelNewCsReply) {
+        els.btnCancelNewCsReply.addEventListener('click', closeNewCsReplyComposer);
+      }
+      if (els.btnSaveNewCsReply) {
+        els.btnSaveNewCsReply.addEventListener('click', saveNewCsReply);
+      }
       if (els.csReplyCategoryFilter) {
         els.csReplyCategoryFilter.addEventListener('change', () => {
           csReplyPage = 1;
@@ -9606,10 +10217,48 @@
         });
       }
       if (els.csReplyListContainer) {
+        els.csReplyListContainer.addEventListener('input', (e) => {
+          const varInput = e.target.closest('[data-cs-var-reply-id]');
+          if (!varInput) return;
+          const replyId = varInput.dataset.csVarReplyId;
+          const varKey = varInput.dataset.csVarKey;
+          if (!csReplyVarValues[replyId]) csReplyVarValues[replyId] = {};
+          csReplyVarValues[replyId][varKey] = varInput.value;
+
+          const target = csReplyList.find(item => item.id === replyId);
+          const bodyEl = els.csReplyListContainer.querySelector(`[data-cs-body-id="${CSS.escape(replyId)}"]`);
+          if (target && bodyEl) {
+            const keyword = (els.csReplySearchInput?.value || '').trim();
+            bodyEl.innerHTML = highlightSearchKeyword(getResolvedCsReplyContent(target), keyword);
+          }
+        });
+
         els.csReplyListContainer.addEventListener('click', (e) => {
           const pinBtn = e.target.closest('[data-pin-cs-reply-id]');
           if (pinBtn) {
             togglePinCsReply(pinBtn.dataset.pinCsReplyId);
+            return;
+          }
+          const editBtn = e.target.closest('[data-edit-cs-reply-id]');
+          if (editBtn) {
+            editingCsReplyId = editBtn.dataset.editCsReplyId;
+            renderCsReplies();
+            return;
+          }
+          const cancelEditBtn = e.target.closest('[data-cancel-edit-cs-reply-id]');
+          if (cancelEditBtn) {
+            editingCsReplyId = null;
+            renderCsReplies();
+            return;
+          }
+          const saveEditBtn = e.target.closest('[data-save-edit-cs-reply-id]');
+          if (saveEditBtn) {
+            saveEditedCsReply(saveEditBtn.dataset.saveEditCsReplyId);
+            return;
+          }
+          const deleteBtn = e.target.closest('[data-delete-cs-reply-id]');
+          if (deleteBtn) {
+            deleteCsReplyItem(deleteBtn.dataset.deleteCsReplyId);
             return;
           }
           const copyTarget = e.target.closest('[data-copy-cs-reply-id]');
