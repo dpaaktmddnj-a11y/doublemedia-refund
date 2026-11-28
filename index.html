@@ -3344,7 +3344,7 @@
         <div class="stat-card">
           <div class="stat-label">변환된 데이터 건수</div>
           <div class="stat-value" id="ccStatCount">0건</div>
-          <div class="stat-sub" id="ccStatExcluded">번호(A열) 오름차순 · 1부터 정렬</div>
+          <div class="stat-sub" id="ccStatExcluded">승인시간 오름차순 · 번호 1부터 정렬</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">수동 승인 기재 건수</div>
@@ -6059,6 +6059,23 @@
       // '금액' 열 위치 찾기 (오직 이 열에서만 '원' 단위를 제거)
       const amountColIdx = headers.findIndex(h => String(h).replace(/\s+/g, '').includes('금액'));
 
+      // 원본 헤더에서 '승인시간' 열 인덱스 탐색 (가장 빠른 승인시간 기준 오름차순 정렬용)
+      const approvalTimeColIdx = headerRow.findIndex(h => String(h ?? '').replace(/\s+/g, '').includes('승인시간'));
+
+      const parseApprovalTimestamp = (rawVal) => {
+        if (rawVal === null || rawVal === undefined || rawVal === '') return Number.MAX_SAFE_INTEGER;
+        if (rawVal instanceof Date && !isNaN(rawVal.getTime())) {
+          return rawVal.getTime();
+        }
+        if (typeof rawVal === 'number' && rawVal > 25000 && rawVal < 90000) {
+          return rawVal;
+        }
+        const normalized = normalizeChargeCellDate(rawVal);
+        if (!normalized) return Number.MAX_SAFE_INTEGER;
+        const parsedMs = Date.parse(normalized.replace(/\./g, '-').replace(' ', 'T'));
+        return isNaN(parsedMs) ? Number.MAX_SAFE_INTEGER : parsedMs;
+      };
+
       const extracted = [];
       let totalSourceRows = 0;
 
@@ -6071,15 +6088,12 @@
 
         totalSourceRows += 1;
 
-        const rawNumVal = row[0];
-        const parsedNum = Number(String(rawNumVal ?? '').replace(/[^\d.-]/g, ''));
-        const sortOrder = !isNaN(parsedNum) && String(rawNumVal ?? '').trim() !== '' ? parsedNum : Number.MAX_SAFE_INTEGER;
+        const approvalTs = approvalTimeColIdx >= 0
+          ? parseApprovalTimestamp(row[approvalTimeColIdx])
+          : Number.MAX_SAFE_INTEGER;
 
         const cells = activeCols.map((col, colPos) => {
           const val = row[col.idx];
-          if (colPos === 0 && !isNaN(parsedNum) && String(val ?? '').trim() !== '') {
-            return parsedNum;
-          }
           if (colPos === amountColIdx) {
             return stripWonFromAmountCell(val);
           }
@@ -6087,23 +6101,20 @@
         });
 
         extracted.push({
-          sortOrder,
+          approvalTs,
           originalIdx: r,
           cells
         });
       }
 
-      // 번호(A열) 기준 1부터 오름차순 정렬
+      // 승인시간이 가장 빠른 순(오름차순)으로 정렬 후 번호(A열)를 1부터 순차 부여
       extracted.sort((a, b) => {
-        if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+        if (a.approvalTs !== b.approvalTs) return a.approvalTs - b.approvalTs;
         return a.originalIdx - b.originalIdx;
       });
 
-      // 정렬 후 번호 열이 비어 있거나 순번 재정렬이 필요한 경우 1부터 순차 번호 유지/보정
       extracted.forEach((item, index) => {
-        if (item.sortOrder === Number.MAX_SAFE_INTEGER) {
-          item.cells[0] = index + 1;
-        }
+        item.cells[0] = index + 1;
       });
 
       const rows = extracted.map(item => item.cells);
@@ -6244,8 +6255,8 @@
 
       els.ccStatCount.textContent = `${formatNumber(totalCount)}건`;
       els.ccStatExcluded.textContent = chargeCleanFileName
-        ? `승인시간 제외 · 번호(1부터) 오름차순 정렬 완료`
-        : '번호(A열) 오름차순 · 1부터 정렬';
+        ? `승인시간 제외 · 승인시간 빠른 순(1부터) 정렬 완료`
+        : '승인시간 오름차순 · 번호 1부터 정렬';
       els.ccStatTotalAmount.textContent = `${formatNumber(totalAmount)}원`;
       els.ccStatFileName.textContent = chargeCleanFileName
         ? `원본 파일: ${chargeCleanFileName}`
