@@ -2489,12 +2489,65 @@
 
     .login-card {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       background-color: var(--white);
       border: 1px solid var(--line);
       border-radius: 18px;
-      padding: 32px 28px;
+      padding: 36px 32px 32px;
       box-shadow: 0 12px 32px rgba(22, 27, 34, 0.06);
+    }
+
+    .login-brand-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .login-logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .login-logo-img {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
+
+    .login-logo-wordmark {
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .login-service-sub {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: -0.01em;
+    }
+
+    .login-title {
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.025em;
+      margin-top: 20px;
+    }
+
+    .login-subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.55;
+      word-break: keep-all;
     }
 
     .login-title {
@@ -2586,10 +2639,21 @@
   <!-- 관리자 로그인 게이트 화면 -->
   <div id="loginGate" class="login-gate">
     <div class="login-card">
-      <div>
-        <span class="badge-service">DoubleMedia AI 플레이그라운드</span>
-        <h2 class="login-title">무통장 환불 접수 및 정산 관리</h2>
-        <p class="login-subtitle">인가된 관리자 전용 아이디와 비밀번호를 입력해 로그인해 주세요.</p>
+      <div class="login-brand-header">
+        <div class="login-logo-wrap">
+          <img
+            src="./logo-dark_4.png"
+            alt="DoubleMedia"
+            class="login-logo-img"
+            onerror="if (!this.dataset.step) { this.dataset.step='1'; this.src='./logo-dark.png'; }"
+          >
+        </div>
+        <div class="login-service-sub">AI Playground</div>
+        <h2 class="login-title">관리자 계정으로 로그인</h2>
+        <p class="login-subtitle">
+          DoubleMedia 임직원 전용 무통장 환불 접수 및 정산 관리 페이지입니다.<br>
+          인가된 관리자 전용 아이디와 비밀번호로 로그인해 주세요.
+        </p>
       </div>
 
       <form id="loginForm" class="login-form" novalidate>
