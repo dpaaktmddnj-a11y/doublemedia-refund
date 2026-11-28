@@ -9008,6 +9008,28 @@
       // 초기 날짜 및 기본값 세팅
       const yesterdayStr = getYesterdayDateString();
       els.depTargetDate.value = yesterdayStr;
+      CustomDatePicker.syncLabel(els.depTargetDate);
+
+      els.refundDate.value = getNextRefundDateString();
+      CustomDatePicker.syncLabel(els.refundDate);
+      els.depositDateTime.value = getCurrentDateTime24();
+
+      // 금액 및 수량 입력칸 천 단위 콤마(,) 자동 포맷팅 연결
+      [
+        els.depDailyAmount,
+        els.depUnprocAmount,
+        els.depRejAmount,
+        els.refundAmount,
+        els.rawDepositAmount,
+        els.unusedPaidAmount,
+        els.unusedHeartCount,
+        els.unusedSpecialHeartCount,
+        els.unusedItemCount,
+        els.remainHearts,
+        els.totalPaidHistory,
+        els.refundAmountHistory
+      ].forEach(bindCommaFormatting);
+
       // 키보드 단축키: Ctrl + K (어느 화면에서도 검색 바로가기) 및 좌우 화살표 탭 이동
       document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
