@@ -3627,8 +3627,11 @@
           <div class="notice-edit-area">
             <div class="form-grid-2">
               <div class="field">
-                <label class="field-label" for="newCsReplyCategoryInput">분류 <span class="req">필수</span></label>
-                <input type="text" id="newCsReplyCategoryInput" class="input" placeholder="예: 환불문의, 결제문의, 계정문의">
+                <label class="field-label" for="newCsReplyCategorySelect">분류 <span class="req">필수</span></label>
+                <select id="newCsReplyCategorySelect" class="select">
+                  <option value="환불문의">환불문의</option>
+                </select>
+                <input type="text" id="newCsReplyCategoryInput" class="input" placeholder="새 분류명을 직접 입력하세요" style="display: none; margin-top: 2px;">
               </div>
               <div class="field">
                 <label class="field-label" for="newCsReplySubCategoryInput">세부구분 (선택)</label>
@@ -5359,6 +5362,7 @@
       csReplyTotalCount: document.getElementById('csReplyTotalCount'),
       btnOpenNewCsReply: document.getElementById('btnOpenNewCsReply'),
       newCsReplyComposerBox: document.getElementById('newCsReplyComposerBox'),
+      newCsReplyCategorySelect: document.getElementById('newCsReplyCategorySelect'),
       newCsReplyCategoryInput: document.getElementById('newCsReplyCategoryInput'),
       newCsReplySubCategoryInput: document.getElementById('newCsReplySubCategoryInput'),
       newCsReplyTitleInput: document.getElementById('newCsReplyTitleInput'),
@@ -7058,6 +7062,20 @@
         els.csReplyCategoryFilter.value = 'ALL';
       }
       CustomSelectManager.sync(els.csReplyCategoryFilter);
+
+      if (els.newCsReplyCategorySelect) {
+        const prevNewVal = els.newCsReplyCategorySelect.value;
+        const baseCats = sortedCats.length > 0 ? sortedCats : ['환불문의', '결제문의', '계정문의', '제재문의'];
+        els.newCsReplyCategorySelect.innerHTML =
+          baseCats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') +
+          '<option value="__custom__">직접 입력 (신규 분류)</option>';
+        if (prevNewVal && (prevNewVal === '__custom__' || baseCats.includes(prevNewVal))) {
+          els.newCsReplyCategorySelect.value = prevNewVal;
+        } else {
+          els.newCsReplyCategorySelect.selectedIndex = 0;
+        }
+        CustomSelectManager.sync(els.newCsReplyCategorySelect);
+      }
     }
 
     function renderCsReplies() {
@@ -7276,26 +7294,47 @@
 
     function openNewCsReplyComposer() {
       if (!els.newCsReplyComposerBox) return;
+      updateCsReplyCategoryOptions();
       els.newCsReplyComposerBox.style.display = 'block';
+      if (els.newCsReplyCategorySelect) {
+        els.newCsReplyCategorySelect.selectedIndex = 0;
+        CustomSelectManager.sync(els.newCsReplyCategorySelect);
+      }
       if (els.newCsReplyCategoryInput) {
         els.newCsReplyCategoryInput.value = '';
-        els.newCsReplyCategoryInput.focus();
+        els.newCsReplyCategoryInput.style.display = 'none';
       }
       if (els.newCsReplySubCategoryInput) els.newCsReplySubCategoryInput.value = '';
-      if (els.newCsReplyTitleInput) els.newCsReplyTitleInput.value = '';
+      if (els.newCsReplyTitleInput) {
+        els.newCsReplyTitleInput.value = '';
+        els.newCsReplyTitleInput.focus();
+      }
       if (els.newCsReplyContentInput) els.newCsReplyContentInput.value = '';
     }
 
     function closeNewCsReplyComposer() {
       if (!els.newCsReplyComposerBox) return;
       els.newCsReplyComposerBox.style.display = 'none';
+      if (els.newCsReplyCategoryInput) {
+        els.newCsReplyCategoryInput.value = '';
+        els.newCsReplyCategoryInput.style.display = 'none';
+      }
     }
 
     function saveNewCsReply() {
-      const catVal = (els.newCsReplyCategoryInput?.value || '').trim() || '기타문의';
+      const selectedCat = els.newCsReplyCategorySelect ? els.newCsReplyCategorySelect.value : '__custom__';
+      const catVal = selectedCat === '__custom__'
+        ? ((els.newCsReplyCategoryInput?.value || '').trim() || '기타문의')
+        : (selectedCat.trim() || '기타문의');
       const subVal = (els.newCsReplySubCategoryInput?.value || '').trim();
       const titleVal = (els.newCsReplyTitleInput?.value || '').trim();
       const contentVal = (els.newCsReplyContentInput?.value || '').trim();
+
+      if (selectedCat === '__custom__' && !(els.newCsReplyCategoryInput?.value || '').trim()) {
+        showToast('새로 등록할 분류명을 입력해 주세요.');
+        els.newCsReplyCategoryInput?.focus();
+        return;
+      }
 
       if (!titleVal || !contentVal) {
         showToast('답변 제목과 본문 내용을 모두 입력해 주세요.');
@@ -10125,6 +10164,18 @@
       }
       if (els.btnCancelNewCsReply) {
         els.btnCancelNewCsReply.addEventListener('click', closeNewCsReplyComposer);
+      }
+      if (els.newCsReplyCategorySelect) {
+        els.newCsReplyCategorySelect.addEventListener('change', () => {
+          if (!els.newCsReplyCategoryInput) return;
+          if (els.newCsReplyCategorySelect.value === '__custom__') {
+            els.newCsReplyCategoryInput.style.display = 'block';
+            els.newCsReplyCategoryInput.focus();
+          } else {
+            els.newCsReplyCategoryInput.style.display = 'none';
+            els.newCsReplyCategoryInput.value = '';
+          }
+        });
       }
       if (els.btnSaveNewCsReply) {
         els.btnSaveNewCsReply.addEventListener('click', saveNewCsReply);
