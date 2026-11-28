@@ -3787,9 +3787,10 @@
 
       <div class="backup-section-box">
         <div class="backup-section-title">1. 통합 엑셀 전체 백업 (.xlsx)</div>
-        <div class="backup-section-desc">입금 내역, 환불 정산 내역, 공지사항 시트가 모두 포함된 엑셀 파일을 내려받아요.</div>
+        <div class="backup-section-desc">입금 내역, 환불 정산 내역, 공지사항, 문의 답변 예시 시트가 모두 포함된 엑셀 파일을 내려받아요.</div>
         <button type="button" class="btn btn-primary" id="btnExportAllWorkbook" style="width: 100%; height: 38px; font-size: 13px;">
-          통합 엑셀(.xlsx) 다운로드
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          통합 엑셀 다운로드 (.xlsx)
         </button>
       </div>
 
@@ -3798,10 +3799,12 @@
         <div class="backup-section-desc">입금·환불·대기목록·공지사항·공휴일 설정을 동일한 상태로 백업하고 복원해요.</div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button type="button" class="btn btn-primary" id="btnExportJsonBackup" style="flex: 1; height: 38px; font-size: 13px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             JSON 파일 백업
           </button>
           <input type="file" id="jsonRestoreInput" accept=".json" style="display: none;">
           <button type="button" class="btn btn-secondary" id="btnImportJsonRestore" style="flex: 1; height: 38px; font-size: 13px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             JSON 파일 복원
           </button>
         </div>
@@ -9394,6 +9397,18 @@
       wsNotice['!cols'] = [{ wch: 8 }, { wch: 28 }, { wch: 64 }];
       XLSX.utils.book_append_sheet(wb, wsNotice, '업무 공지사항');
 
+      // 시트 4: 문의 답변 예시
+      const csReplyHeader = ['분류', '세부구분', '제목', '내용'];
+      const csReplyRows = (csReplyList || []).map(item => [
+        item.category || '',
+        item.subCategory || '',
+        item.title || '',
+        item.content || ''
+      ]);
+      const wsCsReply = XLSX.utils.aoa_to_sheet([csReplyHeader, ...csReplyRows]);
+      wsCsReply['!cols'] = [{ wch: 16 }, { wch: 18 }, { wch: 36 }, { wch: 72 }];
+      XLSX.utils.book_append_sheet(wb, wsCsReply, '문의 답변 예시');
+
       const fileName = `DoubleMedia_전체정산백업_${getTodayDateString()}.xlsx`;
       XLSX.writeFile(wb, fileName);
       showToast(`통합 엑셀 백업 파일(${fileName}) 다운로드를 시작했어요.`);
@@ -9409,7 +9424,8 @@
           refundRecords,
           pendingRefundQueue,
           noticeList,
-          holidayList
+          holidayList,
+          csReplyList
         }
       };
       const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' });
@@ -9461,6 +9477,10 @@
                 holidayList = payload.holidayList;
                 HolidayStorage.saveAll(holidayList);
               }
+              if (Array.isArray(payload.csReplyList)) {
+                csReplyList = payload.csReplyList;
+                CsReplyStorage.saveAll(csReplyList);
+              }
 
               updateDepositMonthSelectOptions();
               renderDepositLedger();
@@ -9468,6 +9488,7 @@
               renderRefundTable();
               renderCalendar();
               renderNotices();
+              renderCsReplies();
               renderHolidayChips();
               els.refundDate.value = getNextRefundDateString();
               CustomDatePicker.syncLabel(els.refundDate);
